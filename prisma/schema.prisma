@@ -4,7 +4,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+
+  // Pooled connection, used by the running app. Next.js opens a connection per
+  // request, so an unpooled URL runs a Neon project out of connections quickly.
+  url       = env("DATABASE_URL")
+
+  // Direct connection, used by `prisma migrate`. Migrations take advisory locks
+  // and issue DDL, neither of which survives a transaction pooler.
+  directUrl = env("DIRECT_URL")
 }
 
 // ---------------------------------------------------------------- admin users
