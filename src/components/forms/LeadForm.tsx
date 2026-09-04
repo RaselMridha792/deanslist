@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export type LeadFormField =
@@ -52,6 +52,24 @@ export function LeadForm({
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Element ids have to be unique per INSTANCE, not per component.
+   *
+   * /join renders this form twice — the talent pool and the crew application —
+   * so a hardcoded `lf-firstName` shipped that id twice on one page. Duplicate
+   * ids are invalid HTML, and the visible symptom is worse than that: clicking
+   * the crew form's "First name" label moved focus into the talent pool input
+   * further up the page, because a label resolves to the FIRST matching id in
+   * the document.
+   *
+   * useId() is stable across the server render and hydration, which a counter or
+   * a random value would not be. The colons React wraps it in are legal in an
+   * HTML id but need escaping in a CSS selector, so they are stripped; what is
+   * left still differs between instances.
+   */
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
+  const fieldId = (name: LeadFormField) => `lf-${uid}-${name}`;
 
   const has = (f: LeadFormField) => fields.includes(f);
 
@@ -111,51 +129,51 @@ export function LeadForm({
       />
 
       <div>
-        <label className="label" htmlFor="lf-firstName">
+        <label className="label" htmlFor={fieldId("firstName")}>
           First name <span className="text-gold">*</span>
         </label>
-        <input id="lf-firstName" name="firstName" required autoComplete="given-name" className="field" />
+        <input id={fieldId("firstName")} name="firstName" required autoComplete="given-name" className="field" />
       </div>
 
       {has("lastName") && (
         <div>
-          <label className="label" htmlFor="lf-lastName">Last name</label>
-          <input id="lf-lastName" name="lastName" autoComplete="family-name" className="field" />
+          <label className="label" htmlFor={fieldId("lastName")}>Last name</label>
+          <input id={fieldId("lastName")} name="lastName" autoComplete="family-name" className="field" />
         </div>
       )}
 
       <div>
-        <label className="label" htmlFor="lf-email">
+        <label className="label" htmlFor={fieldId("email")}>
           Email <span className="text-gold">*</span>
         </label>
-        <input id="lf-email" name="email" type="email" required autoComplete="email" className="field" />
+        <input id={fieldId("email")} name="email" type="email" required autoComplete="email" className="field" />
       </div>
 
       {has("phone") && (
         <div>
-          <label className="label" htmlFor="lf-phone">Phone / WhatsApp</label>
-          <input id="lf-phone" name="phone" type="tel" autoComplete="tel" className="field" />
+          <label className="label" htmlFor={fieldId("phone")}>Phone / WhatsApp</label>
+          <input id={fieldId("phone")} name="phone" type="tel" autoComplete="tel" className="field" />
         </div>
       )}
 
       {has("country") && (
         <div>
-          <label className="label" htmlFor="lf-country">Country</label>
-          <input id="lf-country" name="country" autoComplete="country-name" className="field" />
+          <label className="label" htmlFor={fieldId("country")}>Country</label>
+          <input id={fieldId("country")} name="country" autoComplete="country-name" className="field" />
         </div>
       )}
 
       {has("company") && (
         <div>
-          <label className="label" htmlFor="lf-company">Company / brand</label>
-          <input id="lf-company" name="company" autoComplete="organization" className="field" />
+          <label className="label" htmlFor={fieldId("company")}>Company / brand</label>
+          <input id={fieldId("company")} name="company" autoComplete="organization" className="field" />
         </div>
       )}
 
       {has("role") && roleOptions && (
         <div>
-          <label className="label" htmlFor="lf-role">What are you applying for?</label>
-          <select id="lf-role" name="role" className="field">
+          <label className="label" htmlFor={fieldId("role")}>What are you applying for?</label>
+          <select id={fieldId("role")} name="role" className="field">
             <option value="">Select one</option>
             {roleOptions.map((r) => (
               <option key={r}>{r}</option>
@@ -166,10 +184,10 @@ export function LeadForm({
 
       {has("talentCategory") && talentOptions && (
         <div>
-          <label className="label" htmlFor="lf-talentCategory">
+          <label className="label" htmlFor={fieldId("talentCategory")}>
             What do you do? <span className="text-gold">*</span>
           </label>
-          <select id="lf-talentCategory" name="talentCategory" required className="field">
+          <select id={fieldId("talentCategory")} name="talentCategory" required className="field">
             <option value="">Select one</option>
             {talentOptions.map((t) => (
               <option key={t.value} value={t.value}>
@@ -182,8 +200,8 @@ export function LeadForm({
 
       {has("inquiryType") && inquiryOptions && (
         <div>
-          <label className="label" htmlFor="lf-inquiryType">What is this about?</label>
-          <select id="lf-inquiryType" name="inquiryType" className="field">
+          <label className="label" htmlFor={fieldId("inquiryType")}>What is this about?</label>
+          <select id={fieldId("inquiryType")} name="inquiryType" className="field">
             {inquiryOptions.map((o) => (
               <option key={o.value} value={o.label}>
                 {o.label}
@@ -195,9 +213,9 @@ export function LeadForm({
 
       {has("message") && (
         <div className="sm:col-span-2">
-          <label className="label" htmlFor="lf-message">{messageLabel}</label>
+          <label className="label" htmlFor={fieldId("message")}>{messageLabel}</label>
           <textarea
-            id="lf-message"
+            id={fieldId("message")}
             name="message"
             rows={5}
             placeholder={messagePlaceholder}

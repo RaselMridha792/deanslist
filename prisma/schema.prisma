@@ -28,6 +28,13 @@ model User {
   name         String
   passwordHash String
   role         Role     @default(EDITOR)
+
+  // Session revocation counter. Stamped into the JWT when it is signed and
+  // compared against this row on every session check, so bumping it logs the
+  // account out of every device at once. Bumped on a role change and on a
+  // password change; see src/lib/auth.ts and src/app/admin/team-actions.ts.
+  sessionVersion Int @default(0)
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -300,9 +307,19 @@ model Conversation {
   leadId String?
   lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
-  intent    String? // contestant | fan | sponsor | support
-  resolved  Boolean @default(false)
-  handedOff Boolean @default(false)
+  intent String? // contestant | fan | sponsor | support
+
+  // Two different facts, deliberately two different columns. `resolved` is
+  // written by the public chat route when the VISITOR finishes the capture flow
+  // — it says nothing about whether anyone here has looked at the transcript.
+  // The review state below is written only by an admin in the console. They
+  // shared one boolean once, which marked every completed chat as reviewed and
+  // left the review queue permanently empty.
+  resolved  Boolean @default(false) // the visitor completed the guided flow
+  handedOff Boolean @default(false) // the bot ran out of answers
+
+  reviewedAt DateTime? // when a human read the transcript in the console
+  reviewedBy String? // email of the admin who reviewed it
 
   ipAddress String?
   createdAt DateTime @default(now())
@@ -312,6 +329,7 @@ model Conversation {
 
   @@index([leadId])
   @@index([createdAt])
+  @@index([reviewedAt])
 }
 
 model Message {

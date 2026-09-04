@@ -17,6 +17,11 @@ const COPY: Record<string, { title: string; body: string; next: string }> = {
     body: "Your entry is with the team. Every submission is reviewed, and if you are selected we will email you with the next steps.",
     next: "While you wait, watch how the show works.",
   },
+  fan: {
+    title: "You're on the roster",
+    body: "You're in the talent pool. It's a standing roster — when a challenge opens that fits what you do, you'll hear from us.",
+    next: "See what the shows look like.",
+  },
   crew: {
     title: "Application received",
     body: "Thanks for applying to the Dean Team. Production reviews applications between seasons and will be in touch if there is a fit.",

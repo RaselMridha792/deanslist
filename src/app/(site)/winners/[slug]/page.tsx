@@ -5,6 +5,7 @@ import { WinnerPortrait } from "@/components/media/WinnerPortrait";
 import { VideoEmbed } from "@/components/media/VideoEmbed";
 import { getWinner, getShow, extractYouTubeId } from "@/lib/queries";
 import { env } from "@/lib/env";
+import { winnerPersonJsonLd, breadcrumbJsonLd, jsonLdGraph, jsonLdScriptProps } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -38,8 +39,17 @@ export default async function WinnerPage({ params }: Params) {
   const videoId = extractYouTubeId(winner.videoUrl);
   const show = winner.showSlug ? await getShow(winner.showSlug) : null;
 
+  const jsonLd = jsonLdGraph(
+    winnerPersonJsonLd(winner),
+    breadcrumbJsonLd([
+      { name: "Winners", path: "/winners" },
+      { name: winner.name, path: `/winners/${winner.slug}` },
+    ]),
+  );
+
   return (
     <>
+      {jsonLd && <script {...jsonLdScriptProps(jsonLd)} />}
       <section className="border-b border-ink-line">
         <div className="shell grid gap-12 pb-16 pt-32 md:pt-40 lg:grid-cols-[0.9fr_1fr] lg:gap-20">
           <WinnerPortrait

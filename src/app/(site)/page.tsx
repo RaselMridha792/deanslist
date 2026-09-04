@@ -6,6 +6,7 @@ import { VideoHighlights } from "@/components/home/VideoHighlights";
 import { GalleryStrip } from "@/components/home/GalleryStrip";
 import { SponsorStrip } from "@/components/home/SponsorStrip";
 import { NewsletterCTA } from "@/components/home/NewsletterCTA";
+import { organizationJsonLd, jsonLdScriptProps } from "@/lib/seo";
 import {
   getCurrentShow,
   getStats,
@@ -31,6 +32,9 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* Organization markup, so search engines resolve the brand and its real
+          social profiles rather than guessing. */}
+      <script {...jsonLdScriptProps(organizationJsonLd())} />
       <Hero show={show} />
       <StatsBand stats={stats} />
       <HowItWorks />

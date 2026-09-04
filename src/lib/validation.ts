@@ -18,8 +18,16 @@ export const leadSchema = z.object({
   showSlug: z.string().max(120).optional(),
   marketingOptIn: z.boolean().default(false),
   smsOptIn: z.boolean().default(false),
-  // honeypot: must stay empty
-  website: z.string().max(0).optional(),
+  /**
+   * Honeypot. Deliberately NOT constrained to max(0).
+   *
+   * A Zod rejection answers 400 "Invalid submission", which tells a bot exactly
+   * which field caught it. The route instead accepts a filled honeypot with a
+   * cheerful 200 and writes nothing, so the bot records a success and moves on.
+   * Constraining it here made that branch unreachable dead code — and made the
+   * tests that claimed to prove the honeypot works pass for the wrong reason.
+   */
+  website: z.string().max(200).optional(),
 });
 
 export type LeadInput = z.infer<typeof leadSchema>;
@@ -28,5 +36,7 @@ export const subscribeSchema = z.object({
   firstName: z.string().min(1).max(80).default("Friend"),
   email: z.string().email(),
   country: z.string().max(80).optional(),
-  website: z.string().max(0).optional(),
+  // Honeypot. See the note in leadSchema — the route answers 200 and writes
+  // nothing rather than telling a bot which field caught it.
+  website: z.string().max(200).optional(),
 });

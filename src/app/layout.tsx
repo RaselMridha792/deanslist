@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/site/SiteHeader";
-import { SiteFooter } from "@/components/site/SiteFooter";
 import { env } from "@/lib/env";
 
 /**
@@ -70,17 +68,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body>
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-gold focus:px-5 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink"
-        >
-          Skip to content
-        </a>
-        <SiteHeader />
-        <main id="main">{children}</main>
-        <SiteFooter />
-      </body>
+      {/* No site chrome here. The public header and footer belong to the
+          (site) route group; the dashboard has its own shell. Putting them in
+          the root layout wrapped /admin in the visitor navigation, which is how
+          the leads table ended up under a "WHAT IS IT / SHOWS / WINNERS" menu. */}
+      <body>{children}</body>
     </html>
   );
 }

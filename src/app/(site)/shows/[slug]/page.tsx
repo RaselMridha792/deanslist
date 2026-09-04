@@ -8,6 +8,7 @@ import { Countdown } from "@/components/ui/Countdown";
 import { VideoEmbed } from "@/components/media/VideoEmbed";
 import { getShow, getEpisodes } from "@/lib/queries";
 import { env } from "@/lib/env";
+import { showEventJsonLd, breadcrumbJsonLd, jsonLdGraph, jsonLdScriptProps } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -38,8 +39,20 @@ export default async function ShowPage({ params }: Params) {
   const episodes = await getEpisodes(slug);
   const takingEntries = show.status === "OPEN" || show.status === "LIVE";
 
+  // showEventJsonLd returns null when the show has no confirmed startDate —
+  // Event markup without one is invalid and Google penalises it, and inventing
+  // a date to satisfy a schema would be worse than shipping no schema.
+  const jsonLd = jsonLdGraph(
+    showEventJsonLd(show),
+    breadcrumbJsonLd([
+      { name: "Shows", path: "/shows" },
+      { name: show.title, path: `/shows/${show.slug}` },
+    ]),
+  );
+
   return (
     <>
+      {jsonLd && <script {...jsonLdScriptProps(jsonLd)} />}
       <PageHero
         eyebrow={show.cadence ?? undefined}
         title={show.title}

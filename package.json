@@ -9,7 +9,10 @@
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "snapshot": "node scripts/snapshot.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",
