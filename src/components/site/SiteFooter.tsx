@@ -96,7 +96,10 @@ export function SiteFooter() {
             &copy; {new Date().getFullYear()} {SITE.legalName}. All rights reserved.
           </p>
           <p className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <span>{SITE.location}</span>
+            <span>
+              {SITE.address.line1}, {SITE.address.city}, {SITE.address.state}{" "}
+              {SITE.address.postalCode}
+            </span>
             <a
               href={`mailto:${SITE.email}`}
               className="transition-colors duration-base ease-crisp hover:text-gold"

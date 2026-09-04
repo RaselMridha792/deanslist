@@ -40,7 +40,11 @@ export default function ContactPage() {
             >
               {SITE.email}
             </a>
-            <p className="mt-3 text-sm text-chalk-faint">{SITE.location}</p>
+            <address className="mt-3 not-italic text-sm leading-relaxed text-chalk-faint">
+              {SITE.address.line1}
+              <br />
+              {SITE.address.city}, {SITE.address.state} {SITE.address.postalCode}
+            </address>
 
             <div className="mt-10 flex gap-3">
               <a

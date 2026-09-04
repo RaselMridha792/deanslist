@@ -119,6 +119,7 @@ export default function JoinPage() {
                 "email",
                 "phone",
                 "country",
+                "address",
                 "talentCategory",
                 "message",
               ]}

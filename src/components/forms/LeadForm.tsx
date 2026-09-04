@@ -9,6 +9,7 @@ export type LeadFormField =
   | "email"
   | "phone"
   | "country"
+  | "address"
   | "company"
   | "role"
   | "inquiryType"
@@ -69,7 +70,9 @@ export function LeadForm({
    * left still differs between instances.
    */
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
-  const fieldId = (name: LeadFormField) => `lf-${uid}-${name}`;
+  // Takes any name, not just LeadFormField: the address block renders five
+  // sub-inputs that are one logical field but five ids.
+  const fieldId = (name: string) => `lf-${uid}-${name}`;
 
   const has = (f: LeadFormField) => fields.includes(f);
 
@@ -102,6 +105,11 @@ export function LeadForm({
           email: String(fd.get("email") ?? ""),
           phone: String(fd.get("phone") ?? ""),
           country: String(fd.get("country") ?? ""),
+          addressLine1: String(fd.get("addressLine1") ?? ""),
+          addressLine2: String(fd.get("addressLine2") ?? ""),
+          city: String(fd.get("city") ?? ""),
+          state: String(fd.get("state") ?? ""),
+          postalCode: String(fd.get("postalCode") ?? ""),
           talentCategory: String(fd.get("talentCategory") ?? ""),
           message,
           marketingOptIn: fd.get("marketingOptIn") === "on",
@@ -209,6 +217,47 @@ export function LeadForm({
             ))}
           </select>
         </div>
+      )}
+
+      {has("address") && (
+        <>
+          <div className="sm:col-span-2">
+            <label className="label" htmlFor={fieldId("addressLine1")}>
+              Address
+            </label>
+            <input
+              id={fieldId("addressLine1")}
+              name="addressLine1"
+              autoComplete="address-line1"
+              placeholder="Street address"
+              className="field"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="sr-only" htmlFor={fieldId("addressLine2")}>
+              Address line 2
+            </label>
+            <input
+              id={fieldId("addressLine2")}
+              name="addressLine2"
+              autoComplete="address-line2"
+              placeholder="Apartment, suite, etc. (optional)"
+              className="field"
+            />
+          </div>
+          <div>
+            <label className="label" htmlFor={fieldId("city")}>City</label>
+            <input id={fieldId("city")} name="city" autoComplete="address-level2" className="field" />
+          </div>
+          <div>
+            <label className="label" htmlFor={fieldId("state")}>State / region</label>
+            <input id={fieldId("state")} name="state" autoComplete="address-level1" className="field" />
+          </div>
+          <div>
+            <label className="label" htmlFor={fieldId("postalCode")}>Postcode</label>
+            <input id={fieldId("postalCode")} name="postalCode" autoComplete="postal-code" className="field" />
+          </div>
+        </>
       )}
 
       {has("message") && (

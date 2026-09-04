@@ -87,8 +87,12 @@ export default async function LeadDetailPage({ params }: Props) {
             <dl className="grid gap-px overflow-hidden rounded-card border border-ink-line bg-ink-line sm:grid-cols-2">
               <Field label="Email" value={lead.email} href={`mailto:${lead.email}`} />
               <Field label="Phone" value={lead.phone} href={lead.phone ? `tel:${lead.phone}` : undefined} />
-              <Field label="Country" value={lead.country} />
+              <Field label="Address" value={lead.addressLine1} />
+              <Field label="Address line 2" value={lead.addressLine2} />
               <Field label="City" value={lead.city} />
+              <Field label="State / region" value={lead.state} />
+              <Field label="Postcode" value={lead.postalCode} />
+              <Field label="Country" value={lead.country} />
               <Field label="Stage name" value={lead.stageName} />
               <Field label="Talent category" value={lead.talentCategory} />
               <Field label="Age range" value={lead.ageRange} />

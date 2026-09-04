@@ -22,8 +22,30 @@ export const SITE = {
   tagline: "Any talent. Big cash. Live from home.",
   description:
     "A global online talent competition. Perform from home, get voted on live, and win a cash prize and a place on the Principal's Roll.",
-  email: "deanslistltd@gmail.com",
-  location: "Charleston, WV",
+  /**
+   * Supplied by the client — see session.md. Supersedes the gmail address the
+   * old site publishes.
+   *
+   * It is not only a tidiness question: campaign mail has to be sent from the
+   * client's own domain for DMARC to align, and a gmail.com sender for
+   * deanslist.live fails that check and lands in spam.
+   */
+  email: "producer@deanslist.live",
+  location: "South Charleston, WV",
+
+  /**
+   * Full postal address. Load-bearing rather than decorative: CAN-SPAM requires
+   * a physical postal address in every marketing email, so the campaign
+   * templates need somewhere to read one from.
+   */
+  address: {
+    line1: "5619 1/2 SW MacCorkle Avenue",
+    city: "South Charleston",
+    state: "WV",
+    postalCode: "25309",
+    country: "USA",
+  },
+
   socials: {
     youtube: "https://www.youtube.com/@DeansList2025",
     facebook: "https://www.facebook.com/Deanslistltd2025",
