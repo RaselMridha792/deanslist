@@ -2,35 +2,174 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-display: "Bebas Neue", "Impact", sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
+/*
+  --font-display and --font-body are injected by next/font in src/app/layout.tsx.
+  They used to be hardcoded family names here, which meant the "design system"
+  silently rendered in a fallback face if the font ever failed to load.
+*/
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Keeps a fixed header from covering the target of an in-page anchor. */
+    scroll-padding-top: 6rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    /*
+      Honour the OS setting rather than merely shortening animations. A visitor
+      who asks for reduced motion gets none, including the scroll reveals.
+    */
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  body {
+    @apply bg-ink font-body text-chalk-body antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Display type is always large and always uppercase, so it gets a touch of
+     tracking to stop the condensed face from setting too tight. */
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-chalk;
+  }
+
+  ::selection {
+    background: theme("colors.gold.DEFAULT");
+    color: theme("colors.ink.DEFAULT");
+  }
+
+  /* One focus treatment everywhere. Gold, offset, never removed. */
+  :focus-visible {
+    outline: 2px solid theme("colors.gold.soft");
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  /* Ensure the fallback stack does not shift layout when the webfont lands. */
+  img,
+  video {
+    @apply max-w-full;
+  }
 }
 
-html {
-  scroll-behavior: smooth;
-}
+@layer components {
+  .shell {
+    @apply mx-auto w-full max-w-shell px-5 md:px-8;
+  }
 
-body {
-  @apply bg-ink text-white font-body antialiased;
-}
+  .section {
+    @apply py-section;
+  }
 
-.shell {
-  @apply mx-auto w-full max-w-shell px-5 md:px-8;
-}
+  /* Small uppercase label that sits above a heading. */
+  .eyebrow {
+    @apply font-body text-eyebrow font-semibold uppercase text-gold;
+  }
 
-.btn-primary {
-  @apply inline-flex items-center justify-center rounded-full bg-gold px-7 py-3 text-sm font-semibold uppercase tracking-widest text-ink transition hover:bg-gold-soft;
-}
+  /*
+    Primary action. The gradient is what makes the gold read as metal — a flat
+    fill of #D4AF37 looks like mustard at this size. The ::after band is a
+    specular sweep on hover.
+  */
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center overflow-hidden rounded-full
+           bg-gold-metal px-7 py-3 text-sm font-semibold uppercase tracking-widest
+           text-ink transition-transform duration-base ease-crisp
+           hover:-translate-y-0.5 active:translate-y-0;
+  }
 
-.btn-ghost {
-  @apply inline-flex items-center justify-center rounded-full border border-ink-line px-7 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:border-gold hover:text-gold;
-}
+  .btn-primary::after {
+    content: "";
+    @apply pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-slow ease-crisp;
+    background: linear-gradient(
+      100deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 70%
+    );
+  }
 
-.field {
-  @apply w-full rounded-lg border border-ink-line bg-ink-soft px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-gold;
-}
+  .btn-primary:hover::after {
+    @apply opacity-100;
+  }
 
-.label {
-  @apply mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/60;
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-full border border-ink-edge px-7 py-3
+           text-sm font-semibold uppercase tracking-widest text-chalk
+           transition-colors duration-base ease-crisp hover:border-gold hover:text-gold;
+  }
+
+  .btn-quiet {
+    @apply inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest
+           text-chalk-muted transition-colors duration-base ease-crisp hover:text-gold;
+  }
+
+  .card {
+    @apply rounded-card border border-ink-line bg-ink-soft transition-colors duration-base ease-crisp;
+  }
+
+  .card-interactive {
+    @apply card hover:border-ink-edge hover:bg-ink-high;
+  }
+
+  /* 1px gold rule that fades at both ends. Used to separate major sections
+     without the heaviness of a full-width border. */
+  .rule-gold {
+    @apply h-px w-full bg-gold-hairline opacity-40;
+  }
+
+  .field {
+    @apply w-full rounded-lg border border-ink-line bg-ink-raised px-4 py-3 text-sm text-chalk
+           placeholder:text-chalk-faint outline-none transition-colors duration-base ease-crisp
+           focus:border-gold;
+  }
+
+  .field-error {
+    @apply border-brandred-live focus:border-brandred-live;
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wider text-chalk-muted;
+  }
+
+  .help {
+    @apply mt-1.5 text-xs text-chalk-faint;
+  }
+
+  .error-text {
+    @apply mt-1.5 text-xs font-medium text-brandred-live;
+  }
+
+  /* Live badge. The only place a pulsing animation is allowed. */
+  .badge-live {
+    @apply inline-flex items-center gap-2 rounded-full border border-brandred-live/40
+           bg-brandred-live/10 px-3 py-1 text-eyebrow font-semibold uppercase text-brandred-live;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full border border-ink-edge bg-ink-high px-3 py-1
+           text-eyebrow font-semibold uppercase text-chalk-muted;
+  }
+
+  /* Gold text needs a gradient too, for the same reason the button does. */
+  .text-metal {
+    @apply bg-gold-metal bg-clip-text text-transparent;
+  }
 }
