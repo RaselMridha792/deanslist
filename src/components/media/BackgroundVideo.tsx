@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { media } from "@/lib/media";
 
 type Props = {
   /** Path without an extension, e.g. "/media/hero/mic". */
@@ -70,10 +71,12 @@ export function BackgroundVideo({ src, poster, className }: Props) {
     void el.play().catch(() => {});
   }, [enabled]);
 
+  const base = media(src);
+
   return (
     <video
       ref={ref}
-      poster={poster}
+      poster={media(poster)}
       muted
       loop
       playsInline
@@ -84,8 +87,8 @@ export function BackgroundVideo({ src, poster, className }: Props) {
     >
       {enabled && (
         <>
-          <source src={`${src}.webm`} type="video/webm" />
-          <source src={`${src}.mp4`} type="video/mp4" />
+          <source src={`${base}.webm`} type="video/webm" />
+          <source src={`${base}.mp4`} type="video/mp4" />
         </>
       )}
     </video>

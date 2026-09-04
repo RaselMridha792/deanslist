@@ -121,7 +121,10 @@ export const WINNERS: WinnerSeed[] = [
     prizeAwarded: 1000,
     story:
       "Talent, passion and voice set this performance apart. It captured the audience and the judges alike, and proved what happens when preparation meets opportunity — the Dean's List stage welcomes performers at every level of experience.",
-    photoUrl: "/media/gallery/cts-01",
+    // The old winner page carries no photograph of the winner at all, only the
+    // site logo. Substituting a gallery shot would publish an unidentified
+    // person's likeness under this name. The UI renders an initial instead.
+    photoUrl: null,
     videoUrl: null,
     announcedAt: null,
     // The old homepage names PJ Galloway; its own winners page names Ekwelem
@@ -191,13 +194,36 @@ export const STATS: StatSeed[] = [
 
 /* ---------------------------------------------------------------- gallery */
 
+/**
+ * The old site linked 5 of these 20 event photographs. The rest were on the
+ * server and had never been published — see docs/SITE-AUDIT.md.
+ *
+ * Alt text is deliberately generic: nobody in these photographs is identified
+ * anywhere on the old site, so naming them would be a guess.
+ */
 export const GALLERY = [
-  { url: "/media/gallery/cts-01", alt: "Crown the Sound performance" },
-  { url: "/media/gallery/cts-02", alt: "Contestant on stage" },
-  { url: "/media/gallery/cts-03", alt: "Live audience moment" },
-  { url: "/media/gallery/cts-04", alt: "Judges during the show" },
-  { url: "/media/gallery/cts-05", alt: "Winner announcement" },
+  { url: "/media/gallery/cts-01", alt: "A performance on the Crown the Sound stage" },
+  { url: "/media/gallery/cts-02", alt: "Contestant mid-performance" },
+  { url: "/media/gallery/cts-03", alt: "The crowd during a live round" },
+  { url: "/media/gallery/cts-04", alt: "Performing to the room" },
+  { url: "/media/gallery/cts-05", alt: "A moment from the season" },
+  { url: "/media/gallery/cts-06", alt: "Backstage before a set" },
+  { url: "/media/gallery/cts-07", alt: "On stage under the lights" },
+  { url: "/media/gallery/cts-08", alt: "The audience watching a performance" },
+  { url: "/media/gallery/cts-09", alt: "A contestant taking the stage" },
+  { url: "/media/gallery/cts-10", alt: "Mid-set on the Dean's List stage" },
+  { url: "/media/gallery/cts-11", alt: "The room during a live show" },
+  { url: "/media/gallery/cts-12", alt: "A performance in full flow" },
+  { url: "/media/gallery/cts-13", alt: "Judges watching a round" },
+  { url: "/media/gallery/cts-14", alt: "The stage between performances" },
+  { url: "/media/gallery/cts-15", alt: "A contestant and the crowd" },
+  { url: "/media/gallery/cts-16", alt: "Lights on the Crown the Sound stage" },
+  { url: "/media/gallery/cts-17", alt: "A performance moment" },
+  { url: "/media/gallery/cts-18", alt: "Applause after a set" },
+  { url: "/media/gallery/cts-19", alt: "The room at full capacity" },
+  { url: "/media/gallery/cts-20", alt: "Closing out a round" },
   { url: "/media/gallery/social-01", alt: "Dean's List promotional still" },
+  { url: "/media/gallery/social-02", alt: "Dean's List promotional still" },
 ] as const;
 
 /* ------------------------------------------------------- talent categories */

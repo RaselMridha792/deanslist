@@ -25,12 +25,28 @@ export const IMAGES = [
   { path: "/images/2025/08/26/cs6.fw.png", out: "shows/crown-the-sound-6", role: "photo" },
   { path: "/images/2025/08/26/cs7.fw.png", out: "shows/crown-the-sound-7", role: "photo" },
 
-  // Event photography
-  { path: "/images/cts-hbd/img_4142.jpg", out: "gallery/cts-01", role: "photo" },
-  { path: "/images/cts-hbd/img_4173.jpg", out: "gallery/cts-02", role: "photo" },
-  { path: "/images/cts-hbd/img_4178.jpg", out: "gallery/cts-03", role: "photo" },
-  { path: "/images/cts-hbd/img_4187.jpg", out: "gallery/cts-04", role: "photo" },
-  { path: "/images/cts-hbd/img_4198.jpg", out: "gallery/cts-05", role: "photo" },
+  // Event photography. The old site links only 5 of these; the other 15 were
+  // found by probing the directory (listing is 403) and had never been used.
+  { path: "/images/cts-hbd/img_4141.jpg", out: "gallery/cts-01", role: "photo" },
+  { path: "/images/cts-hbd/img_4142.jpg", out: "gallery/cts-02", role: "photo" },
+  { path: "/images/cts-hbd/img_4169.jpg", out: "gallery/cts-03", role: "photo" },
+  { path: "/images/cts-hbd/img_4170.jpg", out: "gallery/cts-04", role: "photo" },
+  { path: "/images/cts-hbd/img_4171.jpg", out: "gallery/cts-05", role: "photo" },
+  { path: "/images/cts-hbd/img_4172.jpg", out: "gallery/cts-06", role: "photo" },
+  { path: "/images/cts-hbd/img_4173.jpg", out: "gallery/cts-07", role: "photo" },
+  { path: "/images/cts-hbd/img_4174.jpg", out: "gallery/cts-08", role: "photo" },
+  { path: "/images/cts-hbd/img_4175.jpg", out: "gallery/cts-09", role: "photo" },
+  { path: "/images/cts-hbd/img_4176.jpg", out: "gallery/cts-10", role: "photo" },
+  { path: "/images/cts-hbd/img_4178.jpg", out: "gallery/cts-11", role: "photo" },
+  { path: "/images/cts-hbd/img_4179.jpg", out: "gallery/cts-12", role: "photo" },
+  { path: "/images/cts-hbd/img_4187.jpg", out: "gallery/cts-13", role: "photo" },
+  { path: "/images/cts-hbd/img_4188.jpg", out: "gallery/cts-14", role: "photo" },
+  { path: "/images/cts-hbd/img_4189.jpg", out: "gallery/cts-15", role: "photo" },
+  { path: "/images/cts-hbd/img_4190.jpg", out: "gallery/cts-16", role: "photo" },
+  { path: "/images/cts-hbd/img_4191.jpg", out: "gallery/cts-17", role: "photo" },
+  { path: "/images/cts-hbd/img_4196.jpg", out: "gallery/cts-18", role: "photo" },
+  { path: "/images/cts-hbd/img_4197.jpg", out: "gallery/cts-19", role: "photo" },
+  { path: "/images/cts-hbd/img_4198.jpg", out: "gallery/cts-20", role: "photo" },
 
   // Social-sourced stills
   {
@@ -48,6 +64,11 @@ export const IMAGES = [
     out: "shows/drop-that-mike-key-art",
     role: "photo",
   },
+
+  // Missed by the first pass, which read only `src`. These appear in other
+  // attributes and inline background styles.
+  { path: "/images/2026/07/25/mikedrop.jpg", out: "shows/drop-that-mike-alt", role: "photo" },
+  { path: "/images/2017/06/14/1.jpg", out: "gallery/archive-2017", role: "photo" },
 ];
 
 export const VIDEOS = [

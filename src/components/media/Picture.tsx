@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { media } from "@/lib/media";
 
 type Props = {
   /** Path without an extension, e.g. "/media/gallery/cts-01". */
@@ -34,12 +35,13 @@ export function Picture({
   sizes,
 }: Props) {
   const isBrand = src.includes("/brand/");
-  const fallback = isBrand ? `${src}.png` : `${src}.jpg`;
+  const base = media(src);
+  const fallback = isBrand ? `${base}.png` : `${base}.jpg`;
 
   return (
     <picture className={className}>
-      <source srcSet={`${src}.avif`} type="image/avif" sizes={sizes} />
-      <source srcSet={`${src}.webp`} type="image/webp" sizes={sizes} />
+      <source srcSet={`${base}.avif`} type="image/avif" sizes={sizes} />
+      <source srcSet={`${base}.webp`} type="image/webp" sizes={sizes} />
       <img
         src={fallback}
         alt={alt}

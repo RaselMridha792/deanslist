@@ -35,6 +35,11 @@ const schema = z.object({
 
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
 
+  // Where images and video are served from. Empty serves them from /public on
+  // the app server; set to an R2 or Cloudinary base to move them off it without
+  // touching any component. See src/lib/media.ts.
+  NEXT_PUBLIC_MEDIA_BASE_URL: z.string().url().optional().or(z.literal("")),
+
   // Email. Absent in development: src/lib/mail.ts no-ops with a warning.
   RESEND_API_KEY: z.string().optional(),
   RESEND_WEBHOOK_SECRET: z.string().optional(),
