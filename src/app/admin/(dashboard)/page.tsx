@@ -91,7 +91,7 @@ export default async function AdminOverview() {
             <p className="text-xs uppercase tracking-widest text-chalk-faint">{c.label}</p>
             <p
               className={`mt-2 font-display text-4xl ${
-                c.accent ? "text-brandred-live" : "text-metal"
+                c.accent ? "text-live" : "text-metal"
               }`}
             >
               {c.value.toLocaleString("en-US")}
@@ -131,7 +131,7 @@ export default async function AdminOverview() {
                   </span>
                   <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink-high">
                     <span
-                      className="block h-full bg-gold-metal"
+                      className="block h-full bg-brand-gloss"
                       style={{ width: `${pct}%` }}
                     />
                   </span>
@@ -148,9 +148,9 @@ export default async function AdminOverview() {
       {/* A standing reminder, not decoration: an unverified figure on the public
           site is an advertising claim nobody has checked. */}
       {unverifiedStats > 0 && (
-        <div className="mt-4 rounded-card border border-gold/30 bg-gold/5 p-5">
+        <div className="mt-4 rounded-card border border-brand/30 bg-brand/5 p-5">
           <p className="text-sm text-chalk-body">
-            <span className="font-semibold text-gold">
+            <span className="font-semibold text-brand">
               {unverifiedStats} unconfirmed statistic{unverifiedStats > 1 ? "s" : ""}
             </span>{" "}
             {unverifiedStats > 1 ? "are" : "is"} hidden from the public site until someone
@@ -208,7 +208,7 @@ export default async function AdminOverview() {
                 <li key={c.country} className="flex justify-between text-sm">
                   <Link
                     href={`/admin/leads?country=${encodeURIComponent(c.country ?? "")}`}
-                    className="text-chalk-muted transition-colors hover:text-gold"
+                    className="text-chalk-muted transition-colors hover:text-brand"
                   >
                     {c.country}
                   </Link>

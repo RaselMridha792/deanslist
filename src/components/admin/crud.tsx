@@ -81,7 +81,7 @@ export function Field({
   return (
     <div className={span ? "sm:col-span-2" : undefined}>
       <label className="label" htmlFor={id}>
-        {label} {required && <span className="text-gold">*</span>}
+        {label} {required && <span className="text-brand">*</span>}
       </label>
       <input
         id={id}
@@ -118,7 +118,7 @@ export function TextArea({
   return (
     <div className="sm:col-span-2">
       <label className="label" htmlFor={id}>
-        {label} {required && <span className="text-gold">*</span>}
+        {label} {required && <span className="text-brand">*</span>}
       </label>
       <textarea
         id={id}
@@ -155,7 +155,7 @@ export function Select({
   return (
     <div>
       <label className="label" htmlFor={id}>
-        {label} {required && <span className="text-gold">*</span>}
+        {label} {required && <span className="text-brand">*</span>}
       </label>
       <select
         id={id}
@@ -193,7 +193,7 @@ export function Checkbox({
         type="checkbox"
         name={name}
         defaultChecked={defaultChecked}
-        className="mt-0.5 h-4 w-4 accent-[#D4AF37]"
+        className="mt-0.5 h-4 w-4 accent-brand"
       />
       <span>
         {label}
@@ -306,7 +306,7 @@ export function DeleteButton({
             else router.refresh();
           });
         }}
-        className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brandred-live disabled:opacity-50"
+        className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-live disabled:opacity-50"
       >
         {pending ? "Deleting…" : label}
       </button>
@@ -364,7 +364,7 @@ export function Cell({
 
 export function RowLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="font-medium text-chalk transition-colors hover:text-gold">
+    <Link href={href} className="font-medium text-chalk transition-colors hover:text-brand">
       {children}
     </Link>
   );
@@ -376,7 +376,7 @@ export function StatusPill({ value, tone }: { value: string; tone?: "good" | "wa
       className={cn(
         "inline-block rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
         tone === "good" && "border-emerald-400/40 bg-emerald-400/10 text-emerald-300",
-        tone === "warn" && "border-gold/40 bg-gold/10 text-gold",
+        tone === "warn" && "border-brand/40 bg-brand/10 text-brand",
         (!tone || tone === "mute") && "border-ink-edge bg-ink-high text-chalk-muted",
       )}
     >

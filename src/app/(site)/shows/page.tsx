@@ -101,7 +101,7 @@ function ShowCard({
         <h2 className={featured ? "text-display-sm uppercase" : "text-2xl uppercase tracking-wide"}>
           {show.title}
         </h2>
-        {show.tagline && <p className="mt-2 text-sm text-gold">{show.tagline}</p>}
+        {show.tagline && <p className="mt-2 text-sm text-brand">{show.tagline}</p>}
         {show.description && (
           <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-chalk-muted">
             {show.description}
@@ -111,7 +111,7 @@ function ShowCard({
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs uppercase tracking-widest text-chalk-faint">
           {show.cadence && <span>{show.cadence}</span>}
           {show.prizeAmount !== null && (
-            <span className="text-gold">${show.prizeAmount.toLocaleString("en-US")} prize</span>
+            <span className="text-brand">${show.prizeAmount.toLocaleString("en-US")} prize</span>
           )}
         </div>
       </div>

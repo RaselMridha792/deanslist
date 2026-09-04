@@ -73,7 +73,7 @@ export function EntryForm({ showSlug, showTitle }: { showSlug?: string; showTitl
 
       {showTitle && (
         <p className="sm:col-span-2 -mb-1 text-sm text-chalk-faint">
-          Entering <span className="text-gold">{showTitle}</span>
+          Entering <span className="text-brand">{showTitle}</span>
         </p>
       )}
 
@@ -102,7 +102,7 @@ export function EntryForm({ showSlug, showTitle }: { showSlug?: string; showTitl
         <Field label="Stage name" name="stageName" />
         <div>
           <label className="label" htmlFor="ef-talentCategory">
-            Talent category <span className="text-gold">*</span>
+            Talent category <span className="text-brand">*</span>
           </label>
           <select id="ef-talentCategory" name="talentCategory" required className="field">
             <option value="">Select one</option>
@@ -116,7 +116,7 @@ export function EntryForm({ showSlug, showTitle }: { showSlug?: string; showTitl
 
         <div className="sm:col-span-2">
           <label className="label" htmlFor="ef-performanceUrl">
-            Performance video link <span className="text-gold">*</span>
+            Performance video link <span className="text-brand">*</span>
           </label>
           <input
             id="ef-performanceUrl"
@@ -140,7 +140,7 @@ export function EntryForm({ showSlug, showTitle }: { showSlug?: string; showTitl
       </Fieldset>
 
       <label className="flex items-start gap-3 text-sm text-chalk-muted sm:col-span-2">
-        <input type="checkbox" name="marketingOptIn" className="mt-1 h-4 w-4 accent-[#D4AF37]" />
+        <input type="checkbox" name="marketingOptIn" className="mt-1 h-4 w-4 accent-brand" />
         <span>
           Email me show announcements, reminders and results. You can unsubscribe in one
           click, any time.
@@ -197,7 +197,7 @@ function Field({
   return (
     <div>
       <label className="label" htmlFor={id}>
-        {label} {required && <span className="text-gold">*</span>}
+        {label} {required && <span className="text-brand">*</span>}
       </label>
       <input
         id={id}

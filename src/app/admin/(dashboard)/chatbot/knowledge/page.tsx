@@ -120,9 +120,9 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
         }
       />
 
-      {/* Gold, not red. Red is reserved for live urgency; this is a standing rule
+      {/* Brand, not red. Red is reserved for live urgency; this is a standing rule
           that has to be read once and remembered, not an alarm. */}
-      <div className="mt-8 rounded-card border border-gold/40 bg-gold/5 p-6">
+      <div className="mt-8 rounded-card border border-brand/40 bg-brand/5 p-6">
         <p className="eyebrow">Read this before you edit</p>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-chalk-body">
           Whatever you write here is what a visitor is told, word for word. The assistant answers
@@ -201,7 +201,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
           {filtered && (
             <Link
               href="/admin/chatbot/knowledge"
-              className="pb-3 text-xs uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+              className="pb-3 text-xs uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
             >
               Clear
             </Link>
@@ -216,7 +216,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
       </div>
 
       {creating && (
-        <div className="mt-6 rounded-card border border-gold/30 bg-ink-soft p-6">
+        <div className="mt-6 rounded-card border border-brand/30 bg-ink-soft p-6">
           <p className="label">New answer</p>
           <CrudForm action={saveKnowledgeItem} submitLabel="Publish answer" redirectTo={baseHref}>
             <KnowledgeFields categoryHelp={categoryHelp} />
@@ -257,7 +257,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
               <article
                 key={item.id}
                 className={`rounded-card border bg-ink-soft p-6 ${
-                  editing ? "border-gold/30" : "border-ink-line"
+                  editing ? "border-brand/30" : "border-ink-line"
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -277,7 +277,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
                         {item.active ? "Live" : "Offline"}
                       </span>
                       {itemFlags.map((f) => (
-                        <span key={f} className="badge border-gold/40 bg-gold/10 text-gold">
+                        <span key={f} className="badge border-brand/40 bg-brand/10 text-brand">
                           States {f}
                         </span>
                       ))}

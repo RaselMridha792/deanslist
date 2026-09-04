@@ -211,13 +211,13 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                     href={g.path}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                    className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                   >
                     View {g.path}
                   </Link>
                   <Link
                     href={`${LIST}?new=1&page=${g.value}`}
-                    className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                    className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                   >
                     Add here
                   </Link>
@@ -231,7 +231,7 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                       <Cell>
                         <Link
                           href={`${LIST}?edit=${s.id}`}
-                          className="block font-medium text-chalk transition-colors hover:text-gold"
+                          className="block font-medium text-chalk transition-colors hover:text-brand"
                         >
                           {s.heading || <span className="text-chalk-muted">No heading</span>}
                         </Link>
@@ -261,7 +261,7 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                         <div className="flex items-center justify-end gap-4">
                           <Link
                             href={`${LIST}?edit=${s.id}`}
-                            className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                            className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                           >
                             Edit
                           </Link>
@@ -299,7 +299,7 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                       <Cell>
                         <Link
                           href={`${LIST}?edit=${s.id}`}
-                          className="font-medium text-chalk transition-colors hover:text-gold"
+                          className="font-medium text-chalk transition-colors hover:text-brand"
                         >
                           {s.heading || s.key}
                         </Link>
@@ -311,7 +311,7 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                         <div className="flex items-center justify-end gap-4">
                           <Link
                             href={`${LIST}?edit=${s.id}`}
-                            className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                            className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                           >
                             Edit
                           </Link>

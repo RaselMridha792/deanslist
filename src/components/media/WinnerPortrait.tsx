@@ -37,7 +37,7 @@ export function WinnerPortrait({
     return (
       <div className={cn("relative overflow-hidden rounded-card border border-ink-line", className)}>
         <Picture src={photoUrl} alt={name} priority={priority} sizes={sizes} />
-        <span className="absolute inset-x-0 bottom-0 h-px bg-gold-hairline" />
+        <span className="absolute inset-x-0 bottom-0 h-px bg-brand-hairline" />
       </div>
     );
   }
@@ -59,7 +59,7 @@ export function WinnerPortrait({
       <div className="flex h-full flex-col items-center justify-center gap-5 p-10 text-center">
         <span
           aria-hidden
-          className="grid h-28 w-28 place-items-center rounded-full border border-gold/30"
+          className="grid h-28 w-28 place-items-center rounded-full border border-brand/30"
         >
           <span className="font-display text-6xl leading-none text-metal">
             {name.trim().charAt(0).toUpperCase()}
@@ -68,7 +68,7 @@ export function WinnerPortrait({
         <p className="text-eyebrow uppercase text-chalk-faint">Portrait to follow</p>
       </div>
 
-      <span className="absolute inset-x-0 bottom-0 h-px bg-gold-hairline" />
+      <span className="absolute inset-x-0 bottom-0 h-px bg-brand-hairline" />
     </div>
   );
 }

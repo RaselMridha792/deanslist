@@ -60,6 +60,7 @@ export type Show = {
   heroPoster: string | null;
   keyArt: string | null;
   mechanic?: { name: string; body: string }[];
+  pitch?: string[];
   pending?: string[];
 };
 

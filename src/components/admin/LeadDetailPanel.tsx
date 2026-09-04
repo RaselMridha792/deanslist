@@ -72,7 +72,7 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
                 disabled={pending}
                 onClick={() => run(() => removeTag({ leadId, tagId: t.id }))}
                 aria-label={`Remove tag ${t.name}`}
-                className="text-chalk-faint transition-colors hover:text-brandred-live"
+                className="text-chalk-faint transition-colors hover:text-live"
               >
                 ×
               </button>
@@ -86,7 +86,7 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
               const name = window.prompt("Tag name");
               if (name?.trim()) run(() => addTag({ leadId, name: name.trim() }));
             }}
-            className="rounded-full border border-dashed border-ink-edge px-3 py-1 text-xs text-chalk-faint transition-colors hover:border-gold hover:text-gold"
+            className="rounded-full border border-dashed border-ink-edge px-3 py-1 text-xs text-chalk-faint transition-colors hover:border-brand hover:text-brand"
           >
             + Add tag
           </button>

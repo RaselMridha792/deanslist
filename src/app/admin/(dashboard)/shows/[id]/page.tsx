@@ -193,7 +193,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
           urgent: true,
           body: (
             <>
-              <span className="font-semibold text-brandred-live">
+              <span className="font-semibold text-live">
                 Another show is LIVE at the same time.
               </span>{" "}
               The homepage hero features exactly one, and which of the two it picks is not
@@ -207,7 +207,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
             urgent: false,
             body: (
               <>
-                <span className="font-semibold text-gold">This is the homepage show.</span> The
+                <span className="font-semibold text-brand">This is the homepage show.</span> The
                 hero, the countdown and the &ldquo;Enter the contest&rdquo; button all point
                 here.
               </>
@@ -218,7 +218,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
               urgent: false,
               body: (
                 <>
-                  <span className="font-semibold text-gold">
+                  <span className="font-semibold text-brand">
                     A live show outranks this one.
                   </span>{" "}
                   This show is open for entries, but the homepage hero features the LIVE show
@@ -231,7 +231,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
                 urgent: true,
                 body: (
                   <>
-                    <span className="font-semibold text-brandred-live">
+                    <span className="font-semibold text-live">
                       More than one show is OPEN and none is LIVE.
                     </span>{" "}
                     The homepage features one of them and it may not be this one. Mark the
@@ -303,8 +303,8 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
         <div
           className={`mt-8 rounded-card border p-5 ${
             heroNote.urgent
-              ? "border-brandred-live/40 bg-brandred-live/5"
-              : "border-gold/30 bg-gold/5"
+              ? "border-live/40 bg-live/5"
+              : "border-brand/30 bg-brand/5"
           }`}
         >
           <p className="text-sm text-chalk-body">{heroNote.body}</p>
@@ -326,7 +326,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
             tz === activeTz ? (
               <span
                 key={tz}
-                className="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs text-gold"
+                className="rounded-full border border-brand/40 bg-brand/10 px-3 py-1 text-xs text-brand"
               >
                 {shortZone(tz)}
               </span>
@@ -334,7 +334,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
               <Link
                 key={tz}
                 href={href({ tz })}
-                className="rounded-full border border-ink-edge px-3 py-1 text-xs text-chalk-muted transition-colors hover:border-gold hover:text-gold"
+                className="rounded-full border border-ink-edge px-3 py-1 text-xs text-chalk-muted transition-colors hover:border-brand hover:text-brand"
                 title={tz}
               >
                 {shortZone(tz)}
@@ -484,7 +484,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
                     <Cell>
                       <Link
                         href={href({ edit: ep.id, hash: "#episode-form" })}
-                        className="font-medium text-chalk transition-colors hover:text-gold"
+                        className="font-medium text-chalk transition-colors hover:text-brand"
                       >
                         {ep.title}
                       </Link>
@@ -507,19 +507,19 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
                           href={`https://www.youtube.com/watch?v=${videoId}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gold hover:underline"
+                          className="text-brand hover:underline"
                         >
                           {videoId}
                         </a>
                       ) : (
-                        <span className="text-brandred-live">No video id</span>
+                        <span className="text-live">No video id</span>
                       )}
                     </Cell>
                     <Cell>
                       <div className="flex items-center justify-end gap-4">
                         <Link
                           href={href({ edit: ep.id, hash: "#episode-form" })}
-                          className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                          className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                         >
                           Edit
                         </Link>
@@ -632,7 +632,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
 
       {/* ----------------------------------------------------------- danger */}
 
-      <section className="mt-16 max-w-3xl rounded-card border border-brandred-live/30 bg-brandred-live/5 p-6">
+      <section className="mt-16 max-w-3xl rounded-card border border-live/30 bg-live/5 p-6">
         <h2 className="font-display text-lg tracking-wide text-chalk">Delete this show</h2>
 
         <ul className="mt-4 space-y-2 text-sm text-chalk-body">
@@ -697,7 +697,7 @@ function ShowLinks({ shows }: { shows: { id: string; title: string }[] }) {
       {shows.map((s, i) => (
         <span key={s.id}>
           {i > 0 && ", "}
-          <Link href={`/admin/shows/${s.id}`} className="text-gold hover:underline">
+          <Link href={`/admin/shows/${s.id}`} className="text-brand hover:underline">
             {s.title}
           </Link>
         </span>

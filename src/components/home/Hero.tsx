@@ -28,13 +28,24 @@ export function Hero({ show }: { show: Show | null }) {
         )}
       </div>
 
-      {/* Scrim. Without it, hero type sits on whatever frame the video happens
-          to be on and contrast becomes a matter of luck. */}
+      {/*
+        Two scrims, not one.
+
+        The vertical one keeps type legible over whatever frame the video is on.
+        The second is weighted to the right, because the hero footage carries the
+        Dean's List wordmark in its left half — the copy used to sit on top of it
+        and the two fought each other. The content is now right-aligned on
+        desktop, over its own darkened panel, and the mark is left visible.
+
+        On mobile there is no room for a side-by-side, so the layout falls back
+        to full width and only the vertical scrim matters.
+      */}
       <div className="absolute inset-0 -z-10 bg-hero-scrim" />
+      <div className="absolute inset-0 -z-10 hidden bg-hero-scrim-right lg:block" />
 
       <div className="shell flex min-h-[86svh] flex-col justify-end pb-20 pt-32 md:pb-28">
-        <div className="max-w-4xl">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="max-w-4xl lg:ml-auto lg:max-w-2xl lg:text-right">
+          <div className="flex flex-wrap items-center gap-3 lg:justify-end">
             {live ? (
               <Badge live>Live now</Badge>
             ) : show?.status === "OPEN" ? (
@@ -47,11 +58,11 @@ export function Hero({ show }: { show: Show | null }) {
             {show?.title ?? SITE.name}
           </h1>
 
-          <p className="mt-5 max-w-xl text-body-lg leading-relaxed text-chalk-body">
+          <p className="mt-5 max-w-xl text-body-lg leading-relaxed text-chalk-body lg:ml-auto">
             {show?.tagline ?? SITE.tagline}
           </p>
 
-          <div className="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center">
+          <div className="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center lg:justify-end">
             <ButtonLink href="/enter" size="lg">
               Enter the contest
             </ButtonLink>
@@ -61,7 +72,7 @@ export function Hero({ show }: { show: Show | null }) {
           </div>
 
           {hasDeadline ? (
-            <div className="mt-12">
+            <div className="mt-12 lg:flex lg:justify-end">
               <Countdown
                 target={show!.entryDeadline!}
                 label="Entries close in"
@@ -69,13 +80,13 @@ export function Hero({ show }: { show: Show | null }) {
               />
             </div>
           ) : (
-            <p className="mt-12 max-w-md text-sm text-chalk-faint">
+            <p className="mt-12 max-w-md text-sm text-chalk-faint lg:ml-auto">
               Entry is open now. The next show date is announced on{" "}
               <a
                 href={SITE.socials.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gold underline-offset-4 hover:underline"
+                className="text-brand underline-offset-4 hover:underline"
               >
                 YouTube
               </a>{" "}
@@ -84,7 +95,7 @@ export function Hero({ show }: { show: Show | null }) {
                 href={SITE.socials.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gold underline-offset-4 hover:underline"
+                className="text-brand underline-offset-4 hover:underline"
               >
                 Facebook
               </a>

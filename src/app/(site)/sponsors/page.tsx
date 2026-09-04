@@ -61,11 +61,11 @@ export default async function SponsorsPage() {
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {SPONSOR_TIERS.map((t, i) => (
               <div key={t.name} className="card relative overflow-hidden p-8">
-                {i === 0 && <span className="absolute inset-x-0 top-0 h-px bg-gold-hairline" />}
+                {i === 0 && <span className="absolute inset-x-0 top-0 h-px bg-brand-hairline" />}
                 <p className="font-display text-5xl leading-none text-chalk-ghost">
                   {String(i + 1).padStart(2, "0")}
                 </p>
-                <h3 className="mt-5 text-2xl uppercase tracking-wide text-gold">{t.name}</h3>
+                <h3 className="mt-5 text-2xl uppercase tracking-wide text-brand">{t.name}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-chalk-muted">{t.body}</p>
               </div>
             ))}

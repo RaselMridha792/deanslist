@@ -23,7 +23,7 @@ type Row = {
 };
 
 const STATUS_STYLE: Record<string, string> = {
-  NEW: "border-gold/40 bg-gold/10 text-gold",
+  NEW: "border-brand/40 bg-brand/10 text-brand",
   REVIEWED: "border-ink-edge bg-ink-high text-chalk-muted",
   SHORTLISTED: "border-sky-400/40 bg-sky-400/10 text-sky-300",
   FINALIST: "border-emerald-400/40 bg-emerald-400/10 text-emerald-300",
@@ -75,7 +75,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
       {/* Bulk bar only appears with a selection, so it never competes with the
           table for attention when it has nothing to do. */}
       {selected.size > 0 && (
-        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-card border border-gold/30 bg-gold/5 px-5 py-3">
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-card border border-brand/30 bg-brand/5 px-5 py-3">
           <span className="text-sm text-chalk">
             {selected.size} selected
           </span>
@@ -113,7 +113,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
           <button
             type="button"
             onClick={() => setSelected(new Set())}
-            className="text-xs uppercase tracking-widest text-chalk-faint hover:text-gold"
+            className="text-xs uppercase tracking-widest text-chalk-faint hover:text-brand"
           >
             Clear
           </button>
@@ -135,7 +135,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                     setSelected(allChecked ? new Set() : new Set(rows.map((r) => r.id)))
                   }
                   aria-label="Select all on this page"
-                  className="h-4 w-4 accent-[#D4AF37]"
+                  className="h-4 w-4 accent-brand"
                 />
               </th>
               <th className="px-4 py-3">Name</th>
@@ -154,7 +154,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                 key={r.id}
                 className={cn(
                   "border-t border-ink-line transition-colors hover:bg-ink-soft",
-                  selected.has(r.id) && "bg-gold/5",
+                  selected.has(r.id) && "bg-brand/5",
                 )}
               >
                 <td className="px-4 py-3">
@@ -163,14 +163,14 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                     checked={selected.has(r.id)}
                     onChange={() => toggle(r.id)}
                     aria-label={`Select ${r.firstName}`}
-                    className="h-4 w-4 accent-[#D4AF37]"
+                    className="h-4 w-4 accent-brand"
                   />
                 </td>
 
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/leads/${r.id}`}
-                    className="font-medium text-chalk transition-colors hover:text-gold"
+                    className="font-medium text-chalk transition-colors hover:text-brand"
                   >
                     {r.firstName} {r.lastName ?? ""}
                   </Link>
@@ -191,7 +191,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                 <td className="px-4 py-3 text-chalk-muted">
                   {r.email}
                   {r.marketingOptIn && (
-                    <span className="ml-2 text-[10px] uppercase tracking-wider text-gold">
+                    <span className="ml-2 text-[10px] uppercase tracking-wider text-brand">
                       opt-in
                     </span>
                   )}

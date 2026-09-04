@@ -33,7 +33,7 @@ export function entryConfirmationEmail(firstName: string, showTitle?: string) {
   return `
   <div style="font-family:Helvetica,Arial,sans-serif;background:#0B0B0F;padding:32px;color:#fff">
     <div style="max-width:560px;margin:0 auto;background:#14141B;border:1px solid #26262F;border-radius:12px;padding:32px">
-      <p style="color:#D4AF37;letter-spacing:2px;font-size:12px;margin:0 0 8px">THE DEAN'S LIST</p>
+      <p style="color:#C8102E;letter-spacing:2px;font-size:12px;margin:0 0 8px">THE DEAN'S LIST</p>
       <h1 style="margin:0 0 16px;font-size:24px">Entry received, ${firstName}</h1>
       <p style="color:#C9C9D1;line-height:1.6">
         Thanks for entering${showTitle ? ` ${showTitle}` : ""}. Our team reviews every submission.

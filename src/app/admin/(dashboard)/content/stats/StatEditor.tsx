@@ -104,7 +104,7 @@ export function StatEditor({
 
       <div>
         <label className="label" htmlFor="f-label">
-          Label <span className="text-gold">*</span>
+          Label <span className="text-brand">*</span>
         </label>
         <input
           id="f-label"
@@ -121,7 +121,7 @@ export function StatEditor({
 
       <div>
         <label className="label" htmlFor="f-value">
-          Value <span className="text-gold">*</span>
+          Value <span className="text-brand">*</span>
         </label>
         <input
           id="f-value"
@@ -232,7 +232,7 @@ export function StatEditor({
             name="verified"
             checked={verified}
             onChange={(e) => setVerified(e.target.checked)}
-            className="mt-0.5 h-4 w-4 accent-[#D4AF37]"
+            className="mt-0.5 h-4 w-4 accent-brand"
           />
           <span>
             Verified — publish this figure on the public site
@@ -245,8 +245,8 @@ export function StatEditor({
       </div>
 
       {goingPublic && (
-        <div className="rounded-card border border-gold/40 bg-gold/5 p-5 sm:col-span-2">
-          <p className="text-sm font-semibold text-gold">
+        <div className="rounded-card border border-brand/40 bg-brand/5 p-5 sm:col-span-2">
+          <p className="text-sm font-semibold text-brand">
             You are about to publish a public claim.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-chalk-body">
@@ -264,7 +264,7 @@ export function StatEditor({
               type="checkbox"
               name="confirmVerified"
               required
-              className="mt-0.5 h-4 w-4 accent-[#D4AF37]"
+              className="mt-0.5 h-4 w-4 accent-brand"
             />
             <span>
               I have checked this figure at source and confirm it is accurate and current.
@@ -316,7 +316,7 @@ export function TakeDownButton({ id, label }: { id: string; label: string }) {
             else router.refresh();
           });
         }}
-        className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brandred-live disabled:opacity-50"
+        className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-live disabled:opacity-50"
       >
         {pending ? "Removing…" : "Take down"}
       </button>

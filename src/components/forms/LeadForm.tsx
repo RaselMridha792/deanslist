@@ -138,7 +138,7 @@ export function LeadForm({
 
       <div>
         <label className="label" htmlFor={fieldId("firstName")}>
-          First name <span className="text-gold">*</span>
+          First name <span className="text-brand">*</span>
         </label>
         <input id={fieldId("firstName")} name="firstName" required autoComplete="given-name" className="field" />
       </div>
@@ -152,7 +152,7 @@ export function LeadForm({
 
       <div>
         <label className="label" htmlFor={fieldId("email")}>
-          Email <span className="text-gold">*</span>
+          Email <span className="text-brand">*</span>
         </label>
         <input id={fieldId("email")} name="email" type="email" required autoComplete="email" className="field" />
       </div>
@@ -193,7 +193,7 @@ export function LeadForm({
       {has("talentCategory") && talentOptions && (
         <div>
           <label className="label" htmlFor={fieldId("talentCategory")}>
-            What do you do? <span className="text-gold">*</span>
+            What do you do? <span className="text-brand">*</span>
           </label>
           <select id={fieldId("talentCategory")} name="talentCategory" required className="field">
             <option value="">Select one</option>
@@ -274,7 +274,7 @@ export function LeadForm({
       )}
 
       <label className="flex items-start gap-3 text-sm text-chalk-muted sm:col-span-2">
-        <input type="checkbox" name="marketingOptIn" className="mt-1 h-4 w-4 accent-[#D4AF37]" />
+        <input type="checkbox" name="marketingOptIn" className="mt-1 h-4 w-4 accent-brand" />
         <span>{consentLabel}</span>
       </label>
 

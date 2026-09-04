@@ -3,7 +3,7 @@ import { PageHero } from "@/components/site/PageHero";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ButtonLink } from "@/components/ui/Button";
 import { Picture } from "@/components/media/Picture";
-import { HOW_IT_WORKS, SITE } from "@/content/site";
+import { HOW_IT_WORKS, SITE, ABOUT_COPY } from "@/content/site";
 
 export const metadata: Metadata = {
   title: "What is the Dean's List",
@@ -25,17 +25,12 @@ export default function AboutPage() {
         <div className="shell grid gap-14 lg:grid-cols-[1fr_0.85fr] lg:gap-20">
           <div>
             <SectionHeading eyebrow="The stage" title="A competition without a venue" />
+            {/* The client's own wording, all four paragraphs of it. An earlier
+                pass replaced this with a two-sentence paraphrase. */}
             <div className="mt-6 space-y-5 text-body-lg leading-relaxed text-chalk-muted">
-              <p>
-                Contestants perform in front of a live audience across YouTube and Facebook,
-                competing across seasons while judges weigh creativity, stage presence and
-                originality.
-              </p>
-              <p>
-                There is no room to fly to, no gatekeeper to get past, and no equipment
-                requirement beyond what it takes to record a performance. That is the whole
-                idea — talent anywhere in the world reaches the same stage.
-              </p>
+              {ABOUT_COPY.map((para) => (
+                <p key={para.slice(0, 40)}>{para}</p>
+              ))}
             </div>
           </div>
 
@@ -61,8 +56,8 @@ export default function AboutPage() {
           />
 
           <div className="mx-auto mt-14 max-w-3xl">
-            <div className="relative overflow-hidden rounded-card border border-gold/25 bg-ink-soft p-10 text-center">
-              <span className="absolute inset-x-0 top-0 h-px bg-gold-hairline" />
+            <div className="relative overflow-hidden rounded-card border border-brand/25 bg-ink-soft p-10 text-center">
+              <span className="absolute inset-x-0 top-0 h-px bg-brand-hairline" />
               <p className="font-display text-7xl leading-none text-metal">$1,000</p>
               <p className="mt-3 text-eyebrow uppercase text-chalk-faint">
                 Awarded to the Crown the Sound winner
@@ -104,7 +99,7 @@ export default function AboutPage() {
           </div>
           <p className="mt-8 text-sm text-chalk-faint">
             Questions? Email{" "}
-            <a href={`mailto:${SITE.email}`} className="text-gold hover:underline">
+            <a href={`mailto:${SITE.email}`} className="text-brand hover:underline">
               {SITE.email}
             </a>
           </p>

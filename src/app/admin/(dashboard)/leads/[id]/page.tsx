@@ -75,7 +75,7 @@ export default async function LeadDetailPage({ params }: Props) {
                 href={lead.performanceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 block break-all text-sm text-gold hover:underline"
+                className="mt-3 block break-all text-sm text-brand hover:underline"
               >
                 {lead.performanceUrl}
               </a>
@@ -182,7 +182,7 @@ function Field({
       <dd className="mt-1 break-words text-sm text-chalk-body">
         {value ? (
           href ? (
-            <a href={href} className="text-gold hover:underline">
+            <a href={href} className="text-brand hover:underline">
               {value}
             </a>
           ) : (

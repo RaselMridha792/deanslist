@@ -1,17 +1,26 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Charcoal + red + gold is an easy combination to make look cheap. What separates
- * "awards broadcast" from "casino template" is restraint, so the rules are encoded
- * here rather than left to taste:
+ * Red, white and black — the client's brand, taken from their logo.
  *
- *   gold  — accent only, target under 5% of any screen. Buttons, eyebrows, key
- *           numbers, active states. Never a large fill, never body copy.
- *   red   — urgency only. Live badge, final-hours countdown, deadline warnings.
- *           Never decorative.
- *   black — never #000. Pure black kills depth and makes the gold look printed on.
- *   white — never #fff for body copy. Full white on near-black glares; text steps
- *           down through the `chalk` ramp instead.
+ * Red is a harder accent to make expensive than gold. What separates a luxury
+ * red from a loud one is almost entirely restraint and depth:
+ *
+ *   red    — the accent, not the surface. Under 10% of any screen. Buttons,
+ *            eyebrows, key numbers, active states, the live badge. The old site
+ *            fills whole bands with bright red gradient, which is exactly what
+ *            makes it read as a template rather than a broadcast brand.
+ *   depth  — a single flat #C8102E looks like a warning label. The brand scale
+ *            runs from a bright specular through the mark's own red down to a
+ *            near-black oxblood, so a fill has somewhere to fall away to.
+ *   black  — never #000. Pure black kills depth and flattens the red on top.
+ *   white  — full white is for display type only. Body copy steps down the
+ *            `chalk` ramp; white paragraphs on near-black glare.
+ *
+ * `brand.DEFAULT` is #C8102E, sampled from the logo, so the site and the mark
+ * agree. The gloss gradient is what the gold metal treatment used to do: a
+ * flat fill at button size reads as plastic, a gradient with a specular band
+ * reads as lacquer.
  */
 export default {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
@@ -37,32 +46,42 @@ export default {
           ghost: "rgba(255,255,255,0.16)",
         },
 
-        // Gold reads as metal only when it drifts in hue. A flat fill of the base
-        // value always looks like mustard — use the `metal` gradients below.
-        gold: {
-          light: "#F7ECC6", // specular highlight
-          soft: "#E8CC72",
-          DEFAULT: "#D4AF37",
-          deep: "#A88423",
-          shadow: "#7A5E14",
+        /**
+         * The brand red. Sampled from the logo mark, with a bright specular
+         * above it and an oxblood below, so a gradient has range. A flat fill
+         * of the base value at any size above a chip reads as a warning label.
+         */
+        brand: {
+          light: "#FF6B7D", // specular highlight
+          soft: "#E8384F",
+          DEFAULT: "#C8102E", // the logo's red
+          deep: "#8E0B20",
+          shadow: "#4A0511", // near-black oxblood
         },
 
+        /** Urgency only: the live badge, the final-hours countdown. */
+        live: "#FF2D42",
+
+        /** Kept so `brandred` usages keep resolving during the rename. */
         brandred: {
-          DEFAULT: "#C8102E", // brand
-          live: "#FF2D42", // urgency signal, small areas only
+          DEFAULT: "#C8102E",
+          live: "#FF2D42",
         },
       },
 
       backgroundImage: {
-        // Two specular bands and a hue drift from warm to cool and back. This is
-        // what makes it read as metal rather than as the colour yellow.
-        "gold-metal":
-          "linear-gradient(150deg, #F7ECC6 0%, #D4AF37 26%, #A88423 48%, #F2DFA0 62%, #C9A331 78%, #7A5E14 100%)",
-        "gold-hairline":
-          "linear-gradient(90deg, transparent 0%, #D4AF37 22%, #F7ECC6 50%, #D4AF37 78%, transparent 100%)",
+        // A specular band and a fall to oxblood. This is what stops a red
+        // button reading as plastic — the same job the gold gradient did.
+        "brand-gloss":
+          "linear-gradient(150deg, #FF6B7D 0%, #E8384F 22%, #C8102E 46%, #A00C24 68%, #7A0819 100%)",
+        "brand-hairline":
+          "linear-gradient(90deg, transparent 0%, #C8102E 22%, #FF6B7D 50%, #C8102E 78%, transparent 100%)",
         // Vignette that keeps hero text legible over any video frame.
         "hero-scrim":
           "linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.55) 45%, rgba(10,10,12,0.94) 100%)",
+        // Same scrim weighted to the right, for a hero whose artwork sits left.
+        "hero-scrim-right":
+          "linear-gradient(255deg, rgba(10,10,12,0.92) 0%, rgba(10,10,12,0.72) 42%, rgba(10,10,12,0.30) 100%)",
       },
 
       fontFamily: {
@@ -112,7 +131,7 @@ export default {
       },
 
       boxShadow: {
-        "gold-glow": "0 0 0 1px rgba(212,175,55,0.30), 0 8px 40px -12px rgba(212,175,55,0.35)",
+        "brand-glow": "0 0 0 1px rgba(200,16,46,0.35), 0 8px 40px -12px rgba(200,16,46,0.45)",
         lift: "0 18px 50px -20px rgba(0,0,0,0.9)",
       },
 

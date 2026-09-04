@@ -44,7 +44,7 @@ export function NewsletterForm({ source = "homepage" }: { source?: string }) {
 
   if (status === "success") {
     return (
-      <p className="rounded-card border border-gold/40 bg-gold/5 px-6 py-5 text-sm text-chalk-body">
+      <p className="rounded-card border border-brand/40 bg-brand/5 px-6 py-5 text-sm text-chalk-body">
         You&apos;re on the list. Show announcements and reminders will land in your inbox.
       </p>
     );

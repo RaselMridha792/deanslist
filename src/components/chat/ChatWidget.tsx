@@ -147,7 +147,7 @@ export function ChatWidget({ showSlug }: { showSlug?: string }) {
             <button
               type="button"
               onClick={close}
-              className="-mr-1 -mt-1 rounded-full p-2 text-chalk-faint transition-colors duration-base ease-crisp hover:text-gold"
+              className="-mr-1 -mt-1 rounded-full p-2 text-chalk-faint transition-colors duration-base ease-crisp hover:text-brand"
               aria-label="Close"
             >
               <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true" fill="none">
@@ -171,7 +171,7 @@ export function ChatWidget({ showSlug }: { showSlug?: string }) {
                   onClick={() => setTab(t.key)}
                   className={cn(
                     "relative pb-3 text-xs font-semibold uppercase tracking-widest transition-colors duration-base ease-crisp",
-                    active ? "text-gold" : "text-chalk-faint hover:text-chalk",
+                    active ? "text-brand" : "text-chalk-faint hover:text-chalk",
                   )}
                 >
                   {t.label}
@@ -179,7 +179,7 @@ export function ChatWidget({ showSlug }: { showSlug?: string }) {
                     aria-hidden="true"
                     className={cn(
                       "absolute inset-x-0 -bottom-px h-px",
-                      active ? "bg-gold-metal" : "bg-transparent",
+                      active ? "bg-brand-gloss" : "bg-transparent",
                     )}
                   />
                 </button>

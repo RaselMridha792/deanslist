@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { SITE } from "@/content/site";
 import { getShow } from "@/lib/queries";
-import { OG, OG_CONTENT_TYPE, OG_GOLD_BAR, OG_SIZE, ogTitleSize } from "@/lib/seo";
+import { OG, OG_CONTENT_TYPE, OG_BRAND_BAR, OG_SIZE, ogTitleSize } from "@/lib/seo";
 
 /**
  * Per-show share card.
@@ -48,7 +48,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
   const open = show?.status === "OPEN";
   const statusLabel = live ? "LIVE NOW" : open ? "ENTRIES OPEN" : "SEASON CLOSED";
   // Red is urgency and nothing else, so only a live show gets it.
-  const statusColor = live ? OG.redLive : open ? OG.gold : OG.chalkMuted;
+  const statusColor = live ? OG.redLive : open ? OG.brand : OG.chalkMuted;
 
   const prize =
     show?.prizeAmount != null ? `$${show.prizeAmount.toLocaleString("en-US")}` : null;
@@ -93,14 +93,14 @@ export default async function Image({ params }: { params: { slug: string } }) {
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={{ display: "flex", width: 14, height: 14, backgroundColor: OG.gold }} />
+            <div style={{ display: "flex", width: 14, height: 14, backgroundColor: OG.brand }} />
             <div
               style={{
                 marginLeft: 18,
                 fontSize: 24,
                 fontWeight: 600,
                 letterSpacing: 7,
-                color: OG.gold,
+                color: OG.brand,
               }}
             >
               {SITE.name.toUpperCase()}
@@ -185,7 +185,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                   display: "flex",
                   fontSize: 58,
                   lineHeight: 1,
-                  color: OG.gold,
+                  color: OG.brand,
                 }}
               >
                 {prize}
@@ -202,7 +202,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             left: 0,
             width: "100%",
             height: 10,
-            backgroundImage: OG_GOLD_BAR,
+            backgroundImage: OG_BRAND_BAR,
           }}
         />
       </div>

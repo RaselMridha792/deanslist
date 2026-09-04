@@ -268,9 +268,9 @@ export const OG_CONTENT_TYPE = "image/png";
 export const OG = {
   ink: "#0A0A0C", // ink.DEFAULT
   line: "#2A2A34", // ink.line
-  gold: "#D4AF37", // gold.DEFAULT
-  goldLight: "#F7ECC6", // gold.light
-  goldDeep: "#7A5E14", // gold.shadow
+  brand: "#C8102E", // brand.DEFAULT
+  brandLight: "#FF6B7D", // brand.light
+  brandDeep: "#4A0511", // brand.shadow
   chalk: "#FFFFFF", // chalk.DEFAULT
   chalkBody: "rgba(255,255,255,0.72)", // chalk.body
   chalkMuted: "rgba(255,255,255,0.50)", // chalk.muted
@@ -278,13 +278,13 @@ export const OG = {
 } as const;
 
 /**
- * The gold rule that runs along the bottom edge of every card. Two specular
- * stops and a hue drift, which is what makes gold read as metal instead of as
- * mustard — the same reasoning as `bg-gold-metal`, written out because satori
+ * The brand rule that runs along the bottom edge of every card. Two specular
+ * stops and a hue drift, which is what makes brand read as metal instead of as
+ * mustard — the same reasoning as `bg-brand-gloss`, written out because satori
  * only understands plain CSS gradients.
  */
-export const OG_GOLD_BAR =
-  `linear-gradient(90deg, ${OG.goldDeep} 0%, ${OG.gold} 26%, ${OG.goldLight} 50%, ${OG.gold} 74%, ${OG.goldDeep} 100%)`;
+export const OG_BRAND_BAR =
+  `linear-gradient(90deg, ${OG.brandDeep} 0%, ${OG.brand} 26%, ${OG.brandLight} 50%, ${OG.brand} 74%, ${OG.brandDeep} 100%)`;
 
 /**
  * Title size for a 1200px card, chosen from the length of the string.

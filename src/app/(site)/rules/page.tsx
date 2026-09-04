@@ -59,15 +59,15 @@ export default function RulesPage() {
 
       <section className="section">
         <div className="shell max-w-3xl">
-          <div className="rounded-card border border-brandred-live/30 bg-brandred-live/5 p-7">
-            <p className="text-sm font-semibold uppercase tracking-widest text-brandred-live">
+          <div className="rounded-card border border-live/30 bg-live/5 p-7">
+            <p className="text-sm font-semibold uppercase tracking-widest text-live">
               Awaiting official wording
             </p>
             <p className="mt-3 leading-relaxed text-chalk-body">
               These rules are being finalised with Dean&apos;s List LTD. The outline below
               shows what the published terms will cover. Nothing here is drafted or binding
               yet — for anything you need confirmed before entering, email{" "}
-              <a href={`mailto:${SITE.email}`} className="text-gold hover:underline">
+              <a href={`mailto:${SITE.email}`} className="text-brand hover:underline">
                 {SITE.email}
               </a>{" "}
               and the team will answer directly.

@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex min-h-screen">
       <aside className="flex w-60 shrink-0 flex-col border-r border-ink-line bg-ink-soft p-6">
-        <Link href="/admin" className="font-display text-sm tracking-[0.2em] text-gold">
+        <Link href="/admin" className="font-display text-sm tracking-[0.2em] text-brand">
           DASHBOARD
         </Link>
 

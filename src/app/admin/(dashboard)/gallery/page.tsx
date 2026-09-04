@@ -101,7 +101,7 @@ export default async function GalleryPage({ searchParams }: Props) {
                 {[".avif", ".webp", ".jpg"].map((ext) => (
                   <li key={ext} className="break-all font-mono text-xs text-chalk-muted">
                     {mediaImage(editing.url)}
-                    <span className="text-gold">{ext}</span>
+                    <span className="text-brand">{ext}</span>
                   </li>
                 ))}
               </ul>
@@ -191,7 +191,7 @@ export default async function GalleryPage({ searchParams }: Props) {
                   key={image.id}
                   className={
                     active
-                      ? "overflow-hidden rounded-card border border-gold bg-ink-soft"
+                      ? "overflow-hidden rounded-card border border-brand bg-ink-soft"
                       : "overflow-hidden rounded-card border border-ink-line bg-ink-soft"
                   }
                 >
@@ -224,7 +224,7 @@ export default async function GalleryPage({ searchParams }: Props) {
                       </span>
                       <Link
                         href={`/admin/gallery?edit=${image.id}`}
-                        className="text-xs font-semibold uppercase tracking-widest text-chalk-muted transition-colors hover:text-gold"
+                        className="text-xs font-semibold uppercase tracking-widest text-chalk-muted transition-colors hover:text-brand"
                       >
                         {active ? "Editing" : "Edit"}
                       </Link>
@@ -338,7 +338,7 @@ function PathChecker({
               {[".avif", ".webp", ".jpg"].map((ext) => (
                 <li key={ext} className="break-all font-mono text-xs text-chalk-muted">
                   {mediaImage(preview.path)}
-                  <span className="text-gold">{ext}</span>
+                  <span className="text-brand">{ext}</span>
                 </li>
               ))}
             </ul>
@@ -456,11 +456,11 @@ function AltTextRule() {
       </p>
       <div className="mt-4 grid gap-4 text-xs sm:grid-cols-2">
         <p className="text-chalk-muted">
-          <span className="text-gold">Good</span> — “The crowd during a live round”,
+          <span className="text-brand">Good</span> — “The crowd during a live round”,
           “Contestant mid-performance under the stage lights”, “Judges watching from the front row”.
         </p>
         <p className="text-chalk-faint">
-          <span className="text-brandred-live">Rejected</span> — “photo”, “cts-01”, a pasted file
+          <span className="text-live">Rejected</span> — “photo”, “cts-01”, a pasted file
           path, or anything under eight characters. It passes a required check and tells a
           screen-reader user nothing.
         </p>

@@ -88,7 +88,7 @@ export default async function ContentHub() {
             <p className="text-xs uppercase tracking-widest text-chalk-faint">{c.title}</p>
             <p
               className={`mt-3 font-display text-4xl ${
-                c.warn ? "text-gold" : "text-metal"
+                c.warn ? "text-brand" : "text-metal"
               }`}
             >
               {c.metric}
@@ -107,14 +107,14 @@ export default async function ContentHub() {
         them broken (".7Mil+" for subscribers, a bare "K" for Facebook).
       */}
       {statsUnverified > 0 && (
-        <div className="mt-4 rounded-card border border-gold/30 bg-gold/5 p-5">
+        <div className="mt-4 rounded-card border border-brand/30 bg-brand/5 p-5">
           <p className="text-sm leading-relaxed text-chalk-body">
-            <span className="font-semibold text-gold">
+            <span className="font-semibold text-brand">
               {statsUnverified} statistic{statsUnverified > 1 ? "s" : ""}
             </span>{" "}
             {statsUnverified > 1 ? "are" : "is"} held back from the public site because nobody
             has confirmed the number.{" "}
-            <Link href="/admin/content/stats" className="text-gold underline underline-offset-4">
+            <Link href="/admin/content/stats" className="text-brand underline underline-offset-4">
               Review them
             </Link>
             .
@@ -147,7 +147,7 @@ export default async function ContentHub() {
         </ul>
         <p className="mt-5 text-xs text-chalk-faint">
           Shows, episodes and winners are managed under{" "}
-          <Link href="/admin/shows" className="text-chalk-muted underline underline-offset-4 hover:text-gold">
+          <Link href="/admin/shows" className="text-chalk-muted underline underline-offset-4 hover:text-brand">
             Shows &amp; Events
           </Link>
           , not here.

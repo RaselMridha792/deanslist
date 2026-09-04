@@ -89,6 +89,19 @@ export default async function ShowPage({ params }: Params) {
             <p className="mt-6 max-w-prose text-body-lg leading-relaxed text-chalk-muted">
               {show.description}
             </p>
+
+            {/* The client's own pitch for their own format, kept verbatim. The
+                first line is the hook and gets the display treatment. */}
+            {show.pitch && show.pitch.length > 0 && (
+              <div className="mt-12 max-w-prose space-y-5">
+                <p className="text-display-sm uppercase text-brand">{show.pitch[0]}</p>
+                {show.pitch.slice(1).map((line) => (
+                  <p key={line.slice(0, 40)} className="text-body-lg leading-relaxed text-chalk-body">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -107,11 +120,11 @@ export default async function ShowPage({ params }: Params) {
             <div className="mt-12 grid gap-6 md:grid-cols-2">
               {show.mechanic.map((m, i) => (
                 <div key={m.name} className="card relative overflow-hidden p-9">
-                  <span className="absolute inset-x-0 top-0 h-px bg-gold-hairline" />
+                  <span className="absolute inset-x-0 top-0 h-px bg-brand-hairline" />
                   <p className="font-display text-6xl leading-none text-chalk-ghost">
                     {String(i + 1).padStart(2, "0")}
                   </p>
-                  <h3 className="mt-5 text-display-sm uppercase text-gold">{m.name}</h3>
+                  <h3 className="mt-5 text-display-sm uppercase text-brand">{m.name}</h3>
                   <p className="mt-3 leading-relaxed text-chalk-muted">{m.body}</p>
                 </div>
               ))}

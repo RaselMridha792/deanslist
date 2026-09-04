@@ -115,7 +115,7 @@ function MediaPathHelp() {
         decode.
       </p>
       <p className="mt-3 text-xs text-chalk-faint">
-        <code className="text-gold">/media/winners/pj-galloway</code> is requested as{" "}
+        <code className="text-brand">/media/winners/pj-galloway</code> is requested as{" "}
         <code>.avif</code>, then <code>.webp</code>, then <code>.jpg</code>. Typing{" "}
         <code>/media/winners/pj-galloway.jpg</code> would ask for{" "}
         <code>pj-galloway.jpg.avif</code> and show nothing, so it is rejected on save.

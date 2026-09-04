@@ -78,7 +78,7 @@ export function SiteFooter() {
                   <li key={l.href}>
                     <Link
                       href={l.href}
-                      className="text-chalk-muted transition-colors duration-base ease-crisp hover:text-gold"
+                      className="text-chalk-muted transition-colors duration-base ease-crisp hover:text-brand"
                     >
                       {l.label}
                     </Link>
@@ -89,7 +89,7 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="mt-14 rule-gold" />
+        <div className="mt-14 rule-brand" />
 
         <div className="mt-8 flex flex-col gap-4 text-xs text-chalk-faint sm:flex-row sm:items-center sm:justify-between">
           <p>
@@ -102,7 +102,7 @@ export function SiteFooter() {
             </span>
             <a
               href={`mailto:${SITE.email}`}
-              className="transition-colors duration-base ease-crisp hover:text-gold"
+              className="transition-colors duration-base ease-crisp hover:text-brand"
             >
               {SITE.email}
             </a>
@@ -128,7 +128,7 @@ function SocialLink({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="grid h-11 w-11 place-items-center rounded-full border border-ink-edge text-chalk-muted transition-colors duration-base ease-crisp hover:border-gold hover:text-gold"
+      className="grid h-11 w-11 place-items-center rounded-full border border-ink-edge text-chalk-muted transition-colors duration-base ease-crisp hover:border-brand hover:text-brand"
     >
       <svg viewBox="0 0 24 24" className="h-4.5 w-4.5 fill-current" aria-hidden>
         {children}

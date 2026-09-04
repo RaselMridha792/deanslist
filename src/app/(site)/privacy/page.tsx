@@ -85,8 +85,8 @@ export default function PrivacyPage() {
 
       <section className="section">
         <div className="shell max-w-3xl">
-          <div className="rounded-card border border-gold/30 bg-gold/5 p-7">
-            <p className="text-sm font-semibold uppercase tracking-widest text-gold">
+          <div className="rounded-card border border-brand/30 bg-brand/5 p-7">
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand">
               Pending legal review
             </p>
             <p className="mt-3 text-sm leading-relaxed text-chalk-body">
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
           <div className="mt-14 space-y-12">
             {SECTIONS.map((s) => (
               <section key={s.heading}>
-                <h2 className="text-2xl uppercase tracking-wide text-gold">{s.heading}</h2>
+                <h2 className="text-2xl uppercase tracking-wide text-brand">{s.heading}</h2>
                 <div className="mt-4 space-y-4 leading-relaxed text-chalk-muted">
                   {s.body.map((p) => (
                     <p key={p}>{p}</p>
@@ -110,10 +110,10 @@ export default function PrivacyPage() {
             ))}
 
             <section>
-              <h2 className="text-2xl uppercase tracking-wide text-gold">Contact</h2>
+              <h2 className="text-2xl uppercase tracking-wide text-brand">Contact</h2>
               <p className="mt-4 leading-relaxed text-chalk-muted">
                 For anything on this page, email{" "}
-                <a href={`mailto:${SITE.email}`} className="text-gold hover:underline">
+                <a href={`mailto:${SITE.email}`} className="text-brand hover:underline">
                   {SITE.email}
                 </a>
                 . {SITE.legalName}, {SITE.location}.

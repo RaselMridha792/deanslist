@@ -117,7 +117,7 @@ export default async function SegmentsPage({ searchParams }: Props) {
                   <FilterSummary filter={filter} showTitle={showTitle} />
                   <Link
                     href={`/admin/leads${filterToQuery(filter)}`}
-                    className="mt-2 inline-block text-[11px] uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                    className="mt-2 inline-block text-[11px] uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                   >
                     Open in leads
                   </Link>
@@ -140,7 +140,7 @@ export default async function SegmentsPage({ searchParams }: Props) {
                   >
                     <button
                       type="submit"
-                      className="mt-2 text-[11px] uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                      className="mt-2 text-[11px] uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                     >
                       Recount now
                     </button>

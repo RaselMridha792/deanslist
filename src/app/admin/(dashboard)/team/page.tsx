@@ -160,9 +160,9 @@ export default async function TeamPage({ searchParams }: Props) {
       {/* Red is urgency only, and a live admin account on a password published
           in the seed script is the definition of it. */}
       {atRisk.length > 0 && (
-        <div className="mt-8 rounded-card border border-brandred-live/40 bg-brandred-live/5 p-5">
+        <div className="mt-8 rounded-card border border-live/40 bg-live/5 p-5">
           <p className="text-sm leading-relaxed text-chalk-body">
-            <span className="font-semibold text-brandred-live">
+            <span className="font-semibold text-live">
               {atRisk.length} account{atRisk.length > 1 ? "s" : ""} still using the seeded
               password
             </span>{" "}

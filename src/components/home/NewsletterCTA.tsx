@@ -5,8 +5,8 @@ export function NewsletterCTA() {
     <section className="section">
       <div className="shell">
         <div className="relative overflow-hidden rounded-card border border-ink-line bg-ink-soft px-6 py-14 sm:px-12">
-          {/* Gold hairline across the top edge only — the accent as a rule, not a fill. */}
-          <span className="absolute inset-x-0 top-0 h-px bg-gold-hairline" />
+          {/* Brand hairline across the top edge only — the accent as a rule, not a fill. */}
+          <span className="absolute inset-x-0 top-0 h-px bg-brand-hairline" />
 
           <div className="mx-auto max-w-2xl text-center">
             <p className="eyebrow">Never miss a show</p>

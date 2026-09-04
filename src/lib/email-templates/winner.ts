@@ -33,12 +33,12 @@ import {
  * a typographic stand-in that looks deliberate rather than broken.
  */
 
-/** First letter of the winner's name, set in gold on a raised plate. */
+/** First letter of the winner's name, set in brand on a raised plate. */
 function monogram(name: string): string {
   const initial = name.trim().charAt(0).toUpperCase();
   if (!initial) return "";
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px;"><tr>
-      <td width="76" height="76" align="center" valign="middle" bgcolor="${PALETTE.inkHigh}" style="width:76px;height:76px;background-color:${PALETTE.inkHigh};border:1px solid ${PALETTE.goldDeep};border-radius:999px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:34px;font-weight:700;line-height:76px;color:${PALETTE.gold};">${escapeHtml(initial)}</td>
+      <td width="76" height="76" align="center" valign="middle" bgcolor="${PALETTE.inkHigh}" style="width:76px;height:76px;background-color:${PALETTE.inkHigh};border:1px solid ${PALETTE.brandDeep};border-radius:999px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:34px;font-weight:700;line-height:76px;color:${PALETTE.brand};">${escapeHtml(initial)}</td>
     </tr></table>`;
 }
 

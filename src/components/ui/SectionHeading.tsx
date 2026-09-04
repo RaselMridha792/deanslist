@@ -11,7 +11,7 @@ type Props = {
 };
 
 /**
- * The standard section opener: small gold label, display heading, optional lede.
+ * The standard section opener: small brand label, display heading, optional lede.
  * Keeping it in one component is what stops eight sections drifting into eight
  * slightly different heading treatments.
  */

@@ -95,7 +95,7 @@ export default async function WinnersPage() {
                     href={`/winners/${w.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-semibold uppercase tracking-widest text-chalk-muted transition-colors hover:text-gold"
+                    className="text-xs font-semibold uppercase tracking-widest text-chalk-muted transition-colors hover:text-brand"
                   >
                     View
                   </a>

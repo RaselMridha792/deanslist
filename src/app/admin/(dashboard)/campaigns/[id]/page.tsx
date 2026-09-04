@@ -224,7 +224,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
             </p>
             <Link
               href={`/admin/leads${filterToQuery({ ...filter, optIn: "yes" })}`}
-              className="mt-2 inline-block text-[11px] uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+              className="mt-2 inline-block text-[11px] uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
             >
               Open these contacts in leads
             </Link>
@@ -246,7 +246,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
               >
                 <button
                   type="submit"
-                  className="mt-2 text-[11px] uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                  className="mt-2 text-[11px] uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                 >
                   Recount
                 </button>
@@ -303,7 +303,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
               >
                 <button
                   type="submit"
-                  className="mt-4 text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                  className="mt-4 text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                 >
                   Cancel schedule
                 </button>
@@ -311,8 +311,8 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
             )}
           </div>
 
-          <div className="card border-brandred-live/30 p-6">
-            <p className="eyebrow !text-brandred-live">Send now</p>
+          <div className="card border-live/30 p-6">
+            <p className="eyebrow !text-live">Send now</p>
             <p className="mt-2 text-sm text-chalk-muted">
               Queues the send immediately. There is no recall — the only stop is the
               recipient&apos;s inbox.
@@ -606,7 +606,7 @@ function Metric({
       <p className="text-[11px] uppercase tracking-widest text-chalk-faint">{label}</p>
       <p
         className={`mt-1.5 font-display text-3xl ${
-          accent ? "text-brandred-live" : "text-chalk"
+          accent ? "text-live" : "text-chalk"
         }`}
       >
         {value.toLocaleString("en-US")}

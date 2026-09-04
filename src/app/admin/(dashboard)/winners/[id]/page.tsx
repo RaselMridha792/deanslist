@@ -176,7 +176,7 @@ export default async function EditWinnerPage({ params }: Props) {
                   {[".avif", ".webp", ".jpg"].map((ext) => (
                     <li key={ext} className="break-all font-mono text-xs text-chalk-muted">
                       {mediaImage(winner.photoUrl ?? "")}
-                      <span className="text-gold">{ext}</span>
+                      <span className="text-brand">{ext}</span>
                     </li>
                   ))}
                 </ul>
@@ -220,7 +220,7 @@ function Check({ ok, label }: { ok: boolean; label: string }) {
         aria-hidden
         className={
           ok
-            ? "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"
+            ? "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
             : "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-chalk-ghost"
         }
       />
@@ -243,7 +243,7 @@ function MediaPathHelp() {
         decode.
       </p>
       <p className="mt-3 text-xs text-chalk-faint">
-        <code className="text-gold">/media/winners/pj-galloway</code> is requested as{" "}
+        <code className="text-brand">/media/winners/pj-galloway</code> is requested as{" "}
         <code>.avif</code>, then <code>.webp</code>, then <code>.jpg</code>. Typing{" "}
         <code>/media/winners/pj-galloway.jpg</code> would ask for{" "}
         <code>pj-galloway.jpg.avif</code> and show nothing, so it is rejected on save.

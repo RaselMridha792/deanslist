@@ -99,7 +99,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                     key={m.id}
                     className={[
                       "rounded-card border p-4",
-                      isAssistant && "border-gold/25 bg-ink-raised",
+                      isAssistant && "border-brand/25 bg-ink-raised",
                       isSystem && "border-dashed border-ink-line bg-transparent",
                       !isAssistant && !isSystem && "border-ink-line bg-ink-soft",
                     ]
@@ -110,7 +110,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                       <span
                         className={[
                           "text-[10px] font-semibold uppercase tracking-widest",
-                          isAssistant ? "text-gold" : "text-chalk-faint",
+                          isAssistant ? "text-brand" : "text-chalk-faint",
                         ].join(" ")}
                       >
                         {isAssistant ? "Assistant" : isSystem ? "System" : "Visitor"}
@@ -147,7 +147,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
               <>
                 <Link
                   href={`/admin/leads/${convo.lead.id}`}
-                  className="font-display text-xl tracking-wide text-chalk transition-colors hover:text-gold"
+                  className="font-display text-xl tracking-wide text-chalk transition-colors hover:text-brand"
                 >
                   {[convo.lead.firstName, convo.lead.lastName].filter(Boolean).join(" ") ||
                     convo.lead.email}
@@ -234,7 +234,7 @@ function Line({
       <dd className="break-all text-right text-chalk-body">
         {value ? (
           href ? (
-            <a href={href} className="text-gold hover:underline">
+            <a href={href} className="text-brand hover:underline">
               {value}
             </a>
           ) : (

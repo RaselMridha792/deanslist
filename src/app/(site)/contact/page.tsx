@@ -36,7 +36,7 @@ export default function ContactPage() {
             <p className="eyebrow">Direct</p>
             <a
               href={`mailto:${SITE.email}`}
-              className="mt-4 block break-words font-display text-3xl uppercase tracking-wide text-gold transition-opacity hover:opacity-80"
+              className="mt-4 block break-words font-display text-3xl uppercase tracking-wide text-brand transition-opacity hover:opacity-80"
             >
               {SITE.email}
             </a>
@@ -82,7 +82,7 @@ export default function ContactPage() {
                     className="block bg-ink-soft p-6 transition-colors duration-base ease-crisp hover:bg-ink-high"
                   >
                     {inner}
-                    <span className="mt-3 inline-block text-xs uppercase tracking-widest text-gold">
+                    <span className="mt-3 inline-block text-xs uppercase tracking-widest text-brand">
                       Go to page →
                     </span>
                   </Link>

@@ -78,7 +78,7 @@ export function AdminNav({ role }: { role: Role }) {
                   className={cn(
                     "block rounded-lg px-3 py-2 text-sm transition-colors duration-base ease-crisp",
                     active
-                      ? "bg-gold/10 text-gold"
+                      ? "bg-brand/10 text-brand"
                       : "text-chalk-muted hover:bg-white/5 hover:text-chalk",
                   )}
                 >

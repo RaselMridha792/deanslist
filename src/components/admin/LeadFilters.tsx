@@ -165,7 +165,7 @@ export function LeadFilters({ shows, countries, tags, total }: Props) {
               setQ("");
               startTransition(() => router.push("/admin/leads"));
             }}
-            className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+            className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
           >
             Clear filters
           </button>
@@ -173,13 +173,13 @@ export function LeadFilters({ shows, countries, tags, total }: Props) {
 
         <a
           href={`/api/admin/leads/export?${sp.toString()}&format=csv`}
-          className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+          className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
         >
           Export CSV
         </a>
         <a
           href={`/api/admin/leads/export?${sp.toString()}&format=xlsx`}
-          className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+          className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
         >
           Export Excel
         </a>

@@ -66,8 +66,8 @@ export default async function CampaignsPage() {
       />
 
       {!mailEnabled && (
-        <p className="mt-6 rounded-card border border-brandred-live/40 bg-brandred-live/10 p-4 text-sm text-chalk-body">
-          <span className="font-semibold text-brandred-live">
+        <p className="mt-6 rounded-card border border-live/40 bg-live/10 p-4 text-sm text-chalk-body">
+          <span className="font-semibold text-live">
             No email provider is connected.
           </span>{" "}
           Campaigns can be composed and previewed, but a send will be refused rather than
@@ -76,16 +76,16 @@ export default async function CampaignsPage() {
       )}
 
       {!env.CRON_SECRET && (
-        <p className="mt-4 rounded-card border border-gold/30 bg-gold/5 p-4 text-sm text-chalk-body">
-          <span className="font-semibold text-gold">The scheduler is not configured.</span>{" "}
+        <p className="mt-4 rounded-card border border-brand/30 bg-brand/5 p-4 text-sm text-chalk-body">
+          <span className="font-semibold text-brand">The scheduler is not configured.</span>{" "}
           Set <code>CRON_SECRET</code> and point a timer at{" "}
           <code>GET /api/cron/tick</code>, or a scheduled campaign will never fire.
         </p>
       )}
 
       {env.CRON_SECRET && schedulerSilent && (
-        <p className="mt-4 rounded-card border border-gold/30 bg-gold/5 p-4 text-sm text-chalk-body">
-          <span className="font-semibold text-gold">
+        <p className="mt-4 rounded-card border border-brand/30 bg-brand/5 p-4 text-sm text-chalk-body">
+          <span className="font-semibold text-brand">
             The scheduler has not run in the last 24 hours.
           </span>{" "}
           Check the systemd timer or PM2 cron that calls <code>/api/cron/tick</code>.
@@ -190,7 +190,7 @@ function Stat({
       <dt className="text-xs uppercase tracking-widest text-chalk-faint">{label}</dt>
       <dd
         className={`mt-2 font-display text-2xl ${
-          accent ? "text-brandred-live" : "text-chalk"
+          accent ? "text-live" : "text-chalk"
         }`}
       >
         {text ?? (value ?? 0).toLocaleString("en-US")}
@@ -222,6 +222,6 @@ function when(sentAt: Date | null, scheduledFor: Date | null, createdAt: Date) {
     });
 
   if (sentAt) return <>Sent {fmt(sentAt)}</>;
-  if (scheduledFor) return <span className="text-gold">For {fmt(scheduledFor)}</span>;
+  if (scheduledFor) return <span className="text-brand">For {fmt(scheduledFor)}</span>;
   return <>Drafted {fmt(createdAt)}</>;
 }

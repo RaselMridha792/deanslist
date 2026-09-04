@@ -56,9 +56,20 @@ const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? "ChangeMe123!";
  * See tests/README.md.
  */
 let ipCounter = 0;
+/**
+ * A fresh client address per request, unique across parallel workers.
+ *
+ * The worker index is in the third octet on purpose. Playwright runs spec files
+ * in separate processes, so a module-level counter restarts at zero in each one
+ * and every worker produced the SAME address sequence — which meant two files
+ * sharing a rate-limit bucket, and a honeypot test failing in a full run while
+ * passing on its own. That is a test-harness collision, not an application bug,
+ * but it makes the suite lie either way.
+ */
 function nextClientIp(): string {
   ipCounter += 1;
-  return `203.0.113.${(ipCounter % 250) + 1}`;
+  const worker = Number(process.env.TEST_WORKER_INDEX ?? 0);
+  return `203.0.${100 + (worker % 100)}.${(ipCounter % 250) + 1}`;
 }
 
 /** Unique per run, so an assertion can never match a leftover row. */

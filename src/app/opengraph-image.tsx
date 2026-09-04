@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { SITE } from "@/content/site";
-import { OG, OG_CONTENT_TYPE, OG_GOLD_BAR, OG_SIZE, ogTitleSize } from "@/lib/seo";
+import { OG, OG_CONTENT_TYPE, OG_BRAND_BAR, OG_SIZE, ogTitleSize } from "@/lib/seo";
 
 /**
  * The default social share card.
@@ -46,7 +46,7 @@ export default function Image() {
         }}
       >
         {/*
-          A single warm glow out of the top-left corner. Gold lights the card, it
+          A single warm glow out of the top-left corner. Brand lights the card, it
           never fills it — the same budget it gets on the site.
 
           Three things had to be right here and none of them are obvious:
@@ -54,7 +54,7 @@ export default function Image() {
           straight through the title; satori ignores the `at` position in
           `radial-gradient` and always centres it, so the glow is placed by
           moving an element rather than by CSS; and the outermost stop is
-          transparent GOLD rather than transparent ink, because fading between
+          transparent BRAND rather than transparent ink, because fading between
           two different hues interpolates through a muddy olive on the way out.
         */}
         <div
@@ -73,14 +73,14 @@ export default function Image() {
 
         {/* Eyebrow */}
         <div style={{ display: "flex", alignItems: "center" }}>
-          <div style={{ display: "flex", width: 14, height: 14, backgroundColor: OG.gold }} />
+          <div style={{ display: "flex", width: 14, height: 14, backgroundColor: OG.brand }} />
           <div
             style={{
               marginLeft: 18,
               fontSize: 24,
               fontWeight: 600,
               letterSpacing: 7,
-              color: OG.gold,
+              color: OG.brand,
             }}
           >
             GLOBAL TALENT COMPETITION
@@ -139,7 +139,7 @@ export default function Image() {
             left: 0,
             width: "100%",
             height: 10,
-            backgroundImage: OG_GOLD_BAR,
+            backgroundImage: OG_BRAND_BAR,
           }}
         />
       </div>

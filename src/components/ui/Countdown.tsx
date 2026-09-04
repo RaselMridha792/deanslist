@@ -105,7 +105,7 @@ export function Countdown({
                   className={cn(
                     "font-display text-4xl leading-none tabular-nums sm:text-5xl",
                     !parts && "text-chalk-ghost",
-                    parts && urgent ? "text-brandred-live" : parts ? "text-metal" : "",
+                    parts && urgent ? "text-live" : parts ? "text-metal" : "",
                   )}
                 >
                   {/* Before the effect runs this renders as dashes, identical on

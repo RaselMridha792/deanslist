@@ -79,9 +79,9 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
         the client needs to know it is not a fault before they report it as one.
       */}
       {!showForm && activeCount === 0 && sponsors.length > 0 && (
-        <div className="mt-6 rounded-card border border-gold/30 bg-gold/5 p-5">
+        <div className="mt-6 rounded-card border border-brand/30 bg-brand/5 p-5">
           <p className="text-sm leading-relaxed text-chalk-body">
-            <span className="font-semibold text-gold">
+            <span className="font-semibold text-brand">
               Nothing is showing on the public site.
             </span>{" "}
             Every sponsor below is switched off, so the &ldquo;In partnership with&rdquo; strip
@@ -200,7 +200,7 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
                     <span className="min-w-0">
                       <Link
                         href={`${LIST}?edit=${s.id}`}
-                        className="block truncate font-medium text-chalk transition-colors hover:text-gold"
+                        className="block truncate font-medium text-chalk transition-colors hover:text-brand"
                       >
                         {s.name}
                       </Link>
@@ -219,7 +219,7 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
                       href={s.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="transition-colors hover:text-gold"
+                      className="transition-colors hover:text-brand"
                     >
                       {s.url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
                     </a>
@@ -243,7 +243,7 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
                   <div className="flex items-center justify-end gap-4">
                     <Link
                       href={`${LIST}?edit=${s.id}`}
-                      className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                      className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                     >
                       Edit
                     </Link>

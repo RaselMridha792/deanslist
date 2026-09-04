@@ -51,13 +51,13 @@
   }
 
   ::selection {
-    background: theme("colors.gold.DEFAULT");
-    color: theme("colors.ink.DEFAULT");
+    background: theme("colors.brand.DEFAULT");
+    color: #fff;
   }
 
-  /* One focus treatment everywhere. Gold, offset, never removed. */
+  /* One focus treatment everywhere. Brand, offset, never removed. */
   :focus-visible {
-    outline: 2px solid theme("colors.gold.soft");
+    outline: 2px solid theme("colors.brand.soft");
     outline-offset: 3px;
     border-radius: 3px;
   }
@@ -80,17 +80,17 @@
 
   /* Small uppercase label that sits above a heading. */
   .eyebrow {
-    @apply font-body text-eyebrow font-semibold uppercase text-gold;
+    @apply font-body text-eyebrow font-semibold uppercase text-brand;
   }
 
   /*
-    Primary action. The gradient is what makes the gold read as metal — a flat
-    fill of #D4AF37 looks like mustard at this size. The ::after band is a
+    Primary action. The gradient is what makes the brand read as metal — a flat
+    fill of #C8102E looks like mustard at this size. The ::after band is a
     specular sweep on hover.
   */
   .btn-primary {
     @apply relative inline-flex items-center justify-center overflow-hidden rounded-full
-           bg-gold-metal px-7 py-3 text-sm font-semibold uppercase tracking-widest
+           bg-brand-gloss px-7 py-3 text-sm font-semibold uppercase tracking-widest
            text-ink transition-transform duration-base ease-crisp
            hover:-translate-y-0.5 active:translate-y-0;
   }
@@ -113,12 +113,12 @@
   .btn-ghost {
     @apply inline-flex items-center justify-center rounded-full border border-ink-edge px-7 py-3
            text-sm font-semibold uppercase tracking-widest text-chalk
-           transition-colors duration-base ease-crisp hover:border-gold hover:text-gold;
+           transition-colors duration-base ease-crisp hover:border-brand hover:text-brand;
   }
 
   .btn-quiet {
     @apply inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest
-           text-chalk-muted transition-colors duration-base ease-crisp hover:text-gold;
+           text-chalk-muted transition-colors duration-base ease-crisp hover:text-brand;
   }
 
   .card {
@@ -129,20 +129,20 @@
     @apply card hover:border-ink-edge hover:bg-ink-high;
   }
 
-  /* 1px gold rule that fades at both ends. Used to separate major sections
+  /* 1px brand rule that fades at both ends. Used to separate major sections
      without the heaviness of a full-width border. */
-  .rule-gold {
-    @apply h-px w-full bg-gold-hairline opacity-40;
+  .rule-brand {
+    @apply h-px w-full bg-brand-hairline opacity-40;
   }
 
   .field {
     @apply w-full rounded-lg border border-ink-line bg-ink-raised px-4 py-3 text-sm text-chalk
            placeholder:text-chalk-faint outline-none transition-colors duration-base ease-crisp
-           focus:border-gold;
+           focus:border-brand;
   }
 
   .field-error {
-    @apply border-brandred-live focus:border-brandred-live;
+    @apply border-live focus:border-live;
   }
 
   .label {
@@ -154,13 +154,13 @@
   }
 
   .error-text {
-    @apply mt-1.5 text-xs font-medium text-brandred-live;
+    @apply mt-1.5 text-xs font-medium text-live;
   }
 
   /* Live badge. The only place a pulsing animation is allowed. */
   .badge-live {
-    @apply inline-flex items-center gap-2 rounded-full border border-brandred-live/40
-           bg-brandred-live/10 px-3 py-1 text-eyebrow font-semibold uppercase text-brandred-live;
+    @apply inline-flex items-center gap-2 rounded-full border border-live/40
+           bg-live/10 px-3 py-1 text-eyebrow font-semibold uppercase text-live;
   }
 
   .badge {
@@ -168,8 +168,8 @@
            text-eyebrow font-semibold uppercase text-chalk-muted;
   }
 
-  /* Gold text needs a gradient too, for the same reason the button does. */
+  /* Brand text needs a gradient too, for the same reason the button does. */
   .text-metal {
-    @apply bg-gold-metal bg-clip-text text-transparent;
+    @apply bg-brand-gloss bg-clip-text text-transparent;
   }
 }

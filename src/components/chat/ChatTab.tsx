@@ -193,7 +193,7 @@ export function ChatTab({
               <button
                 type="button"
                 onClick={() => setMode("ask")}
-                className="text-eyebrow font-semibold uppercase tracking-widest text-chalk-faint transition-colors duration-base ease-crisp hover:text-gold"
+                className="text-eyebrow font-semibold uppercase tracking-widest text-chalk-faint transition-colors duration-base ease-crisp hover:text-brand"
               >
                 Ask instead
               </button>
@@ -205,7 +205,7 @@ export function ChatTab({
                 key={i}
                 className={cn(
                   "h-0.5 flex-1 rounded-full transition-colors duration-base ease-crisp",
-                  i <= view.index ? "bg-gold-metal" : "bg-ink-line",
+                  i <= view.index ? "bg-brand-gloss" : "bg-ink-line",
                 )}
               />
             ))}
@@ -223,7 +223,7 @@ export function ChatTab({
               <button
                 type="button"
                 onClick={() => setMode("flow")}
-                className="shrink-0 text-eyebrow font-semibold uppercase tracking-widest text-chalk-faint transition-colors duration-base ease-crisp hover:text-gold"
+                className="shrink-0 text-eyebrow font-semibold uppercase tracking-widest text-chalk-faint transition-colors duration-base ease-crisp hover:text-brand"
               >
                 Back to form
               </button>
@@ -240,7 +240,7 @@ export function ChatTab({
               "max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm",
               b.role === "assistant"
                 ? "border border-ink-line bg-ink-raised text-chalk-body"
-                : "ml-auto border border-gold/30 bg-gold/10 text-chalk",
+                : "ml-auto border border-brand/30 bg-brand/10 text-chalk",
             )}
           >
             {b.text}
@@ -267,7 +267,7 @@ export function ChatTab({
                 key={s}
                 type="button"
                 onClick={() => void ask(s)}
-                className="rounded-full border border-ink-edge bg-ink-high px-3 py-1.5 text-xs text-chalk-muted transition-colors duration-base ease-crisp hover:border-gold hover:text-gold"
+                className="rounded-full border border-ink-edge bg-ink-high px-3 py-1.5 text-xs text-chalk-muted transition-colors duration-base ease-crisp hover:border-brand hover:text-brand"
               >
                 {s}
               </button>
@@ -363,7 +363,7 @@ export function ChatTab({
                 type="checkbox"
                 checked={optIn}
                 onChange={(e) => setOptIn(e.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-gold"
+                className="mt-0.5 h-4 w-4 accent-brand"
               />
               <span>Email me show announcements and reminders. One click to unsubscribe.</span>
             </label>

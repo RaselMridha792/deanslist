@@ -5,7 +5,7 @@ import { VideoEmbed } from "@/components/media/VideoEmbed";
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
 import { getEpisodes, getShows } from "@/lib/queries";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { SITE, CHANNEL_CONTENT, WHY_SUBSCRIBE } from "@/content/site";
+import { SITE, CHANNEL_CONTENT, WHY_SUBSCRIBE, WATCH_COPY, WATCH_OUTRO } from "@/content/site";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
@@ -33,6 +33,14 @@ export default async function WatchPage({ searchParams }: Props) {
         image="/media/gallery/social-01"
       />
 
+      <section className="border-b border-ink-line">
+        <div className="shell max-w-prose space-y-5 py-14 text-body-lg leading-relaxed text-chalk-muted">
+          {WATCH_COPY.map((para) => (
+            <p key={para.slice(0, 40)}>{para}</p>
+          ))}
+        </div>
+      </section>
+
       <section className="section">
         <div className="shell">
           {/* Filtering through the URL, so a filtered view can be shared and
@@ -56,7 +64,7 @@ export default async function WatchPage({ searchParams }: Props) {
                 href={SITE.socials.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gold hover:underline"
+                className="text-brand hover:underline"
               >
                 YouTube
               </a>{" "}
@@ -108,11 +116,13 @@ export default async function WatchPage({ searchParams }: Props) {
                 <p className="font-display text-4xl leading-none text-chalk-ghost">
                   {String(i + 1).padStart(2, "0")}
                 </p>
-                <h3 className="mt-5 text-xl uppercase tracking-wide text-gold">{c.title}</h3>
+                <h3 className="mt-5 text-xl uppercase tracking-wide text-brand">{c.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-chalk-muted">{c.body}</p>
               </div>
             ))}
           </div>
+
+          <p className="mt-10 max-w-prose text-chalk-muted">{WATCH_OUTRO}</p>
         </div>
       </section>
 
@@ -148,8 +158,8 @@ function FilterChip({
       className={cn(
         "rounded-full border px-5 py-2 text-xs font-semibold uppercase tracking-widest transition-colors duration-base ease-crisp",
         active
-          ? "border-gold bg-gold/10 text-gold"
-          : "border-ink-edge text-chalk-muted hover:border-gold hover:text-gold",
+          ? "border-brand bg-brand/10 text-brand"
+          : "border-ink-edge text-chalk-muted hover:border-brand hover:text-brand",
       )}
     >
       {label}

@@ -70,6 +70,8 @@ export type ShowSeed = {
   heroPoster: string;
   keyArt: string;
   mechanic?: { name: string; body: string }[];
+  /** The client's own pitch copy, kept verbatim. */
+  pitch?: string[];
   pending?: string[];
 };
 
@@ -79,7 +81,14 @@ export const SHOWS: ShowSeed[] = [
     title: "Drop That Mike",
     tagline: "The only show where you control the cash.",
     description:
-      "This is not just another talent show. On Drop That Mike, YOU decide who stays and who gets eliminated. The prize pool drains in real time, and the only thing standing between the money and zero is the audience. Perform from home. Compete for real cash. Every talent is welcome.",
+      "This is not just another talent show. On Drop That Mike, YOU decide who stays and who gets eliminated with Freeze or Pass. Perform from home. Compete for real cash. Every talent is welcome.",
+    /** Verbatim from the old homepage. The client's own words about their own format. */
+    pitch: [
+      "DROP THAT MIKE — the only show where YOU control the cash!",
+      "The prize pool is DRAINING in real time… and the only thing standing between the money and zero is YOU. Hit FREEZE to lock the pot and save the performer's payday!",
+      "The better they perform, the harder you fight to keep that money alive.",
+      "Tune in LIVE — drop a comment if you're ready to FREEZE!",
+    ],
     entryDeadline: null,
     startsAt: null,
     cadence: "Every Tuesday",
@@ -142,7 +151,7 @@ export const WINNERS: WinnerSeed[] = [
     showSlug: "crown-the-sound",
     prizeAwarded: 1000,
     story:
-      "Talent, passion and voice set this performance apart. It captured the audience and the judges alike, and proved what happens when preparation meets opportunity — the Dean's List stage welcomes performers at every level of experience.",
+      "On August 28th, the latest Crown the Sound challenge brought incredible energy as contestants from around the world submitted video entries to perform the classic song “Happy Birthday.” With votes pouring in from viewers across the globe, one standout talent rose above the rest. Congratulations to PJ Galloway, the winner of this season's challenge, whose performance captured both the creativity of the contest and the hearts of the audience.",
     // The old winner page carries no photograph of the winner at all, only the
     // site logo. Substituting a gallery shot would publish an unidentified
     // person's likeness under this name. The UI renders an initial instead.
@@ -154,6 +163,25 @@ export const WINNERS: WinnerSeed[] = [
     // instruction, but still unconfirmed. See SITE-AUDIT.md §7.
     unconfirmed:
       "The old site names two different winners for this challenge. Confirm before this goes public.",
+  },
+  {
+    slug: "ekwelem-precious-sophia",
+    name: "Ekwelem Precious (Sophia)",
+    showSlug: "crown-the-sound",
+    prizeAwarded: 1000,
+    story:
+      "Winner of a Crown the Sound contest and recipient of the $1,000 cash prize. Sophia's talent, passion, and voice truly set her apart. Her performance captured the hearts of the audience and the judges, showcasing exactly what the Dean's List stands for — excellence, artistry, and authenticity. Sophia's journey is a testament to what happens when preparation meets opportunity. Whether you've been performing for years or are just finding your voice, her story proves that this platform is open to all who are ready to be heard.",
+    photoUrl: null,
+    videoUrl: null,
+    announcedAt: null,
+    // Kept because it is the client's own published copy, on their own winners
+    // page, about a named person. The conflict is which of the two is the most
+    // recent: the homepage credits PJ Galloway with "the latest" challenge and
+    // this page credits Sophia with "the most recent" one. Both cannot be true.
+    // Published on the client's instruction to lead with PJ Galloway; the
+    // ordering is theirs to confirm.
+    unconfirmed:
+      "The winners page calls this the most recent contest while the homepage says the same of PJ Galloway. Confirm the order and the dates.",
   },
 ];
 
@@ -191,18 +219,23 @@ export const STATS: StatSeed[] = [
   {
     key: "youtube_subscribers",
     label: "YouTube subscribers",
-    value: 700_000,
+    value: 1_700_000,
     suffix: "+",
     verified: false,
-    note: "Proposal claims 700K+. The old site's own counter is broken, so this is unconfirmed.",
+    note:
+      "The old site's counter animates to 1.7Mil+ — a static fetch catches it mid-count, " +
+      "which is why an earlier pass read it as a broken '.7Mil+'. It is the client's own " +
+      "published figure, and it is 2.4x what the proposal claims (700K+). Shown to sponsors " +
+      "it becomes an advertising claim, so it stays hidden until someone confirms it against " +
+      "the channel.",
   },
   {
     key: "facebook_followers",
     label: "Facebook followers",
-    value: 0,
+    value: 208_000,
     suffix: "+",
     verified: false,
-    note: "Old site renders a bare 'K' with no number.",
+    note: "Old site's counter animates to 208K. Client's own figure, unconfirmed.",
   },
   {
     key: "prize_awarded",
@@ -344,3 +377,50 @@ export const SPONSOR_TIERS = [
     body: "Product or prize partnership with credits on the show and the winner announcement.",
   },
 ] as const;
+
+/* -------------------------------------------------- long-form page copy */
+
+/**
+ * The client's own prose, kept verbatim from the old site.
+ *
+ * An earlier pass captured these pages with `curl`, which returns the markup
+ * before SP Page Builder has run — so several sections came back as a summary
+ * or not at all. Re-captured with a real browser, and this is what they
+ * actually say. Rewriting it would be a content decision nobody asked for.
+ *
+ * Editable from the dashboard once a PageSection row exists for the same key;
+ * these are the fallbacks.
+ */
+
+export const ABOUT_COPY = [
+  "The Dean's List is more than just a name — it is a platform created to celebrate excellence and showcase worldwide musical talent. Designed as a stage where creativity meets recognition, The Dean's List invites contestants from around the globe to step forward and demonstrate their artistry. Contestants bring their wit, their creativity, and their presence to the stage as they compete for recognition that will set them apart in the music world.",
+  "Each performance becomes part of the experience, highlighting the diversity of style, skill, and originality that exists in music today. The Dean's List not only honors performers for their ability, but also gives them the chance to inspire others and gain exposure in front of audiences who are searching for fresh, standout talent.",
+  "Every season builds anticipation as musicians bring their very best in pursuit of the ultimate prize. At the end of each season, the winner earns more than just applause — they secure a cash prize and, even more importantly, a coveted place on the Principal's Roll of the Dean's List. This honor cements their status as one of the standout talents in the world, ensuring their name is forever connected with excellence, creativity, and achievement.",
+  "By combining recognition, reward, and the thrill of competition, The Dean's List continues to grow as the premier platform for celebrating the best in worldwide musical talent.",
+] as const;
+
+export const WATCH_COPY = [
+  "The Dean's List isn't just a platform — it's an experience. Through our official YouTube channel, you can watch performances, highlights, and behind-the-scenes moments that bring the competition to life. Each video showcases the creativity, presence, and excellence that contestants bring to the stage season after season.",
+  "Our videos make it easy for fans, music lovers, and industry professionals to stay connected with the journey of our contestants. From electrifying live performances to exclusive interviews and recaps, the Dean's List channel captures every step of the competition.",
+] as const;
+
+export const WATCH_OUTRO =
+  "Join the conversation, share your favourite performances, and help us celebrate worldwide musical talent with the power of video.";
+
+/** Opens the winners archive. Their words about why the contest exists. */
+export const WINNERS_INTRO =
+  "The Crown the Sound contest is a cornerstone of the Dean's List platform, designed to spotlight exceptional musical talent and reward artists who bring creativity, presence, and skill to the stage. Every season, one standout performer rises above the rest, earning the coveted title, the prize, and a place among our past winners.";
+
+/**
+ * Closes the winners archive. Note the "$1,000" — it is the client's own
+ * published figure for this contest, corroborated by the winner page, so it is
+ * a stated fact rather than an invented one.
+ */
+export const NEXT_WINNER_COPY = {
+  heading: "Want to be the next winner?",
+  body: [
+    "If you missed your shot this time, don't worry — another chance to win $1,000 is coming soon. This is more than just a contest; it's your moment to be recognised, celebrated, and remembered.",
+    "Whether you're a seasoned performer or a new artist ready to take the stage, this is your opportunity to showcase your talent to the world.",
+    "Follow us on all platforms and stay locked in for updates on the next Crown the Sound competition. You could be next.",
+  ],
+} as const;

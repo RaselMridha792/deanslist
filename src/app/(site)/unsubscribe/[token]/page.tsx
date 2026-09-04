@@ -50,7 +50,7 @@ export default async function UnsubscribePage({ params, searchParams }: Props) {
         <p className="mt-4 text-chalk-muted">
           Open the most recent email from us and use the unsubscribe link at the bottom of it, or
           write to{" "}
-          <a href={`mailto:${SITE.email}`} className="text-gold underline underline-offset-4">
+          <a href={`mailto:${SITE.email}`} className="text-brand underline underline-offset-4">
             {SITE.email}
           </a>{" "}
           and we will take you off the list by hand.

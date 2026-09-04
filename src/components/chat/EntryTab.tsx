@@ -66,7 +66,7 @@ export function EntryTab({
 
   if (status === "success") {
     return (
-      <div className="rounded-card border border-gold/40 bg-gold/5 p-5">
+      <div className="rounded-card border border-brand/40 bg-brand/5 p-5">
         <p className="eyebrow">Entry received</p>
         <p className="mt-3 text-sm text-chalk-body">
           The team reviews every submission and replies by email. Nothing else is needed from
@@ -100,7 +100,7 @@ export function EntryTab({
 
       <div>
         <label className="label" htmlFor="cw-firstName">
-          First name <span className="text-gold">*</span>
+          First name <span className="text-brand">*</span>
         </label>
         <input
           id="cw-firstName"
@@ -113,7 +113,7 @@ export function EntryTab({
 
       <div>
         <label className="label" htmlFor="cw-email">
-          Email <span className="text-gold">*</span>
+          Email <span className="text-brand">*</span>
         </label>
         <input
           id="cw-email"
@@ -128,7 +128,7 @@ export function EntryTab({
 
       <div>
         <label className="label" htmlFor="cw-talentCategory">
-          Talent <span className="text-gold">*</span>
+          Talent <span className="text-brand">*</span>
         </label>
         <select id="cw-talentCategory" name="talentCategory" required className="field">
           <option value="">Select one</option>
@@ -163,7 +163,7 @@ export function EntryTab({
       </div>
 
       <label className="flex items-start gap-3 text-sm text-chalk-muted">
-        <input type="checkbox" name="marketingOptIn" className="mt-1 h-4 w-4 accent-gold" />
+        <input type="checkbox" name="marketingOptIn" className="mt-1 h-4 w-4 accent-brand" />
         <span>Email me show announcements and reminders. One click to unsubscribe.</span>
       </label>
 
@@ -187,7 +187,7 @@ export function EntryTab({
             Got a question first?
           </button>
         )}
-        <Link href="/enter" className="text-xs uppercase tracking-widest text-chalk-faint hover:text-gold">
+        <Link href="/enter" className="text-xs uppercase tracking-widest text-chalk-faint hover:text-brand">
           Full form
         </Link>
       </div>

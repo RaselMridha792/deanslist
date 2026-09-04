@@ -80,7 +80,7 @@ export function SiteHeader() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors duration-base ease-crisp",
-                  active ? "text-gold" : "text-chalk-muted hover:text-chalk",
+                  active ? "text-brand" : "text-chalk-muted hover:text-chalk",
                 )}
               >
                 {item.label}
@@ -100,7 +100,7 @@ export function SiteHeader() {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? "Close menu" : "Open menu"}
-            className="grid h-11 w-11 place-items-center rounded-full border border-ink-edge text-chalk transition-colors duration-base ease-crisp hover:border-gold hover:text-gold xl:hidden"
+            className="grid h-11 w-11 place-items-center rounded-full border border-ink-edge text-chalk transition-colors duration-base ease-crisp hover:border-brand hover:text-brand xl:hidden"
           >
             <span className="relative block h-3.5 w-5">
               <span
@@ -138,7 +138,7 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
-              className="border-b border-ink-line/60 py-4 font-display text-2xl uppercase tracking-wide text-chalk last:border-0 hover:text-gold"
+              className="border-b border-ink-line/60 py-4 font-display text-2xl uppercase tracking-wide text-chalk last:border-0 hover:text-brand"
             >
               {item.label}
             </Link>

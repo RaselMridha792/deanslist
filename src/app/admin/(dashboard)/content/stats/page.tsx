@@ -189,7 +189,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                       <Cell>
                         <Link
                           href={`${LIST}?edit=${s.id}`}
-                          className="font-medium text-chalk transition-colors hover:text-gold"
+                          className="font-medium text-chalk transition-colors hover:text-brand"
                         >
                           {s.label}
                         </Link>
@@ -204,7 +204,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                         <div className="flex items-center justify-end gap-4">
                           <Link
                             href={`${LIST}?edit=${s.id}`}
-                            className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+                            className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
                           >
                             Edit
                           </Link>
@@ -248,7 +248,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                       <Cell>
                         <Link
                           href={`${LIST}?edit=${s.id}`}
-                          className="font-medium text-chalk transition-colors hover:text-gold"
+                          className="font-medium text-chalk transition-colors hover:text-brand"
                         >
                           {s.label}
                         </Link>
@@ -265,7 +265,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                         <div className="flex items-center justify-end gap-4">
                           <Link
                             href={`${LIST}?edit=${s.id}`}
-                            className="text-xs font-semibold uppercase tracking-widest text-gold transition-colors hover:text-gold-soft"
+                            className="text-xs font-semibold uppercase tracking-widest text-brand transition-colors hover:text-brand-soft"
                           >
                             Review &amp; publish
                           </Link>

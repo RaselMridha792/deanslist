@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { SITE } from "@/content/site";
 import { getWinner } from "@/lib/queries";
-import { OG, OG_CONTENT_TYPE, OG_GOLD_BAR, OG_SIZE, ogTitleSize } from "@/lib/seo";
+import { OG, OG_CONTENT_TYPE, OG_BRAND_BAR, OG_SIZE, ogTitleSize } from "@/lib/seo";
 
 /**
  * Per-winner share card.
@@ -74,14 +74,14 @@ export default async function Image({ params }: { params: { slug: string } }) {
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
-            <div style={{ display: "flex", width: 14, height: 14, backgroundColor: OG.gold }} />
+            <div style={{ display: "flex", width: 14, height: 14, backgroundColor: OG.brand }} />
             <div
               style={{
                 marginLeft: 18,
                 fontSize: 24,
                 fontWeight: 600,
                 letterSpacing: 7,
-                color: OG.gold,
+                color: OG.brand,
               }}
             >
               PRINCIPAL&apos;S ROLL
@@ -166,7 +166,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                   display: "flex",
                   fontSize: 58,
                   lineHeight: 1,
-                  color: OG.gold,
+                  color: OG.brand,
                 }}
               >
                 {prize}
@@ -183,7 +183,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             left: 0,
             width: "100%",
             height: 10,
-            backgroundImage: OG_GOLD_BAR,
+            backgroundImage: OG_BRAND_BAR,
           }}
         />
       </div>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/site/PageHero";
 import { Picture } from "@/components/media/Picture";
-import { SHOWS } from "@/content/site";
+import { SHOWS, WINNERS_INTRO, NEXT_WINNER_COPY } from "@/content/site";
 import { getWinners } from "@/lib/queries";
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default async function WinnersPage() {
       <PageHero
         eyebrow="Principal's Roll"
         title="Past winners"
-        lede="Every season ends with one name. These are the performances that took the prize."
+        lede={WINNERS_INTRO}
         image="/media/gallery/cts-05"
       />
 
@@ -58,7 +58,7 @@ export default async function WinnersPage() {
                           ) : null;
                         })()}
                         <span className="absolute inset-0 grid place-items-center">
-                          <span className="grid h-20 w-20 place-items-center rounded-full border border-gold/30">
+                          <span className="grid h-20 w-20 place-items-center rounded-full border border-brand/30">
                             <span className="font-display text-4xl leading-none text-metal">
                               {w.name.charAt(0).toUpperCase()}
                             </span>
@@ -69,7 +69,7 @@ export default async function WinnersPage() {
                     <span className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
 
                     {w.prizeAwarded !== null && (
-                      <span className="absolute left-5 top-5 rounded-full bg-gold-metal px-3 py-1 text-eyebrow font-bold uppercase text-ink">
+                      <span className="absolute left-5 top-5 rounded-full bg-brand-gloss px-3 py-1 text-eyebrow font-bold uppercase text-ink">
                         ${w.prizeAwarded.toLocaleString("en-US")}
                       </span>
                     )}
@@ -83,6 +83,24 @@ export default async function WinnersPage() {
               ))}
             </div>
           )}
+
+          {/* The client's own closing pitch, kept from the old winners page. */}
+          <div className="mt-20 rounded-card border border-ink-line bg-ink-soft p-8 sm:p-12">
+            <h2 className="text-display-md uppercase">{NEXT_WINNER_COPY.heading}</h2>
+            <div className="mt-5 max-w-prose space-y-4 leading-relaxed text-chalk-muted">
+              {NEXT_WINNER_COPY.body.map((para) => (
+                <p key={para.slice(0, 40)}>{para}</p>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link href="/enter" className="btn-primary">
+                Enter the contest
+              </Link>
+              <Link href="/watch" className="btn-ghost">
+                Watch past seasons
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </>

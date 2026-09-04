@@ -33,7 +33,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-5">
       <form onSubmit={onSubmit} className="w-full max-w-sm rounded-2xl border border-ink-line bg-ink-soft p-8">
-        <p className="font-display text-xl tracking-[0.2em] text-gold">DEAN&apos;S LIST</p>
+        <p className="font-display text-xl tracking-[0.2em] text-brand">DEAN&apos;S LIST</p>
         <h1 className="mt-2 text-lg font-semibold">Admin sign in</h1>
 
         <div className="mt-6 space-y-4">

@@ -146,7 +146,7 @@ export default function JoinPage() {
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {CREW_AREAS.map((r) => (
               <div key={r.title} className="card p-7">
-                <h3 className="text-xl uppercase tracking-wide text-gold">{r.title}</h3>
+                <h3 className="text-xl uppercase tracking-wide text-brand">{r.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-chalk-muted">{r.body}</p>
               </div>
             ))}

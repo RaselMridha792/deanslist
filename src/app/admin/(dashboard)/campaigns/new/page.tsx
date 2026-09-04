@@ -76,7 +76,7 @@ export default async function NewCampaignPage({ searchParams }: Props) {
       />
 
       {!mailEnabled && (
-        <p className="mt-6 rounded-card border border-gold/30 bg-gold/5 p-4 text-sm text-chalk-body">
+        <p className="mt-6 rounded-card border border-brand/30 bg-brand/5 p-4 text-sm text-chalk-body">
           No email provider is connected yet. You can compose and preview; sending is
           refused until <code>RESEND_API_KEY</code> is set.
         </p>
@@ -260,7 +260,7 @@ export default async function NewCampaignPage({ searchParams }: Props) {
                 ["{{unsubscribeLink}}", "Added by the template automatically"],
               ].map(([token, note]) => (
                 <li key={token}>
-                  <code className="text-gold">{token}</code>
+                  <code className="text-brand">{token}</code>
                   <span className="ml-2 text-xs text-chalk-faint">{note}</span>
                 </li>
               ))}
@@ -276,7 +276,7 @@ export default async function NewCampaignPage({ searchParams }: Props) {
             {segments.length === 0 ? (
               <p className="mt-3 text-sm text-chalk-muted">
                 None saved yet.{" "}
-                <Link href="/admin/segments" className="text-gold hover:underline">
+                <Link href="/admin/segments" className="text-brand hover:underline">
                   Save one
                 </Link>{" "}
                 so the next campaign takes two clicks.

@@ -265,7 +265,7 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
           {filtered && (
             <Link
               href="/admin/chatbot"
-              className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-gold"
+              className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
             >
               Back to the unread queue
             </Link>
@@ -321,7 +321,7 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
                   {c.lead ? (
                     <Link
                       href={`/admin/leads/${c.lead.id}`}
-                      className="text-gold transition-colors hover:underline"
+                      className="text-brand transition-colors hover:underline"
                     >
                       {[c.lead.firstName, c.lead.lastName].filter(Boolean).join(" ") ||
                         c.lead.email}

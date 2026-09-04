@@ -87,9 +87,9 @@ export default async function ShowsPage() {
           homepage picks one on an ordering nobody chose, and it will not be
           obvious which — so this is a warning, not a note. */}
       {live.length > 1 && (
-        <div className="mt-8 rounded-card border border-brandred-live/40 bg-brandred-live/5 p-5">
+        <div className="mt-8 rounded-card border border-live/40 bg-live/5 p-5">
           <p className="text-sm text-chalk-body">
-            <span className="font-semibold text-brandred-live">
+            <span className="font-semibold text-live">
               {live.length} shows are LIVE at once.
             </span>{" "}
             The homepage hero can only feature one, and which one it picks is not
@@ -97,7 +97,7 @@ export default async function ShowsPage() {
             {live.map((s, i) => (
               <span key={s.id}>
                 {i > 0 && ", "}
-                <Link href={`/admin/shows/${s.id}`} className="text-gold hover:underline">
+                <Link href={`/admin/shows/${s.id}`} className="text-brand hover:underline">
                   {s.title}
                 </Link>
               </span>
@@ -108,9 +108,9 @@ export default async function ShowsPage() {
       )}
 
       {live.length === 0 && open.length === 0 && shows.length > 0 && (
-        <div className="mt-8 rounded-card border border-gold/30 bg-gold/5 p-5">
+        <div className="mt-8 rounded-card border border-brand/30 bg-brand/5 p-5">
           <p className="text-sm text-chalk-body">
-            <span className="font-semibold text-gold">No show is LIVE or OPEN.</span> The
+            <span className="font-semibold text-brand">No show is LIVE or OPEN.</span> The
             homepage hero falls back to whichever show is listed first, and nothing is
             taking entries. Set one to OPEN when entries reopen.
           </p>
@@ -158,7 +158,7 @@ export default async function ShowsPage() {
                     {s._count.leads > 0 ? (
                       <Link
                         href={`/admin/leads?showId=${s.id}`}
-                        className="text-chalk-muted transition-colors hover:text-gold"
+                        className="text-chalk-muted transition-colors hover:text-brand"
                       >
                         {s._count.leads}
                       </Link>

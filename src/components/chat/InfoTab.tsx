@@ -59,7 +59,7 @@ export function InfoTab() {
               <div className="flex items-start justify-between gap-3">
                 <Link
                   href={`/shows/${show.slug}`}
-                  className="font-display text-lg uppercase tracking-wide text-chalk transition-colors duration-base ease-crisp hover:text-gold"
+                  className="font-display text-lg uppercase tracking-wide text-chalk transition-colors duration-base ease-crisp hover:text-brand"
                 >
                   {show.title}
                 </Link>
@@ -67,7 +67,7 @@ export function InfoTab() {
               </div>
               <p className="mt-2 text-sm text-chalk-muted">{show.tagline}</p>
               {show.cadence && (
-                <p className="mt-2 text-xs uppercase tracking-widest text-gold">{show.cadence}</p>
+                <p className="mt-2 text-xs uppercase tracking-widest text-brand">{show.cadence}</p>
               )}
             </li>
           ))}
@@ -82,7 +82,7 @@ export function InfoTab() {
         <p className="eyebrow">Talk to the team</p>
         <a
           href={`mailto:${SITE.email}`}
-          className="mt-3 block break-words text-sm font-semibold text-gold transition-opacity hover:opacity-80"
+          className="mt-3 block break-words text-sm font-semibold text-brand transition-opacity hover:opacity-80"
         >
           {SITE.email}
         </a>
@@ -102,7 +102,7 @@ export function InfoTab() {
                   <span className="block text-sm font-medium text-chalk">{r.label}</span>
                   <span className="block text-xs text-chalk-faint">{r.note}</span>
                 </span>
-                <span aria-hidden="true" className="text-gold">
+                <span aria-hidden="true" className="text-brand">
                   →
                 </span>
               </Link>

@@ -56,7 +56,7 @@ export function VideoEmbed({ videoId, title, className }: Props) {
       <span className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent" />
 
       <span className="absolute inset-0 grid place-items-center">
-        <span className="grid h-16 w-16 place-items-center rounded-full bg-gold-metal shadow-gold-glow transition-transform duration-base ease-crisp group-hover:scale-110">
+        <span className="grid h-16 w-16 place-items-center rounded-full bg-brand-gloss shadow-brand-glow transition-transform duration-base ease-crisp group-hover:scale-110">
           <svg viewBox="0 0 24 24" className="ml-1 h-6 w-6 fill-ink" aria-hidden>
             <path d="M8 5v14l11-7z" />
           </svg>

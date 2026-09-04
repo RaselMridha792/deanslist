@@ -45,10 +45,10 @@ export const PALETTE = {
   /** chalk.faint, rgba(255,255,255,0.34) flattened over #16161C */
   faint: "#656569",
 
-  /** gold.DEFAULT — accent only, never a large fill */
-  gold: "#D4AF37",
-  goldSoft: "#E8CC72",
-  goldDeep: "#A88423",
+  /** brand.DEFAULT — accent only, never a large fill */
+  brand: "#C8102E",
+  brandSoft: "#E8384F",
+  brandDeep: "#8E0B20",
 
   /** brandred.live — urgency only: deadlines and live badges */
   red: "#FF2D42",
@@ -102,9 +102,9 @@ export function siteUrl(path = "/"): string {
 
 /* ----------------------------------------------------------------- blocks */
 
-/** Small uppercase gold label. The `.eyebrow` token, inlined. */
+/** Small uppercase brand label. The `.eyebrow` token, inlined. */
 export function eyebrow(text: string): string {
-  return `<p style="margin:0 0 12px;font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${PALETTE.gold};">${escapeHtml(text)}</p>`;
+  return `<p style="margin:0 0 12px;font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${PALETTE.brand};">${escapeHtml(text)}</p>`;
 }
 
 /** The one big statement per email. White, uppercase, tight leading. */
@@ -122,9 +122,9 @@ export function paragraph(html: string, opts: { muted?: boolean } = {}): string 
   return `<p style="margin:0 0 16px;font-family:${FONT};font-size:16px;line-height:1.65;color:${color};">${html}</p>`;
 }
 
-/** Inline emphasis inside a paragraph. Gold is the accent, never the body text. */
+/** Inline emphasis inside a paragraph. Brand is the accent, never the body text. */
 export function accent(text: string): string {
-  return `<strong style="color:${PALETTE.gold};font-weight:700;">${escapeHtml(text)}</strong>`;
+  return `<strong style="color:${PALETTE.brand};font-weight:700;">${escapeHtml(text)}</strong>`;
 }
 
 /** Red is reserved for urgency: deadlines, final hours, live. Nothing else. */
@@ -137,27 +137,27 @@ export function urgent(text: string): string {
  *
  * A padded table cell, not an <a> with padding — Outlook collapses padding on an
  * inline element. Outlook also ignores border-radius, so the pill renders as a
- * gold rectangle there. That is deliberate: the alternative is a block of VML
+ * brand rectangle there. That is deliberate: the alternative is a block of VML
  * per button, which doubles the size of every template to round four corners in
  * one client.
  */
 export function button(href: string, label: string): string {
   const url = escapeHtml(href);
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 4px;"><tr>
-      <td align="center" bgcolor="${PALETTE.gold}" style="border-radius:999px;background-color:${PALETTE.gold};">
+      <td align="center" bgcolor="${PALETTE.brand}" style="border-radius:999px;background-color:${PALETTE.brand};">
         <a href="${url}" style="display:inline-block;padding:15px 34px;font-family:${FONT};font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${PALETTE.ink};text-decoration:none;border-radius:999px;">${escapeHtml(label)}</a>
       </td>
     </tr></table>`;
 }
 
-/** Secondary action. A plain link, never competing with the gold button. */
+/** Secondary action. A plain link, never competing with the brand button. */
 export function secondaryLink(href: string, label: string): string {
-  return `<p style="margin:4px 0 0;font-family:${FONT};font-size:14px;line-height:1.6;"><a href="${escapeHtml(href)}" style="color:${PALETTE.goldSoft};text-decoration:underline;font-weight:600;">${escapeHtml(label)}</a></p>`;
+  return `<p style="margin:4px 0 0;font-family:${FONT};font-size:14px;line-height:1.6;"><a href="${escapeHtml(href)}" style="color:${PALETTE.brandSoft};text-decoration:underline;font-weight:600;">${escapeHtml(label)}</a></p>`;
 }
 
 /** Raised box for a details block: `.card` one elevation step up. */
 export function panel(innerHtml: string, opts: { accentBorder?: boolean } = {}): string {
-  const border = opts.accentBorder ? PALETTE.goldDeep : PALETTE.line;
+  const border = opts.accentBorder ? PALETTE.brandDeep : PALETTE.line;
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 24px;background-color:${PALETTE.inkHigh};border:1px solid ${border};border-radius:10px;"><tr>
       <td style="padding:22px 24px;">${innerHtml}</td>
     </tr></table>`;
@@ -179,7 +179,7 @@ export function fact(label: string, value: string): string {
 /** Numbered step, used by the how-it-works block. */
 export function step(index: number, title: string, body: string): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-      <td width="34" valign="top" style="width:34px;font-family:${FONT};font-size:16px;font-weight:700;color:${PALETTE.gold};padding:0 0 14px;">${index}.</td>
+      <td width="34" valign="top" style="width:34px;font-family:${FONT};font-size:16px;font-weight:700;color:${PALETTE.brand};padding:0 0 14px;">${index}.</td>
       <td valign="top" style="padding:0 0 14px;font-family:${FONT};font-size:15px;line-height:1.55;color:${PALETTE.body};"><strong style="color:${PALETTE.white};">${escapeHtml(title)}</strong> &mdash; ${escapeHtml(body)}</td>
     </tr></table>`;
 }
@@ -311,7 +311,7 @@ ${preheaderBlock(preheader)}
         <tr>
           <td style="background-color:${PALETTE.inkSoft};border:1px solid ${PALETTE.line};border-radius:14px;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-              <tr><td style="height:3px;line-height:3px;font-size:0;background-color:${PALETTE.gold};border-radius:14px 14px 0 0;">&nbsp;</td></tr>
+              <tr><td style="height:3px;line-height:3px;font-size:0;background-color:${PALETTE.brand};border-radius:14px 14px 0 0;">&nbsp;</td></tr>
               <tr><td style="padding:34px 30px 30px;">${bodyHtml}</td></tr>
             </table>
           </td>

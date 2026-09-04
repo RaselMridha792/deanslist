@@ -16,7 +16,7 @@ export function Badge({
   if (live) {
     return (
       <span className={cn("badge-live", className)}>
-        <span className="h-1.5 w-1.5 rounded-full bg-brandred-live animate-pulse-live" aria-hidden />
+        <span className="h-1.5 w-1.5 rounded-full bg-live animate-pulse-live" aria-hidden />
         {children}
       </span>
     );
