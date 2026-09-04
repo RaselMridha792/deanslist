@@ -55,30 +55,32 @@ model Show {
   winners   Winner[]
   episodes  Episode[]
   campaigns Campaign[]
+  gallery   GalleryImage[]
 
   @@index([status])
+  @@index([slug])
 }
 
 model Episode {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   showId      String
-  show        Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  show        Show      @relation(fields: [showId], references: [id], onDelete: Cascade)
   title       String
   episodeNo   Int?
   airedAt     DateTime?
   videoUrl    String?
   thumbnail   String?
   description String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 
   @@index([showId])
 }
 
 model Winner {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   showId       String?
-  show         Show?    @relation(fields: [showId], references: [id], onDelete: SetNull)
-  slug         String   @unique
+  show         Show?     @relation(fields: [showId], references: [id], onDelete: SetNull)
+  slug         String    @unique
   name         String
   country      String?
   prizeAwarded Int?
@@ -86,7 +88,7 @@ model Winner {
   videoUrl     String?
   story        String?
   announcedAt  DateTime?
-  createdAt    DateTime @default(now())
+  createdAt    DateTime  @default(now())
 }
 
 // ---------------------------------------------------------------- leads
@@ -118,17 +120,17 @@ enum LeadSource {
 }
 
 model Lead {
-  id             String     @id @default(cuid())
-  type           LeadType   @default(GENERAL)
-  status         LeadStatus @default(NEW)
-  source         LeadSource @default(WEBSITE_FORM)
+  id     String     @id @default(cuid())
+  type   LeadType   @default(GENERAL)
+  status LeadStatus @default(NEW)
+  source LeadSource @default(WEBSITE_FORM)
 
-  firstName      String
-  lastName       String?
-  email          String
-  phone          String?
-  country        String?
-  city           String?
+  firstName String
+  lastName  String?
+  email     String
+  phone     String?
+  country   String?
+  city      String?
 
   // contestant fields
   talentCategory String?
@@ -137,33 +139,46 @@ model Lead {
   ageRange       String?
 
   // free-form payload for anything captured by the chatbot or custom forms
-  message        String?
-  meta           Json?
+  message String?
+  meta    Json?
 
-  showId         String?
-  show           Show?      @relation(fields: [showId], references: [id], onDelete: SetNull)
+  showId String?
+  show   Show?   @relation(fields: [showId], references: [id], onDelete: SetNull)
 
-  marketingOptIn Boolean    @default(false)
-  smsOptIn       Boolean    @default(false)
+  marketingOptIn Boolean   @default(false)
+  smsOptIn       Boolean   @default(false)
   consentAt      DateTime?
 
-  ipAddress      String?
-  userAgent      String?
-  referrer       String?
-  utmSource      String?
-  utmMedium      String?
-  utmCampaign    String?
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
 
-  internalNotes  String?
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  internalNotes String?
 
-  tags           TagOnLead[]
-  sends          CampaignSend[]
+  // One-click unsubscribe. Minted on first marketing send, never reused, so a
+  // leaked link cannot be replayed against another recipient.
+  unsubscribeToken String?   @unique
+  unsubscribedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tags          TagOnLead[]
+  sends         CampaignSend[]
+  conversations Conversation[]
+  assets        Asset[]
 
   @@index([type, status])
   @@index([email])
   @@index([createdAt])
+  // The dashboard filters on these; without indexes every filter is a seq scan.
+  @@index([country])
+  @@index([showId])
+  @@index([source])
+  @@index([marketingOptIn])
 }
 
 model Tag {
@@ -194,31 +209,45 @@ enum CampaignStatus {
 }
 
 model Campaign {
-  id           String         @id @default(cuid())
-  name         String
-  subject      String
-  preheader    String?
-  bodyHtml     String
-  templateKey  String?        // announcement | reminder | deadline | results | winner
-  status       CampaignStatus @default(DRAFT)
+  id          String         @id @default(cuid())
+  name        String
+  subject     String
+  preheader   String?
+  bodyHtml    String
+  templateKey String? // announcement | reminder | deadline | results | winner
+  status      CampaignStatus @default(DRAFT)
 
-  showId       String?
-  show         Show?          @relation(fields: [showId], references: [id], onDelete: SetNull)
+  showId String?
+  show   Show?   @relation(fields: [showId], references: [id], onDelete: SetNull)
 
-  // audience selection saved as a filter object, e.g. { type: "CONTESTANT", country: "US" }
-  audience     Json?
+  // Either a saved, reusable Segment, or a one-off filter object such as
+  // { type: "CONTESTANT", country: "US" }. Segment wins when both are set.
+  segmentId String?
+  segment   Segment? @relation(fields: [segmentId], references: [id], onDelete: SetNull)
+  audience  Json?
 
   scheduledFor DateTime?
   sentAt       DateTime?
-  totalSent    Int            @default(0)
-  totalFailed  Int            @default(0)
 
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  // Denormalised counters, updated as EmailEvent rows arrive. The scope promises
+  // per-campaign open and click reporting; totals alone cannot deliver that, so
+  // these are a fast read over the CampaignSend/EmailEvent detail, not the source
+  // of truth.
+  totalRecipients Int @default(0)
+  totalSent       Int @default(0)
+  totalFailed     Int @default(0)
+  totalDelivered  Int @default(0)
+  totalOpened     Int @default(0)
+  totalClicked    Int @default(0)
+  totalBounced    Int @default(0)
 
-  sends        CampaignSend[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sends CampaignSend[]
 
   @@index([status])
+  @@index([scheduledFor])
 }
 
 enum SendStatus {
@@ -231,34 +260,51 @@ enum SendStatus {
 }
 
 model CampaignSend {
-  id         String     @id @default(cuid())
-  campaignId String
-  campaign   Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  leadId     String
-  lead       Lead       @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  status     SendStatus @default(QUEUED)
-  providerId String?
-  error      String?
-  sentAt     DateTime?
-  openedAt   DateTime?
-  clickedAt  DateTime?
+  id          String     @id @default(cuid())
+  campaignId  String
+  campaign    Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  leadId      String
+  lead        Lead       @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  status      SendStatus @default(QUEUED)
+  providerId  String?
+  error       String?
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  openedAt    DateTime?
+  clickedAt   DateTime?
+  openCount   Int        @default(0)
+  clickCount  Int        @default(0)
+
+  events EmailEvent[]
 
   @@unique([campaignId, leadId])
   @@index([status])
+  @@index([campaignId, status])
 }
 
 // ---------------------------------------------------------------- chatbot
 
 model Conversation {
-  id        String    @id @default(cuid())
-  sessionId String    @unique
-  leadId    String?
-  intent    String?   // contestant | fan | sponsor | support
-  resolved  Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id        String @id @default(cuid())
+  sessionId String @unique
 
-  messages  Message[]
+  // Was a bare String with no relation, so a captured chatbot lead could not be
+  // joined back to its transcript.
+  leadId String?
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  intent    String? // contestant | fan | sponsor | support
+  resolved  Boolean @default(false)
+  handedOff Boolean @default(false)
+
+  ipAddress String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages Message[]
+
+  @@index([leadId])
+  @@index([createdAt])
 }
 
 model Message {
@@ -280,4 +326,223 @@ model KnowledgeItem {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------- site content
+//
+// Everything in this block exists so the Content Manager in the admin dashboard
+// has something to manage. Without it the homepage cannot render stats or
+// sponsors from the database, and Phase 3 would have to hardcode them — which is
+// exactly the failure mode the old site is being rebuilt to escape.
+
+/// Homepage statistics band. The old site renders ".7Mil+" and a bare "K"
+/// because its counter animates from an empty value. Storing the number and its
+/// display parts separately makes a partial render impossible.
+model SiteStat {
+  id        String   @id @default(cuid())
+  key       String   @unique // youtube_subscribers | facebook_followers | prize_pool
+  label     String // "YouTube subscribers"
+  value     Int // 700000
+  prefix    String? // "$"
+  suffix    String? // "+"
+  /// Display override. When null the UI formats `value` itself.
+  displayAs String?
+  /// Unverified numbers must never reach the public site. See CLAUDE.md section 8.
+  verified  Boolean  @default(false)
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+model Sponsor {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logoUrl   String?
+  url       String?
+  tier      String? // headline | supporting | partner
+  blurb     String?
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  showId    String?
+  show      Show?    @relation(fields: [showId], references: [id], onDelete: SetNull)
+  url       String
+  alt       String
+  caption   String?
+  width     Int?
+  height    Int?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([showId, sortOrder])
+}
+
+/// Editable copy blocks for pages whose wording is the client's to own —
+/// /rules and /about especially, where inventing text is a legal risk.
+model PageSection {
+  id        String   @id @default(cuid())
+  page      String // about | rules | sponsors | contact
+  key       String // hero | eligibility | prize-terms
+  heading   String?
+  body      String   @db.Text
+  sortOrder Int      @default(0)
+  published Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+
+  @@unique([page, key])
+  @@index([page, published, sortOrder])
+}
+
+// ---------------------------------------------------------------- audiences
+
+/// A saved, reusable audience. The signed scope promises "create reusable
+/// audiences ... then target them directly in a campaign"; Campaign.audience is
+/// a one-off JSON blob and cannot be reused or counted ahead of time.
+model Segment {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  /// Same filter shape the leads table uses, e.g.
+  /// { "type": "CONTESTANT", "country": "US", "showId": "..." }
+  filter      Json
+  /// Cached count so the composer can show a recipient number without a scan.
+  lastCount   Int?
+  lastCountAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  campaigns Campaign[]
+}
+
+// ---------------------------------------------------------------- email health
+
+enum EmailEventType {
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  COMPLAINED
+  DELIVERY_DELAYED
+}
+
+/// Raw provider webhook log. CampaignSend carries the current state; this keeps
+/// the history behind it, which is what makes "opens and clicks per campaign"
+/// reportable at all.
+model EmailEvent {
+  id         String         @id @default(cuid())
+  type       EmailEventType
+  email      String
+  providerId String?
+  sendId     String?
+  send       CampaignSend?  @relation(fields: [sendId], references: [id], onDelete: SetNull)
+  url        String? // for CLICKED
+  reason     String? // for BOUNCED / COMPLAINED
+  raw        Json?
+  createdAt  DateTime       @default(now())
+
+  @@index([email])
+  @@index([type, createdAt])
+  @@index([sendId])
+}
+
+enum SuppressionReason {
+  UNSUBSCRIBED
+  HARD_BOUNCE
+  COMPLAINT
+  MANUAL
+}
+
+/// Addresses that must never be mailed again, independent of any Lead row.
+/// Kept separate so re-importing a list cannot silently resurrect someone who
+/// unsubscribed or complained.
+model Suppression {
+  id        String            @id @default(cuid())
+  email     String            @unique
+  reason    SuppressionReason
+  note      String?
+  createdAt DateTime          @default(now())
+
+  @@index([reason])
+}
+
+// ---------------------------------------------------------------- jobs
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  DONE
+  FAILED
+}
+
+/// Database-backed queue drained by GET /api/cron/tick.
+///
+/// Campaign.scheduledFor has always existed but nothing ever executed it, and the
+/// same gap blocks the automated pre-show reminders. A job table plus a timer is
+/// the smallest thing that works on a single VPS with no Redis.
+model Job {
+  id          String    @id @default(cuid())
+  kind        String // send_campaign | show_reminder | recount_segment
+  payload     Json
+  status      JobStatus @default(PENDING)
+  runAfter    DateTime  @default(now())
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3)
+  lastError   String?
+  lockedAt    DateTime?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([status, runAfter])
+  @@index([kind])
+}
+
+// ---------------------------------------------------------------- uploads
+
+/// Files accepted from the public site. Never stored on the app VPS disk — url
+/// points at S3-compatible object storage. Absent storage config, entry forms
+/// accept video links only (see uploadsEnabled in src/lib/env.ts).
+model Asset {
+  id           String   @id @default(cuid())
+  leadId       String?
+  lead         Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  kind         String // performance_video | logo | photo
+  url          String
+  key          String   @unique // object storage key
+  mimeType     String
+  sizeBytes    Int
+  originalName String?
+  createdAt    DateTime @default(now())
+
+  @@index([leadId])
+}
+
+// ---------------------------------------------------------------- audit
+
+/// Who changed what. Roles are only meaningful if their use is recorded.
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  userEmail  String
+  action     String // lead.status_change | campaign.send | user.create
+  entityType String
+  entityId   String?
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userEmail, createdAt])
+  @@index([createdAt])
 }
