@@ -12,6 +12,7 @@ export type LeadFormField =
   | "company"
   | "role"
   | "inquiryType"
+  | "talentCategory"
   | "message";
 
 type Props = {
@@ -24,6 +25,7 @@ type Props = {
   /** Options for the inquiryType select, when that field is present. */
   inquiryOptions?: readonly { value: string; label: string }[];
   roleOptions?: readonly string[];
+  talentOptions?: readonly { value: string; label: string }[];
   consentLabel?: string;
 };
 
@@ -44,6 +46,7 @@ export function LeadForm({
   messagePlaceholder,
   inquiryOptions,
   roleOptions,
+  talentOptions,
   consentLabel = "Email me show announcements and updates. Unsubscribe any time.",
 }: Props) {
   const router = useRouter();
@@ -81,6 +84,7 @@ export function LeadForm({
           email: String(fd.get("email") ?? ""),
           phone: String(fd.get("phone") ?? ""),
           country: String(fd.get("country") ?? ""),
+          talentCategory: String(fd.get("talentCategory") ?? ""),
           message,
           marketingOptIn: fd.get("marketingOptIn") === "on",
           website: String(fd.get("website") ?? ""),
@@ -155,6 +159,22 @@ export function LeadForm({
             <option value="">Select one</option>
             {roleOptions.map((r) => (
               <option key={r}>{r}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {has("talentCategory") && talentOptions && (
+        <div>
+          <label className="label" htmlFor="lf-talentCategory">
+            What do you do? <span className="text-gold">*</span>
+          </label>
+          <select id="lf-talentCategory" name="talentCategory" required className="field">
+            <option value="">Select one</option>
+            {talentOptions.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
             ))}
           </select>
         </div>

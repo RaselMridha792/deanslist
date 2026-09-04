@@ -4,7 +4,8 @@ import { PageHero } from "@/components/site/PageHero";
 import { VideoEmbed } from "@/components/media/VideoEmbed";
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
 import { getEpisodes, getShows } from "@/lib/queries";
-import { SITE } from "@/content/site";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { SITE, CHANNEL_CONTENT, WHY_SUBSCRIBE } from "@/content/site";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
@@ -86,6 +87,31 @@ export default async function WatchPage({ searchParams }: Props) {
             >
               Follow on Facebook
             </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Both sections below are the old site's own copy. The rebuild replaces
+          its structure, not its message — dropping them would quietly lose
+          content the client wrote. */}
+      <section className="section border-t border-ink-line">
+        <div className="shell">
+          <SectionHeading
+            eyebrow="On the channel"
+            title="What you'll find"
+            lede={WHY_SUBSCRIBE}
+          />
+
+          <div className="mt-12 grid gap-px overflow-hidden rounded-card border border-ink-line bg-ink-line sm:grid-cols-2 lg:grid-cols-4">
+            {CHANNEL_CONTENT.map((c, i) => (
+              <div key={c.title} className="bg-ink-soft p-8">
+                <p className="font-display text-4xl leading-none text-chalk-ghost">
+                  {String(i + 1).padStart(2, "0")}
+                </p>
+                <h3 className="mt-5 text-xl uppercase tracking-wide text-gold">{c.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-chalk-muted">{c.body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

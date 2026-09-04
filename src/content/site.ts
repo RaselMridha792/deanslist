@@ -229,19 +229,50 @@ export const GALLERY = [
 /* ------------------------------------------------------- talent categories */
 
 /**
- * Each maps to a transcoded clip from the old site. These were the .mov files
- * no browser could play; they are now MP4 + WebM with a poster frame.
+ * Taken verbatim from the client's own entry forms (MachForm 88574 and 95824),
+ * not invented. Chef and Fitness/Athlete are on their list, which is the proof
+ * that "Any talent. Big cash." is meant literally and this is not a music-only
+ * competition — an assumption that would have quietly narrowed the funnel.
+ *
+ * `clip` maps to a transcoded background loop where one fits. These were the
+ * .mov files no browser could play; they are now MP4 + WebM with a poster.
  */
 export const TALENT_CATEGORIES = [
-  { value: "Singing", label: "Singing", clip: "/media/texture/vocals" },
-  { value: "Rap", label: "Rap", clip: "/media/texture/rap" },
-  { value: "Instrument", label: "Instrument", clip: "/media/texture/keys" },
-  { value: "Drums", label: "Drums", clip: "/media/texture/drums" },
-  { value: "Bass", label: "Bass", clip: "/media/texture/bass" },
-  { value: "Production", label: "Production / DJ", clip: "/media/texture/deck" },
-  { value: "Dance", label: "Dance", clip: "/media/texture/singer-f" },
+  { value: "Singer", label: "Singer", clip: "/media/texture/vocals" },
+  { value: "Song Writer", label: "Song writer", clip: "/media/texture/singer-f" },
+  { value: "Musician", label: "Musician", clip: "/media/texture/keys" },
+  { value: "DJ", label: "DJ", clip: "/media/texture/deck" },
+  { value: "Rapper", label: "Rapper", clip: "/media/texture/rap" },
+  { value: "Chef", label: "Chef", clip: null },
+  { value: "Fitness/Athlete", label: "Fitness / athlete", clip: null },
   { value: "Other", label: "Something else", clip: "/media/texture/singer-m" },
 ] as const;
+
+/**
+ * What the old /videos page tells people they will find on the channel.
+ * Copy is theirs; keeping it means the rebuild does not quietly drop a section.
+ */
+export const CHANNEL_CONTENT = [
+  {
+    title: "Full performances",
+    body: "Relive the artistry and talent of each contestant as they take the stage.",
+  },
+  {
+    title: "Highlights & clips",
+    body: "Quick recaps and powerful moments you won't want to miss.",
+  },
+  {
+    title: "Winner spotlights",
+    body: "Celebrate each season's champion and their journey to the Principal's Roll.",
+  },
+  {
+    title: "Behind the scenes",
+    body: "See how contestants prepare and perform at a competitive level.",
+  },
+] as const;
+
+export const WHY_SUBSCRIBE =
+  "Discover new talent, witness incredible performances, and support artists from across the globe. Every video is another opportunity to be inspired by creativity and excellence.";
 
 /* -------------------------------------------------------------- how it works */
 
