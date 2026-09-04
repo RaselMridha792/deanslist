@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { media } from "@/lib/media";
+import { mediaImage } from "@/lib/media";
 
 type Props = {
   /** Path without an extension, e.g. "/media/gallery/cts-01". */
@@ -35,7 +35,7 @@ export function Picture({
   sizes,
 }: Props) {
   const isBrand = src.includes("/brand/");
-  const base = media(src);
+  const base = mediaImage(src);
   const fallback = isBrand ? `${base}.png` : `${base}.jpg`;
 
   return (

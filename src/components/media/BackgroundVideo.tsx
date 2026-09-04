@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
-import { media } from "@/lib/media";
+import { mediaVideo } from "@/lib/media";
 
 type Props = {
   /** Path without an extension, e.g. "/media/hero/mic". */
@@ -71,12 +71,12 @@ export function BackgroundVideo({ src, poster, className }: Props) {
     void el.play().catch(() => {});
   }, [enabled]);
 
-  const base = media(src);
+  const base = mediaVideo(src);
 
   return (
     <video
       ref={ref}
-      poster={media(poster)}
+      poster={mediaVideo(poster)}
       muted
       loop
       playsInline
