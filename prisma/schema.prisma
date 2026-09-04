@@ -347,7 +347,7 @@ model SiteStat {
   suffix    String? // "+"
   /// Display override. When null the UI formats `value` itself.
   displayAs String?
-  /// Unverified numbers must never reach the public site. See CLAUDE.md section 8.
+  /// Unverified numbers must never reach the public site. See docs/PROJECT-BRIEF.md section 8.
   verified  Boolean  @default(false)
   sortOrder Int      @default(0)
   active    Boolean  @default(true)

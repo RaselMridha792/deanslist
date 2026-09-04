@@ -1,6 +1,6 @@
-# CLAUDE.md
+# Project brief
 
-Project context for Claude Code. Read this first in every session.
+Context for anyone working on this repository. Read this first.
 
 ---
 

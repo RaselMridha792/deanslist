@@ -1,11 +1,11 @@
 # BUILD-PLAN.md
 
-Task breakdown for Claude Code. Each task is scoped to be finishable and verifiable on its
+Task breakdown for this build. Each task is scoped to be finishable and verifiable on its
 own. Do them in order. After each task, run `npm run build` and fix anything it reports
 before moving on.
 
 > Recon evidence behind this plan lives in `docs/SITE-AUDIT.md`. Content pulled from the old
-> site lives in `docs/CONTENT-INVENTORY.md`. Open client questions are in `CLAUDE.md` §8.
+> site lives in `docs/CONTENT-INVENTORY.md`. Open client questions are in `docs/PROJECT-BRIEF.md` §8.
 
 ---
 
@@ -202,7 +202,7 @@ limits. Never block the request. Store the provider id per row.
 
 **7.6 Job runner** — **this was missing from the original plan entirely.** `Campaign.
 scheduledFor` exists but nothing executes it, and the same gap kills the automated pre-show
-reminders that `CLAUDE.md` §2 calls the highest-value feature. Implement a DB-backed job
+reminders that `docs/PROJECT-BRIEF.md` §2 calls the highest-value feature. Implement a DB-backed job
 table plus a `GET /api/cron/tick` endpoint guarded by `CRON_SECRET`, driven by systemd timer
 or PM2 cron on the VPS. Handles: scheduled sends, pre-show reminder sequences, retries.
 

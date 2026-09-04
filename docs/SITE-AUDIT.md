@@ -33,7 +33,7 @@ https://ggnform.com/machform/embed.php?id=95824
 
 Every contestant who has ever entered submitted their name, email and performance link into
 a database on `ggnform.com`, not on `deanslist.live`. Whether the client can export that
-data, and under what data-processing agreement, is an open question — see `CLAUDE.md` §8.
+data, and under what data-processing agreement, is an open question — see `docs/PROJECT-BRIEF.md` §8.
 
 This is the single strongest justification for the whole rebuild.
 
@@ -150,7 +150,7 @@ Target for the rebuild: zero.
 Two different winners for the same challenge. Dates conflict too: the homepage says
 **"Show Starts August 11"** while the winner story is dated **"August 28th"**.
 
-**Neither name may be published until the client confirms.** Both are in `CLAUDE.md` §8.
+**Neither name may be published until the client confirms.** Both are in `docs/PROJECT-BRIEF.md` §8.
 
 ---
 
@@ -168,7 +168,7 @@ point at. For a company running a public prize contest this is a real exposure �
 rebuild carries it over unchanged, it becomes the developer's problem too.
 
 Phase 4 adds `/privacy` and `/terms`. The wording itself is the client's to supply or
-approve; see `CLAUDE.md` §8.
+approve; see `docs/PROJECT-BRIEF.md` §8.
 
 ---
 
