@@ -1,8 +1,9 @@
 /**
  * Push everything in public/media to Cloudinary.
  *
- *   node scripts/upload-media.mjs          # upload
- *   node scripts/upload-media.mjs --check   # verify what is already up there
+ *   node scripts/upload-media.mjs --test    # confirm the credentials work
+ *   node scripts/upload-media.mjs           # upload everything
+ *   node scripts/upload-media.mjs --check    # verify delivery afterwards
  *
  * Reads CLOUDINARY_URL from .env:
  *   CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
@@ -65,6 +66,7 @@ if (!parsed) {
 const [, API_KEY, API_SECRET, CLOUD] = parsed;
 
 const CHECK_ONLY = process.argv.includes("--check");
+const TEST_ONLY = process.argv.includes("--test");
 
 /* ----------------------------------------------------------------- helpers */
 
@@ -130,6 +132,54 @@ async function upload(file) {
     return { rel, error: body?.error?.message ?? `HTTP ${res.status}` };
   }
   return { rel, url: body.secure_url, bytes: body.bytes, resourceType };
+}
+
+/* -------------------------------------------------------------- credentials */
+
+/**
+ * Confirm the key and secret work before uploading 113 files. A wrong secret
+ * otherwise fails on every single one, which reads like a broken script rather
+ * than a typo in .env.
+ */
+if (TEST_ONLY) {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const params = { timestamp, max_results: 1 };
+  const qs = new URLSearchParams({
+    ...params,
+    api_key: API_KEY,
+    signature: sign(params),
+  });
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD}/resources/image?${qs}`,
+  );
+
+  if (res.ok) {
+    const body = await res.json().catch(() => ({}));
+    console.log(`credentials OK`);
+    console.log(`  cloud name : ${CLOUD}`);
+    console.log(`  api key    : ${API_KEY}`);
+    console.log(`  api secret : ${"*".repeat(API_SECRET.length)} (${API_SECRET.length} chars, accepted)`);
+    console.log(`  images already in this cloud: ${body.resources?.length ?? 0}+`);
+    console.log(`
+Ready. Run: node scripts/upload-media.mjs`);
+    process.exit(0);
+  }
+
+  const body = await res.text();
+  console.error(`credentials REJECTED (HTTP ${res.status})`);
+  if (res.status === 401) {
+    console.error(`
+The api_key or api_secret in CLOUDINARY_URL is wrong.`);
+    console.error(`Check for a stray space, a missing character, or the angle`);
+    console.error(`brackets < > left in by accident.`);
+  } else if (res.status === 404) {
+    console.error(`
+Cloud name "${CLOUD}" not found. It is the part after the @.`);
+  }
+  console.error(`
+${body.slice(0, 300)}`);
+  process.exit(1);
 }
 
 /* --------------------------------------------------------------------- run */
