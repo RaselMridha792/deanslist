@@ -1,51 +1,44 @@
-import Link from "next/link";
+import { Hero } from "@/components/home/Hero";
+import { HowItWorks } from "@/components/home/HowItWorks";
+import { StatsBand } from "@/components/home/StatsBand";
+import { WinnerSpotlight } from "@/components/home/WinnerSpotlight";
+import { VideoHighlights } from "@/components/home/VideoHighlights";
+import { GalleryStrip } from "@/components/home/GalleryStrip";
+import { SponsorStrip } from "@/components/home/SponsorStrip";
+import { NewsletterCTA } from "@/components/home/NewsletterCTA";
+import {
+  getCurrentShow,
+  getStats,
+  getLatestWinner,
+  getEpisodes,
+  getGallery,
+  getSponsors,
+} from "@/lib/queries";
 
-const stats = [
-  { value: "700K+", label: "YouTube subscribers" },
-  { value: "$1,000", label: "Cash prize per season" },
-  { value: "Weekly", label: "Live episodes" },
-];
+// Content is dashboard-managed, so the page is rendered per request rather than
+// baked at build time. Swap to a revalidate window once traffic justifies it.
+export const dynamic = "force-dynamic";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [show, stats, winner, episodes, gallery, sponsors] = await Promise.all([
+    getCurrentShow(),
+    getStats(),
+    getLatestWinner(),
+    getEpisodes(),
+    getGallery(),
+    getSponsors(),
+  ]);
+
   return (
     <>
-      <section className="relative overflow-hidden border-b border-ink-line">
-        <div className="shell relative py-28 md:py-36">
-          <p className="text-xs uppercase tracking-[0.3em] text-gold">Now casting</p>
-          <h1 className="mt-4 max-w-3xl font-display text-6xl leading-[0.95] tracking-wide md:text-8xl">
-            Perform. Get voted.
-            <br />
-            Make the list.
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/60">
-            A global online talent competition streamed live every week. Enter from
-            anywhere in the world and compete for the cash prize.
-          </p>
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Link href="/enter" className="btn-primary">Enter the contest</Link>
-            <Link href="/watch" className="btn-ghost">Watch an episode</Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-ink-line bg-ink-soft">
-        <div className="shell grid gap-8 py-14 sm:grid-cols-3">
-          {stats.map((s) => (
-            <div key={s.label}>
-              <p className="font-display text-4xl tracking-wide text-gold">{s.value}</p>
-              <p className="mt-1 text-xs uppercase tracking-widest text-white/50">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="shell py-24">
-        <h2 className="font-display text-4xl tracking-wide">Section blocks go here</h2>
-        <p className="mt-3 max-w-xl text-white/60">
-          Current show, latest winner, video highlights, gallery, sponsors, and newsletter
-          capture will be built into this page from the approved design.
-        </p>
-      </section>
+      <Hero show={show} />
+      <StatsBand stats={stats} />
+      <HowItWorks />
+      <WinnerSpotlight winner={winner} />
+      <VideoHighlights episodes={episodes} />
+      <GalleryStrip images={gallery} />
+      <SponsorStrip sponsors={sponsors} />
+      <NewsletterCTA />
     </>
   );
 }

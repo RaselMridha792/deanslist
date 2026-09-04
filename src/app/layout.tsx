@@ -59,10 +59,6 @@ export const metadata: Metadata = {
       "Perform from home, get voted on live, and win a cash prize and a place on the Principal's Roll.",
     images: ["/og.jpg"],
   },
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
   robots: { index: true, follow: true },
 };
 
