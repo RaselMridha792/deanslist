@@ -16,9 +16,12 @@ export function GalleryStrip({ images }: { images: { url: string; alt: string }[
         {images.map((img, i) => (
           <div
             key={img.url}
-            className="relative aspect-[3/4] w-64 shrink-0 snap-start overflow-hidden rounded-card border border-ink-line sm:w-72"
+            /* bg-ink-high matters: these lazy-load, and an empty bordered box
+               reads as a broken image until the file arrives. A filled panel
+               reads as loading. */
+            className="relative aspect-[3/4] w-64 shrink-0 snap-start overflow-hidden rounded-card border border-ink-line bg-ink-high sm:w-72"
           >
-            <Picture src={img.url} alt={img.alt} priority={i < 2} sizes="288px" />
+            <Picture src={img.url} alt={img.alt} priority={i < 4} sizes="288px" />
           </div>
         ))}
       </div>

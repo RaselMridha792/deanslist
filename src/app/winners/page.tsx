@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/site/PageHero";
 import { Picture } from "@/components/media/Picture";
+import { SHOWS } from "@/content/site";
 import { getWinners } from "@/lib/queries";
 
 export const metadata: Metadata = {
@@ -47,11 +48,23 @@ export default async function WinnersPage() {
                         imgClassName="transition-transform duration-slow ease-cine group-hover:scale-[1.03]"
                       />
                     ) : (
-                      <div className="grid h-full place-items-center bg-ink-high">
-                        <span className="font-display text-7xl text-chalk-ghost">
-                          {w.name.charAt(0)}
+                      <>
+                        {(() => {
+                          const art = SHOWS.find((s) => s.slug === w.showSlug)?.keyArt;
+                          return art ? (
+                            <div className="absolute inset-0 opacity-25">
+                              <Picture src={art} alt="" sizes="33vw" />
+                            </div>
+                          ) : null;
+                        })()}
+                        <span className="absolute inset-0 grid place-items-center">
+                          <span className="grid h-20 w-20 place-items-center rounded-full border border-gold/30">
+                            <span className="font-display text-4xl leading-none text-metal">
+                              {w.name.charAt(0).toUpperCase()}
+                            </span>
+                          </span>
                         </span>
-                      </div>
+                      </>
                     )}
                     <span className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
 

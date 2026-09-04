@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ButtonLink } from "@/components/ui/Button";
-import { Picture } from "@/components/media/Picture";
+import { WinnerPortrait } from "@/components/media/WinnerPortrait";
 import { VideoEmbed } from "@/components/media/VideoEmbed";
-import { getWinner, extractYouTubeId } from "@/lib/queries";
+import { getWinner, getShow, extractYouTubeId } from "@/lib/queries";
 import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -36,28 +36,20 @@ export default async function WinnerPage({ params }: Params) {
   if (!winner) notFound();
 
   const videoId = extractYouTubeId(winner.videoUrl);
+  const show = winner.showSlug ? await getShow(winner.showSlug) : null;
 
   return (
     <>
       <section className="border-b border-ink-line">
         <div className="shell grid gap-12 pb-16 pt-32 md:pt-40 lg:grid-cols-[0.9fr_1fr] lg:gap-20">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-card border border-ink-line">
-            {winner.photoUrl ? (
-              <Picture
-                src={winner.photoUrl}
-                alt={winner.name}
-                priority
-                sizes="(min-width: 1024px) 40vw, 100vw"
-              />
-            ) : (
-              <div className="grid h-full place-items-center bg-ink-soft">
-                <span className="font-display text-8xl text-chalk-ghost">
-                  {winner.name.charAt(0)}
-                </span>
-              </div>
-            )}
-            <span className="absolute inset-x-0 bottom-0 h-px bg-gold-hairline" />
-          </div>
+          <WinnerPortrait
+            name={winner.name}
+            photoUrl={winner.photoUrl}
+            fallbackImage={show?.keyArt}
+            priority
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            className="aspect-[4/5]"
+          />
 
           <div className="flex flex-col justify-center">
             {winner.showTitle && <p className="eyebrow">{winner.showTitle} — winner</p>}
