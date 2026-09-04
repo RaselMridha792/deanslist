@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Bebas Neue", "Impact", sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-ink text-white font-body antialiased;
+}
+
+.shell {
+  @apply mx-auto w-full max-w-shell px-5 md:px-8;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-gold px-7 py-3 text-sm font-semibold uppercase tracking-widest text-ink transition hover:bg-gold-soft;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center rounded-full border border-ink-line px-7 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:border-gold hover:text-gold;
+}
+
+.field {
+  @apply w-full rounded-lg border border-ink-line bg-ink-soft px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-gold;
+}
+
+.label {
+  @apply mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/60;
+}

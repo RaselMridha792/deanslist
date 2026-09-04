@@ -1,0 +1,283 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------- admin users
+
+enum Role {
+  OWNER
+  EDITOR
+  REVIEWER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role     @default(EDITOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------- shows
+
+enum ShowStatus {
+  DRAFT
+  OPEN
+  LIVE
+  CLOSED
+  ARCHIVED
+}
+
+model Show {
+  id            String     @id @default(cuid())
+  slug          String     @unique
+  title         String
+  tagline       String?
+  description   String?
+  prizeAmount   Int?
+  currency      String     @default("USD")
+  entryDeadline DateTime?
+  startsAt      DateTime?
+  status        ShowStatus @default(DRAFT)
+  heroImageUrl  String?
+  trailerUrl    String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  leads     Lead[]
+  winners   Winner[]
+  episodes  Episode[]
+  campaigns Campaign[]
+
+  @@index([status])
+}
+
+model Episode {
+  id          String   @id @default(cuid())
+  showId      String
+  show        Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  title       String
+  episodeNo   Int?
+  airedAt     DateTime?
+  videoUrl    String?
+  thumbnail   String?
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@index([showId])
+}
+
+model Winner {
+  id           String   @id @default(cuid())
+  showId       String?
+  show         Show?    @relation(fields: [showId], references: [id], onDelete: SetNull)
+  slug         String   @unique
+  name         String
+  country      String?
+  prizeAwarded Int?
+  photoUrl     String?
+  videoUrl     String?
+  story        String?
+  announcedAt  DateTime?
+  createdAt    DateTime @default(now())
+}
+
+// ---------------------------------------------------------------- leads
+
+enum LeadType {
+  CONTESTANT
+  FAN
+  SPONSOR
+  CREW
+  GENERAL
+  PRESS
+}
+
+enum LeadStatus {
+  NEW
+  REVIEWED
+  SHORTLISTED
+  FINALIST
+  REJECTED
+  CONTACTED
+}
+
+enum LeadSource {
+  WEBSITE_FORM
+  CHATBOT
+  NEWSLETTER
+  IMPORT
+  MANUAL
+}
+
+model Lead {
+  id             String     @id @default(cuid())
+  type           LeadType   @default(GENERAL)
+  status         LeadStatus @default(NEW)
+  source         LeadSource @default(WEBSITE_FORM)
+
+  firstName      String
+  lastName       String?
+  email          String
+  phone          String?
+  country        String?
+  city           String?
+
+  // contestant fields
+  talentCategory String?
+  performanceUrl String?
+  stageName      String?
+  ageRange       String?
+
+  // free-form payload for anything captured by the chatbot or custom forms
+  message        String?
+  meta           Json?
+
+  showId         String?
+  show           Show?      @relation(fields: [showId], references: [id], onDelete: SetNull)
+
+  marketingOptIn Boolean    @default(false)
+  smsOptIn       Boolean    @default(false)
+  consentAt      DateTime?
+
+  ipAddress      String?
+  userAgent      String?
+  referrer       String?
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+
+  internalNotes  String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  tags           TagOnLead[]
+  sends          CampaignSend[]
+
+  @@index([type, status])
+  @@index([email])
+  @@index([createdAt])
+}
+
+model Tag {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  color     String?
+  createdAt DateTime    @default(now())
+  leads     TagOnLead[]
+}
+
+model TagOnLead {
+  leadId String
+  tagId  String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([leadId, tagId])
+}
+
+// ---------------------------------------------------------------- campaigns
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  FAILED
+}
+
+model Campaign {
+  id           String         @id @default(cuid())
+  name         String
+  subject      String
+  preheader    String?
+  bodyHtml     String
+  templateKey  String?        // announcement | reminder | deadline | results | winner
+  status       CampaignStatus @default(DRAFT)
+
+  showId       String?
+  show         Show?          @relation(fields: [showId], references: [id], onDelete: SetNull)
+
+  // audience selection saved as a filter object, e.g. { type: "CONTESTANT", country: "US" }
+  audience     Json?
+
+  scheduledFor DateTime?
+  sentAt       DateTime?
+  totalSent    Int            @default(0)
+  totalFailed  Int            @default(0)
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  sends        CampaignSend[]
+
+  @@index([status])
+}
+
+enum SendStatus {
+  QUEUED
+  SENT
+  FAILED
+  BOUNCED
+  OPENED
+  CLICKED
+}
+
+model CampaignSend {
+  id         String     @id @default(cuid())
+  campaignId String
+  campaign   Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  leadId     String
+  lead       Lead       @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  status     SendStatus @default(QUEUED)
+  providerId String?
+  error      String?
+  sentAt     DateTime?
+  openedAt   DateTime?
+  clickedAt  DateTime?
+
+  @@unique([campaignId, leadId])
+  @@index([status])
+}
+
+// ---------------------------------------------------------------- chatbot
+
+model Conversation {
+  id        String    @id @default(cuid())
+  sessionId String    @unique
+  leadId    String?
+  intent    String?   // contestant | fan | sponsor | support
+  resolved  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  messages  Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String // user | assistant | system
+  content        String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+}
+
+model KnowledgeItem {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
