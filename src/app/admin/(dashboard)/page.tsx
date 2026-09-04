@@ -1,8 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminOverview() {
+  await requireRole("REVIEWER");
+
   const [total, contestants, subscribers, last7] = await Promise.all([
     prisma.lead.count(),
     prisma.lead.count({ where: { type: "CONTESTANT" } }),

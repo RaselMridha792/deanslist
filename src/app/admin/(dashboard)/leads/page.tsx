@@ -1,8 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function LeadsPage() {
+  await requireRole("REVIEWER");
+
   const leads = await prisma.lead.findMany({
     orderBy: { createdAt: "desc" },
     take: 100,

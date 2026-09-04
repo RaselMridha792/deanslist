@@ -1,7 +1,7 @@
 import { Resend } from "resend";
+import { env, mailEnabled } from "@/lib/env";
 
-const apiKey = process.env.RESEND_API_KEY;
-const resend = apiKey ? new Resend(apiKey) : null;
+const resend = mailEnabled ? new Resend(env.RESEND_API_KEY) : null;
 
 type SendArgs = {
   to: string | string[];
@@ -18,7 +18,7 @@ export async function sendMail({ to, subject, html, replyTo }: SendArgs) {
   }
 
   const { data, error } = await resend.emails.send({
-    from: process.env.MAIL_FROM ?? "Dean's List <onboarding@resend.dev>",
+    from: env.MAIL_FROM,
     to,
     subject,
     html,
