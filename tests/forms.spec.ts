@@ -33,8 +33,9 @@ import {
  * being deleted. Every honeypot case here therefore asserts WHAT rejected it,
  * and one test at the bottom submits the same payload twice, once clean and once
  * poisoned, so the difference in outcome can only be the honeypot. See the
- * "honeypot contract" block below for what the app actually does today, which is
- * not what the route's comment claims.
+ * "honeypot contract" block below for what the app actually does today: a silent
+ * accept, which looks exactly like success from the browser and can only be told
+ * apart by reading the database.
  */
 
 /* ------------------------------------------------------------------ setup */
@@ -218,26 +219,27 @@ async function expectNoStoredLead(baseURL: string, email: string) {
  * WHAT THE HONEYPOT ACTUALLY DOES, AS SHIPPED. Read this before changing any
  * honeypot assertion below.
  *
- * src/app/api/leads/route.ts intends a silent accept, so a bot cannot tell it
- * was caught:
+ * src/app/api/leads/route.ts answers a poisoned submission with a SILENT ACCEPT,
+ * so a bot cannot tell it was caught:
  *
  *     // honeypot filled means bot
  *     if (data.website) return NextResponse.json({ ok: true });   // no id, no row
  *
- * That branch is unreachable. `data` is the OUTPUT of `leadSchema`, and
- * src/lib/validation.ts declares the honeypot as
+ * 200, `ok: true`, no lead id, and nothing written. /api/subscribe does the
+ * same. src/lib/validation.ts declares the field as
  *
- *     website: z.string().max(0).optional()
+ *     website: z.string().max(200).optional()
  *
- * so a filled honeypot fails `safeParse` and the route answers 400 twenty lines
- * earlier. `data.website` can only ever be `""` or `undefined`, both falsy.
- * /api/subscribe is built the same way. The shipped contract is therefore
- * REFUSAL BY THE SCHEMA, not a silent accept.
+ * which is what makes that branch reachable: a filled honeypot has to survive
+ * `safeParse` to be seen by the route. An earlier build declared it `.max(0)`,
+ * so the schema refused the request with a 400 twenty lines sooner and the
+ * silent-accept branch was dead code.
  *
- * `expectHoneypotStopped` accepts either mechanism — moving the honeypot onto
- * the route's silent-accept branch (drop `.max(0)`, let the route catch it) is a
- * real improvement and must not turn this suite red — but it refuses anything
- * else, and for /api/leads it insists a 400 names `website` AND NOTHING ELSE.
+ * `expectHoneypotStopped` therefore accepts EITHER mechanism — the schema
+ * refusing it, or the route swallowing it — because both keep the bot out of the
+ * database and a swing between them is not a regression. What it refuses is
+ * anything else, and for /api/leads it insists that a 400, if that is what comes
+ * back, names `website` AND NOTHING ELSE.
  *
  * That last part is the point. "not 201" is satisfied by a rejection for a
  * missing required field, and would still be satisfied with the honeypot deleted
@@ -245,6 +247,10 @@ async function expectNoStoredLead(baseURL: string, email: string) {
  * /api/subscribe answers a bare `{ error: "Invalid email" }` with no field
  * breakdown, so attribution there is proved the other way, by the control/poison
  * pair in the "honeypot contract" test at the bottom of this file.
+ *
+ * A silent accept is also why every honeypot case here reads the export back:
+ * a 200 that says `ok` is indistinguishable from success, so the only proof the
+ * row was not written is the absence of the row.
  */
 
 /** What a scripted form filler drops into the field. */
@@ -366,6 +372,89 @@ test.afterAll(async () => {
 
 /* ============================================================== /enter ==== */
 
+/**
+ * /enter is a FOUR-STEP funnel, not one long form.
+ *
+ * src/components/forms/EntryForm.tsx keeps only the active step mounted — field
+ * values live in React state rather than in hidden inputs — so there is no
+ * moment at which every control is in the DOM. A test cannot fill the whole
+ * thing and press submit; it has to walk Contact → Talent → Video → Consent the
+ * way a visitor does.
+ *
+ * "Continue" is a plain button that runs checkValidity() on the fields it can
+ * see and reportValidity() on the first failure, then advances. So a step left
+ * incomplete does not advance and does not report anything to Playwright: the
+ * next step's field simply never appears. The `expectStep` assertion after each
+ * Continue is what turns that silence into a legible failure naming the step
+ * that refused to advance.
+ */
+const ENTRY_VIDEO = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+
+/** The funnel's own progress indicator, which is the only marker of the step. */
+async function expectStep(form: Locator, n: number, label: string) {
+  await expect(
+    form.locator('li[aria-current="step"]'),
+    `the entry funnel did not reach step ${n} (${label}) — Continue refused to advance, ` +
+      `which means a required field on the previous step was not filled by this test`,
+  ).toContainText(new RegExp(`Step ${n} of 4:\\s*${label}`, "i"));
+}
+
+/**
+ * Walk the funnel to the final step with every required field satisfied.
+ *
+ * Stops with "Submit my entry" on screen and nothing pressed, so the caller
+ * decides whether to poison the honeypot before submitting.
+ */
+async function fillEntryFunnel(
+  form: Locator,
+  who: { firstName: string; lastName: string; email: string },
+  note: string,
+) {
+  /* ------------------------------------------------------ 1. Contact */
+  await expectStep(form, 1, "Contact");
+  // Back is drawn only from step 2 onwards, so its absence here is the funnel
+  // saying it is genuinely on the first step rather than mid-walk.
+  await expect(
+    form.getByRole("button", { name: /^back$/i }),
+    "step 1 must not offer a Back button",
+  ).toHaveCount(0);
+
+  await form.locator('input[name="firstName"]').fill(who.firstName);
+  await form.locator('input[name="lastName"]').fill(who.lastName);
+  await form.locator('input[name="email"]').fill(who.email);
+  await form.locator('input[name="country"]').fill("Test Republic");
+  await form.getByRole("button", { name: /^continue$/i }).click();
+
+  /* ------------------------------------------------------- 2. Talent */
+  await expectStep(form, 2, "Talent");
+  await form.locator('select[name="talentCategory"]').selectOption("Singer");
+
+  // The show is preselected from the currently open show, so it is only chosen
+  // here when nothing came through — and it is `required`, so an /enter page
+  // rendered with no shows at all cannot be completed by anyone.
+  const show = form.locator('select[name="showSlug"]');
+  if (!(await show.inputValue())) {
+    await expect(
+      show.locator("option"),
+      "the entry funnel offers no show to enter, so its required Show field can never be satisfied",
+    ).not.toHaveCount(1);
+    await show.selectOption({ index: 1 });
+  }
+  await form.getByRole("button", { name: /^continue$/i }).click();
+
+  /* -------------------------------------------------------- 3. Video */
+  await expectStep(form, 3, "Video");
+  await form.locator('input[name="performanceUrl"]').fill(ENTRY_VIDEO);
+  await form.locator('textarea[name="message"]').fill(note);
+  await form.getByRole("button", { name: /^continue$/i }).click();
+
+  /* ------------------------------------------------------ 4. Consent */
+  await expectStep(form, 4, "Consent");
+  // Both are `required`, and both default to unchecked.
+  await form.locator('input[name="ageAndRules"]').check();
+  await form.locator('input[name="broadcastConsent"]').check();
+}
+
 test.describe("contest entry form — /enter", () => {
   test("an entry submits, confirms, and is stored as a CONTESTANT", async ({
     page,
@@ -377,21 +466,17 @@ test.describe("contest entry form — /enter", () => {
     await page.goto("/enter");
 
     const form = page.locator("form").first();
-    await form.locator('input[name="firstName"]').fill(me.firstName);
-    await form.locator('input[name="lastName"]').fill(me.lastName);
-    await form.locator('input[name="email"]').fill(me.email);
-    await form.locator('input[name="country"]').fill("Test Republic");
-    await form.locator('select[name="talentCategory"]').selectOption("Singer");
-    await form
-      .locator('input[name="performanceUrl"]')
-      .fill("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-    await form.locator('textarea[name="message"]').fill("Playwright smoke entry.");
+    await fillEntryFunnel(form, me, "Playwright smoke entry.");
 
     await form.getByRole("button", { name: /submit my entry/i }).click();
 
-    // 1. lands on the right confirmation, with the contestant-specific copy
+    // 1. lands on the right confirmation, with the contestant-specific copy.
+    //    The h1 is the design's "You are in."; "Entry received" is the kicker
+    //    above it, and it is the line that is specific to a contest entry —
+    //    every other route on /thank-you says "Thank you." in the h1.
     await expect(page).toHaveURL(/\/thank-you\?from=contestant/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/entry received/i);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/you are in/i);
+    await expect(page.getByText(/entry received/i)).toBeVisible();
 
     // 2. and is actually in the client's database
     await expectStoredLead(baseURL!, me.email, {
@@ -408,13 +493,11 @@ test.describe("contest entry form — /enter", () => {
 
     const form = page.locator("form").first();
     // Identical to the passing case above in every respect but the honeypot, so
-    // a difference in outcome can only be the honeypot.
-    await form.locator('input[name="firstName"]').fill(bot.firstName);
-    await form.locator('input[name="email"]').fill(bot.email);
-    await form.locator('select[name="talentCategory"]').selectOption("Singer");
-    await form
-      .locator('input[name="performanceUrl"]')
-      .fill("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    // a difference in outcome can only be the honeypot. The whole funnel has to
+    // be walked: the final step is the only one that carries a submit button, so
+    // an incomplete bot never reaches /api/leads at all and this test would pass
+    // for a reason that has nothing to do with the honeypot.
+    await fillEntryFunnel(form, bot, "Playwright smoke entry.");
     await poisonHoneypot(form);
 
     const response = await submitAndCaptureApiCall(
@@ -467,11 +550,11 @@ test.describe("talent pool form — /join", () => {
     /**
      * The wording is deliberately NOT pinned here.
      *
-     * `from=fan` has no entry in the COPY map in src/app/thank-you/page.tsx, so a
-     * talent-pool signup falls through to the generic "Message received" written
-     * for the contact form. That is a copy gap, reported separately — not a
-     * broken form. Asserting the current generic wording would lock the gap in;
-     * asserting the wording that should replace it would fail until it lands.
+     * The redesign closed the copy gap this comment used to record: `from=fan`
+     * now has its own entry in the COPY map in src/app/(site)/thank-you/page.tsx
+     * ("Details received" / "You are on the roster."), flagged in that file as
+     * written for the client to review. Pinning wording that is explicitly
+     * awaiting sign-off would turn an approved rewrite into a red suite.
      *
      * What must hold either way: the visitor is told something. A confirmation
      * page with an empty heading reads as a failed submission, which for this
@@ -527,7 +610,9 @@ test.describe("crew application form — /join", () => {
 
     // The crew form follows the design: one "Full name", a required Role, and a
     // required "Location" that the server splits back into city and country.
-    const form = page.locator("#crew form");
+    // "Why you" is required here, unlike the message field on every other form.
+    const crew = page.locator("#crew");
+    const form = crew.locator("form");
     await form.locator('input[name="fullName"]').fill(`${me.firstName} ${me.lastName}`);
     await form.locator('input[name="email"]').fill(me.email);
     await form.locator('select[name="role"]').selectOption("Judge");
@@ -536,10 +621,27 @@ test.describe("crew application form — /join", () => {
 
     await form.getByRole("button", { name: /send application/i }).click();
 
-    // The design confirms in place rather than redirecting, so the success
-    // panel is the assertion, not a URL change.
-    await expect(form.locator("..").getByText(/your application is with the production team/i))
-      .toBeVisible({ timeout: 15_000 });
+    /**
+     * This one confirms IN PLACE. LeadForm swaps itself for the grey success
+     * panel when it is given `successTitle`, which /join does for the crew half
+     * and does not do for the talent pool, so there is no navigation to wait on
+     * and no /thank-you copy to read.
+     *
+     * Scoped to the #crew section rather than to `form`, because `form` is the
+     * element that gets unmounted — a locator built from it can only ever go
+     * stale. The copy is the design's, verbatim, and it is asserted verbatim:
+     * an empty panel, or the generic wording from another form, reads to an
+     * applicant as a submission that did not go through.
+     */
+    const panel = crew.getByRole("status");
+    await expect(panel).toBeVisible({ timeout: 15_000 });
+    await expect(panel).toContainText("Thanks.");
+    await expect(panel).toContainText(
+      "Your application is with the production team. Expect a reply by email.",
+    );
+    await expect(page, "the crew form confirms in place and must not navigate").toHaveURL(
+      /\/join$/,
+    );
 
     await expectStoredLead(baseURL!, me.email, { type: "CREW", firstName: me.firstName });
   });
@@ -574,8 +676,20 @@ test.describe("crew application form — /join", () => {
 
 /* ============================================================ /sponsors === */
 
-test.describe("sponsor enquiry form — /sponsors", () => {
-  test("a sponsor enquiry submits, confirms, and is stored as SPONSOR", async ({
+/**
+ * The field list is src/app/(site)/sponsors/page.tsx's own, passed to LeadForm:
+ * firstName, email, company, inquiryType, message. There is no surname field on
+ * this form — the design asks a prospective sponsor for as little as it can —
+ * and the submit button reads "Send inquiry", the American spelling the rest of
+ * the page uses. Both are why the previous selectors missed.
+ *
+ * `inquiryType` is the package the sponsor is asking about. LeadForm gives it no
+ * empty placeholder option, so the first option is what an untouched dropdown
+ * submits; it is chosen explicitly here so the assertion is about a value this
+ * test picked rather than about a default.
+ */
+test.describe("sponsor inquiry form — /sponsors", () => {
+  test("a sponsor inquiry submits, confirms, and is stored as SPONSOR", async ({
     page,
     baseURL,
   }) => {
@@ -584,22 +698,28 @@ test.describe("sponsor enquiry form — /sponsors", () => {
 
     await page.goto("/sponsors");
 
-    const form = page.locator("form").first();
+    // Scoped to the inquiry band rather than to the first <form> on the page:
+    // the layout mounts a chat widget that carries forms of its own.
+    const form = page.locator("#inquiry form");
     await form.locator('input[name="firstName"]').fill(me.firstName);
-    await form.locator('input[name="lastName"]').fill(me.lastName);
     await form.locator('input[name="email"]').fill(me.email);
     await form.locator('input[name="company"]').fill("Playwright Beverages Ltd");
-    await form.locator('textarea[name="message"]').fill("Playwright sponsor enquiry.");
+    await form.locator('select[name="inquiryType"]').selectOption("Title partner");
+    await form.locator('textarea[name="message"]').fill("Playwright sponsor inquiry.");
 
-    await form.getByRole("button", { name: /send enquiry/i }).click();
+    await form.getByRole("button", { name: /send inquiry/i }).click();
 
+    // "Inquiry received" is the kicker on /thank-you; the h1 for every route but
+    // a contest entry is "Thank you.", so the kicker is the sponsor-specific
+    // line and the one worth pinning.
     await expect(page).toHaveURL(/\/thank-you\?from=sponsor/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/enquiry received/i);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/thank you/i);
+    await expect(page.getByText(/inquiry received/i)).toBeVisible();
 
     await expectStoredLead(baseURL!, me.email, { type: "SPONSOR", firstName: me.firstName });
   });
 
-  test("a honeypot-filled sponsor enquiry never becomes a lead", async ({
+  test("a honeypot-filled sponsor inquiry never becomes a lead", async ({
     page,
     baseURL,
   }) => {
@@ -608,14 +728,16 @@ test.describe("sponsor enquiry form — /sponsors", () => {
 
     await page.goto("/sponsors");
 
-    const form = page.locator("form").first();
+    // Scoped to the inquiry band rather than to the first <form> on the page:
+    // the layout mounts a chat widget that carries forms of its own.
+    const form = page.locator("#inquiry form");
     await form.locator('input[name="firstName"]').fill(bot.firstName);
     await form.locator('input[name="email"]').fill(bot.email);
     await poisonHoneypot(form);
 
     const response = await submitAndCaptureApiCall(
       page,
-      form.getByRole("button", { name: /send enquiry/i }),
+      form.getByRole("button", { name: /send inquiry/i }),
       "/api/leads",
     );
 
@@ -637,19 +759,37 @@ test.describe("contact form — /contact", () => {
     await page.goto("/contact");
 
     const form = page.locator("form").first();
-    // The redesign collapsed first/last into one "name" field and renamed the
-    // routed-inquiry select to "type". The server still splits it into
-    // firstName/lastName, which is what the export assertion below checks.
+    /**
+     * The redesign collapsed first/last into one "name" field, added a required
+     * "subject", and turned the routed inquiry into a RADIO GROUP named `type`
+     * — a segmented control in the design, four sr-only radios in the markup, so
+     * `select[name="type"]` matches nothing. Each route maps to a different
+     * LeadType in INQUIRY_ROUTES, and "General" is the one this test asserts.
+     *
+     * The server still splits the single name into firstName/lastName, which is
+     * what the export assertion below reads back.
+     */
+    // Clicked through the label, the way the segmented control is meant to be
+    // used: the radio itself is sr-only and is not a reliable click target.
+    const general = form.locator('input[name="type"][value="General"]');
+    await form.locator('label:has(> input[name="type"][value="General"])').click();
+    await expect(general, "the General route must be the one submitted").toBeChecked();
+
     await form.locator('input[name="name"]').fill(`${me.firstName} ${me.lastName}`);
     await form.locator('input[name="email"]').fill(me.email);
     await form.locator('input[name="subject"]').fill("Automated check");
-    await form.locator('select[name="type"]').selectOption({ index: 1 });
     await form.locator('textarea[name="message"]').fill("Playwright contact message.");
 
     await form.getByRole("button", { name: /send message/i }).click();
 
-    await expect(page).toHaveURL(/\/thank-you\?from=general/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/message received/i);
+    // Confirms in place, like the crew form — no /thank-you, so the panel that
+    // replaces the fields is the assertion, and the copy is pinned verbatim.
+    const panel = page.getByRole("status").filter({ hasText: /message received/i });
+    await expect(panel).toBeVisible({ timeout: 15_000 });
+    await expect(panel).toHaveText("Message received. The right person will reply by email.");
+    await expect(page, "the contact form confirms in place and must not navigate").toHaveURL(
+      /\/contact$/,
+    );
 
     await expectStoredLead(baseURL!, me.email, { type: "GENERAL", firstName: me.firstName });
   });
@@ -687,7 +827,19 @@ test.describe("contact form — /contact", () => {
  * The business problem behind the whole rebuild is a rented audience. This form
  * is the one that converts a viewer into a contact the client owns, so it gets
  * the same treatment as the entry form.
+ *
+ * The homepage no longer renders the shared NewsletterForm. The redesign's
+ * closing poster is src/components/home/NewsletterPosterForm.tsx: two underlined
+ * fields on the red field, no boxed inputs and — the reason the old selectors
+ * missed — no element ids at all. `#nl-email-homepage` does not exist on this
+ * page any more. The fields are addressed by their form-control names, which are
+ * what /api/subscribe reads anyway, and the form by the poster section's id.
+ *
+ * The homepage also carries a second form, the hero entry teaser, so a bare
+ * `page.locator("form")` is ambiguous here.
  */
+const NEWSLETTER_FORM = "#notify form";
+
 test.describe("newsletter form — homepage", () => {
   test("a newsletter signup succeeds and is stored with source NEWSLETTER", async ({
     page,
@@ -698,15 +850,23 @@ test.describe("newsletter form — homepage", () => {
 
     await page.goto("/");
 
-    const form = page.locator("form").filter({ has: page.locator("#nl-email-homepage") });
-    await form.locator("#nl-name-homepage").fill(me.firstName);
-    await form.locator("#nl-email-homepage").fill(me.email);
-    await form.getByRole("button", { name: /notify me/i }).click();
+    const form = page.locator(NEWSLETTER_FORM);
+    // Both fields are `required`, and the handler is a normal submit handler, so
+    // the browser's own validation blocks the POST if either is left empty.
+    await form.locator('input[name="firstName"]').fill(me.firstName);
+    await form.locator('input[name="email"]').fill(me.email);
 
-    // No redirect here by design: the form swaps itself for a success state so
-    // the visitor keeps their place on the page. Asserting on the page rather
-    // than inside `form`, because the form element is what gets replaced.
-    await expect(page.getByText(/on the list/i)).toBeVisible();
+    // The poster has exactly one button, and it IS the success state: on success
+    // the label becomes the confirmation and the control locks. Captured before
+    // the click, because its accessible name is what changes.
+    const submit = form.getByRole("button");
+    await expect(submit).toHaveText(/notify me/i);
+    await submit.click();
+
+    // No redirect here by design: the form becomes its own success state so the
+    // visitor keeps their place on the page.
+    await expect(submit).toHaveText(/you're on the list/i);
+    await expect(submit, "the confirmed form must not be submittable again").toBeDisabled();
     await expect(page).toHaveURL(/\/$/);
 
     await expectStoredLead(baseURL!, me.email, {
@@ -725,8 +885,12 @@ test.describe("newsletter form — homepage", () => {
 
     await page.goto("/");
 
-    const form = page.locator("form").filter({ has: page.locator("#nl-email-homepage") });
-    await form.locator("#nl-email-homepage").fill(bot.email);
+    const form = page.locator(NEWSLETTER_FORM);
+    // The name is filled as well as the address: it is `required`, so leaving it
+    // empty would have the browser block the submit and no request would reach
+    // /api/subscribe at all — a honeypot test that never posts proves nothing.
+    await form.locator('input[name="firstName"]').fill(bot.firstName);
+    await form.locator('input[name="email"]').fill(bot.email);
     await poisonHoneypot(form);
 
     const response = await submitAndCaptureApiCall(
@@ -790,6 +954,8 @@ test.describe("honeypot contract", () => {
       talentCategory: "Singer",
       performanceUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       message: "Playwright honeypot control.",
+      rulesAccepted: true,
+      broadcastConsent: true,
       website,
     });
 
@@ -875,6 +1041,8 @@ test("the public lead endpoint rate limits a flood from one address", async ({
         firstName: "Flood",
         email: `e2e+flood-${i}-${Date.now()}@deanslist.test`,
         website: BOT_PAYLOAD,
+        rulesAccepted: true,
+        broadcastConsent: true,
       },
     });
     statuses.push(res.status());

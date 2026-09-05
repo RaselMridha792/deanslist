@@ -141,6 +141,10 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
           performanceUrl: values.performanceUrl,
           message: values.message,
           marketingOptIn: consent.marketing,
+          // Both are required to reach this point in the funnel. Sending them
+          // is what turns a checkbox into a record.
+          rulesAccepted: consent.rules,
+          broadcastConsent: consent.broadcast,
           website: honeypot,
           showSlug: values.showSlug || undefined,
         }),

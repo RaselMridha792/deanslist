@@ -206,6 +206,8 @@ test("signing in works and the leads table renders real data", async ({ page }) 
       type: "CONTESTANT",
       firstName: "AdminTable",
       lastName: "Fixture",
+      rulesAccepted: true,
+      broadcastConsent: true,
       email,
       talentCategory: "Singer",
       performanceUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",

@@ -22,6 +22,13 @@ export const leadSchema = z.object({
   message: z.string().max(2000).optional(),
   showSlug: z.string().max(120).optional(),
   marketingOptIn: z.boolean().default(false),
+
+  // Contest consents. Optional on the schema because only the entry funnel
+  // collects them, but see the route: an entry that claims to be a CONTESTANT
+  // is rejected without both. Client-side `required` is a prompt, not a
+  // guarantee — a crafted POST skips it entirely.
+  rulesAccepted: z.boolean().optional(),
+  broadcastConsent: z.boolean().optional(),
   smsOptIn: z.boolean().default(false),
   /**
    * Honeypot. Deliberately NOT constrained to max(0).

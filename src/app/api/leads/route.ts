@@ -26,6 +26,18 @@ export async function POST(req: NextRequest) {
   // honeypot filled means bot
   if (data.website) return NextResponse.json({ ok: true });
 
+  // The entry funnel requires both consents before it will submit, but that is
+  // a browser prompt, not a guarantee: a crafted POST skips it. Broadcast
+  // consent is the permission to put someone's performance on YouTube and
+  // Facebook, so an entry without it is refused here rather than stored and
+  // sorted out later.
+  if (data.type === "CONTESTANT" && !(data.rulesAccepted && data.broadcastConsent)) {
+    return NextResponse.json(
+      { error: "A contest entry needs both the rules and the broadcast consent." },
+      { status: 400 },
+    );
+  }
+
   const show = data.showSlug
     ? await prisma.show.findUnique({ where: { slug: data.showSlug } })
     : null;
@@ -52,6 +64,10 @@ export async function POST(req: NextRequest) {
       marketingOptIn: data.marketingOptIn,
       smsOptIn: data.smsOptIn,
       consentAt: data.marketingOptIn ? new Date() : null,
+      // Stamped with the moment given, not a boolean: "they agreed" is worth
+      // far less than "they agreed at this time" if it is ever questioned.
+      rulesAcceptedAt: data.rulesAccepted ? new Date() : null,
+      broadcastConsentAt: data.broadcastConsent ? new Date() : null,
       ipAddress: ip,
       userAgent: req.headers.get("user-agent") ?? undefined,
       referrer: req.headers.get("referer") ?? undefined,

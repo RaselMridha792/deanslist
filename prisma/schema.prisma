@@ -170,6 +170,17 @@ model Lead {
   smsOptIn       Boolean   @default(false)
   consentAt      DateTime?
 
+  /// Contest consents, recorded with the moment they were given.
+  ///
+  /// These are not marketing preferences. broadcastConsentAt is the permission
+  /// to put someone's performance on YouTube and Facebook, and rulesAcceptedAt
+  /// is their agreement to the terms of a public prize competition. The entry
+  /// form requires both, so without somewhere to store them the site was
+  /// collecting a legal permission and discarding it — leaving nothing to point
+  /// at if an entrant later says they never agreed.
+  rulesAcceptedAt     DateTime?
+  broadcastConsentAt  DateTime?
+
   ipAddress   String?
   userAgent   String?
   referrer    String?
