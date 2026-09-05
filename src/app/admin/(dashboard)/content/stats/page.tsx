@@ -113,15 +113,15 @@ export default async function StatsAdminPage({ searchParams }: Props) {
       />
 
       {/* The rule, stated once, in the place where it is acted on. */}
-      <div className="mt-6 border border-rule bg-white p-6">
+      <div className="mt-6 border border-admin-line-strong bg-admin-panel p-6">
         <p className="eyebrow">How the gate works</p>
-        <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink">
+        <p className="mt-3 max-w-prose text-sm leading-relaxed text-admin-text">
           A figure reaches the public site only when it is both{" "}
-          <span className="text-ink">verified</span> and{" "}
-          <span className="text-ink">active</span>. Everything else is stored here and never
+          <span className="text-admin-text">verified</span> and{" "}
+          <span className="text-admin-text">active</span>. Everything else is stored here and never
           sent to a visitor.
         </p>
-        <p className="mt-3 max-w-prose text-sm leading-relaxed text-neutral-700">
+        <p className="mt-3 max-w-prose text-sm leading-relaxed text-admin-muted">
           This exists because the old site published two numbers it could not stand behind: the
           subscriber count rendered as &ldquo;.7Mil+&rdquo; and the Facebook figure as a bare
           &ldquo;K&rdquo;, both because the counter animated up from an empty value. A number
@@ -161,10 +161,10 @@ export default async function StatsAdminPage({ searchParams }: Props) {
           {/* ------------------------------------------------------- live */}
           <section className="mt-8">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <h2 className="font-display text-xl uppercase tracking-wide text-ink">
+              <h2 className="font-display text-xl uppercase tracking-wide text-admin-text">
                 Live on the public site
               </h2>
-              <p className="text-xs text-neutral-600">
+              <p className="text-xs text-admin-faint">
                 {live.length === 0
                   ? "The stats band is currently rendering nothing."
                   : `${live.length} figure${live.length > 1 ? "s" : ""} visible to every visitor`}
@@ -172,7 +172,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
             </div>
 
             {live.length === 0 ? (
-              <p className="mt-4 border border-dashed border-rule bg-white px-6 py-8 text-sm text-neutral-700">
+              <p className="mt-4 border border-dashed border-admin-line-strong bg-admin-panel px-6 py-8 text-sm text-admin-muted">
                 Nothing is published. The band hides itself rather than showing an empty row,
                 so the public pages simply skip it.
               </p>
@@ -182,14 +182,14 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                   {live.map((s) => (
                     <Row key={s.id}>
                       <Cell>
-                        <span className="font-display text-2xl leading-none text-brand">
+                        <span className="font-display text-2xl leading-none text-brand-onDark">
                           {s.preview}
                         </span>
                       </Cell>
                       <Cell>
                         <Link
                           href={`${LIST}?edit=${s.id}`}
-                          className="font-medium text-ink transition-colors hover:text-brand"
+                          className="font-medium text-admin-text transition-colors hover:text-brand-onDark"
                         >
                           {s.label}
                         </Link>
@@ -204,7 +204,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                         <div className="flex items-center justify-end gap-4">
                           <Link
                             href={`${LIST}?edit=${s.id}`}
-                            className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
+                            className="text-xs font-semibold uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark"
                           >
                             Edit
                           </Link>
@@ -221,10 +221,10 @@ export default async function StatsAdminPage({ searchParams }: Props) {
           {/* ----------------------------------------------------- hidden */}
           <section className="mt-10">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <h2 className="font-display text-xl uppercase tracking-wide text-ink">
+              <h2 className="font-display text-xl uppercase tracking-wide text-admin-text">
                 Held back
               </h2>
-              <p className="text-xs text-neutral-600">
+              <p className="text-xs text-admin-faint">
                 {hidden.length === 0
                   ? "Nothing is being withheld."
                   : `${hidden.length} figure${hidden.length > 1 ? "s" : ""} no visitor can see`}
@@ -232,7 +232,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
             </div>
 
             {hidden.length === 0 ? (
-              <p className="mt-4 border border-dashed border-rule bg-white px-6 py-8 text-sm text-neutral-700">
+              <p className="mt-4 border border-dashed border-admin-line-strong bg-admin-panel px-6 py-8 text-sm text-admin-muted">
                 Every statistic on record has been confirmed and is published.
               </p>
             ) : (
@@ -241,18 +241,18 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                   {hidden.map((s) => (
                     <Row key={s.id}>
                       <Cell>
-                        <span className="font-display text-2xl leading-none text-neutral-400">
+                        <span className="font-display text-2xl leading-none text-admin-faint">
                           {s.preview}
                         </span>
                       </Cell>
                       <Cell>
                         <Link
                           href={`${LIST}?edit=${s.id}`}
-                          className="font-medium text-ink transition-colors hover:text-brand"
+                          className="font-medium text-admin-text transition-colors hover:text-brand-onDark"
                         >
                           {s.label}
                         </Link>
-                        <span className="block font-mono text-xs text-neutral-600">{s.key}</span>
+                        <span className="block font-mono text-xs text-admin-faint">{s.key}</span>
                       </Cell>
                       <Cell muted>{hiddenReason(s)}</Cell>
                       <Cell>
@@ -265,7 +265,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                         <div className="flex items-center justify-end gap-4">
                           <Link
                             href={`${LIST}?edit=${s.id}`}
-                            className="text-xs font-semibold uppercase tracking-widest text-brand transition-colors hover:text-brand-soft"
+                            className="text-xs font-semibold uppercase tracking-widest text-brand-onDark transition-colors hover:text-brand-onDark"
                           >
                             Review &amp; publish
                           </Link>
@@ -283,7 +283,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
         </>
       )}
 
-      <p className="mt-8 max-w-prose text-xs leading-relaxed text-neutral-600">
+      <p className="mt-8 max-w-prose text-xs leading-relaxed text-admin-faint">
         Open question for the client: the 700,000 subscriber figure comes from the proposal, not
         from a counted source, and the old site&apos;s own display of it is broken. It stays
         unconfirmed until someone reads the real number off YouTube and Facebook.

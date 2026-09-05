@@ -193,7 +193,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
           urgent: true,
           body: (
             <>
-              <span className="font-semibold text-brand-onLight">
+              <span className="font-semibold text-brand-onDark">
                 Another show is LIVE at the same time.
               </span>{" "}
               The homepage hero features exactly one, and which of the two it picks is not
@@ -207,7 +207,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
             urgent: false,
             body: (
               <>
-                <span className="font-semibold text-brand">This is the homepage show.</span> The
+                <span className="font-semibold text-brand-onDark">This is the homepage show.</span> The
                 hero, the countdown and the &ldquo;Enter the contest&rdquo; button all point
                 here.
               </>
@@ -218,7 +218,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
               urgent: false,
               body: (
                 <>
-                  <span className="font-semibold text-brand">
+                  <span className="font-semibold text-brand-onDark">
                     A live show outranks this one.
                   </span>{" "}
                   This show is open for entries, but the homepage hero features the LIVE show
@@ -231,7 +231,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
                 urgent: true,
                 body: (
                   <>
-                    <span className="font-semibold text-brand-onLight">
+                    <span className="font-semibold text-brand-onDark">
                       More than one show is OPEN and none is LIVE.
                     </span>{" "}
                     The homepage features one of them and it may not be this one. Mark the
@@ -283,7 +283,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
             <div className="flex items-center gap-4">
               <StatusPill value={show.status} tone={STATUS_TONE[show.status]} />
               {show.status === "DRAFT" ? (
-                <span className="text-xs text-neutral-600">Not on the public site yet</span>
+                <span className="text-xs text-admin-faint">Not on the public site yet</span>
               ) : (
                 <a
                   href={`/shows/${show.slug}`}
@@ -299,26 +299,28 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
         />
       </div>
 
+      {/* Both arms of this ternary were the same invisible tint, so `urgent`
+          changed nothing on screen. A raised panel either way; the left rule is
+          red when it is urgent and a plain line-strong edge when it is only a
+          note, which is the distinction the flag was asking for. */}
       {heroNote && (
         <div
-          className={`mt-8  border p-5 ${
-            heroNote.urgent
-              ? "border-brand/40 bg-brand/5"
-              : "border-brand/30 bg-brand/5"
+          className={`notice mt-8 ${
+            heroNote.urgent ? "border-brand-onDark" : "border-admin-line-strong"
           }`}
         >
-          <p className="text-sm text-ink">{heroNote.body}</p>
+          <p className="text-sm text-admin-text">{heroNote.body}</p>
         </div>
       )}
 
       {/* ------------------------------------------------------------ zone */}
 
-      <div className="mt-8 border border-rule bg-white p-5">
+      <div className="mt-8 border border-admin-line-strong bg-admin-panel p-5">
         <p className="label">Timezone</p>
-        <p className="text-sm text-ink">
+        <p className="text-sm text-admin-text">
           Every date on this page is written and read in{" "}
-          <span className="font-semibold text-ink">{activeTz.replace(/_/g, " ")}</span>{" "}
-          <span className="text-neutral-600">({zoneLabel(activeTz, now)})</span>. It is stored
+          <span className="font-semibold text-admin-text">{activeTz.replace(/_/g, " ")}</span>{" "}
+          <span className="text-admin-faint">({zoneLabel(activeTz, now)})</span>. It is stored
           as a precise moment, so visitors in every country see it in their own zone.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -326,7 +328,12 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
             tz === activeTz ? (
               <span
                 key={tz}
-                className="border border-brand/40 bg-brand/10 px-3 py-1 text-xs text-brand"
+                /* Current selection, not an alert, so it stays a chip: an
+                   opaque raised plate the eye can find, closed by a full
+                   brand-onDark edge. The old bg-brand/15 fill was 1.05:1 on
+                   this panel and the /50 edge under 2:1 — the chosen zone was
+                   marked by nothing but its own text colour. */
+                className="border border-brand-onDark bg-admin-raised px-3 py-1 text-xs text-brand-onDark"
               >
                 {shortZone(tz)}
               </span>
@@ -334,7 +341,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
               <Link
                 key={tz}
                 href={href({ tz })}
-                className="border border-rule px-3 py-1 text-xs text-neutral-700 transition-colors hover:border-brand hover:text-brand"
+                className="border border-admin-line px-3 py-1 text-xs text-admin-muted transition-colors hover:border-brand-onDark hover:text-brand-onDark"
                 title={tz}
               >
                 {shortZone(tz)}
@@ -442,13 +449,13 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="font-display text-2xl tracking-wide">Episodes</h2>
-            <p className="mt-2 max-w-2xl text-sm text-neutral-700">
+            <p className="mt-2 max-w-2xl text-sm text-admin-muted">
               These are the videos on /watch and in the homepage highlights. Paste the
               YouTube link — the thumbnail is taken from the video id, so there is nothing
               to upload and nothing to get wrong.
             </p>
           </div>
-          <p className="text-xs text-neutral-600">
+          <p className="text-xs text-admin-faint">
             {show.episodes.length} episode{show.episodes.length === 1 ? "" : "s"}
           </p>
         </div>
@@ -477,14 +484,14 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
                           className="h-10 w-16 object-cover"
                         />
                       ) : (
-                        <span className="block h-10 w-16 bg-surface" />
+                        <span className="block h-10 w-16 bg-admin-raised" />
                       )}
                     </Cell>
                     <Cell muted>{ep.episodeNo ?? "—"}</Cell>
                     <Cell>
                       <Link
                         href={href({ edit: ep.id, hash: "#episode-form" })}
-                        className="font-medium text-ink transition-colors hover:text-brand"
+                        className="font-medium text-admin-text transition-colors hover:text-brand-onDark"
                       >
                         {ep.title}
                       </Link>
@@ -507,19 +514,19 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
                           href={`https://www.youtube.com/watch?v=${videoId}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-brand hover:underline"
+                          className="text-brand-onDark hover:underline"
                         >
                           {videoId}
                         </a>
                       ) : (
-                        <span className="text-brand-onLight">No video id</span>
+                        <span className="text-brand-onDark">No video id</span>
                       )}
                     </Cell>
                     <Cell>
                       <div className="flex items-center justify-end gap-4">
                         <Link
                           href={href({ edit: ep.id, hash: "#episode-form" })}
-                          className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
+                          className="text-xs font-semibold uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark"
                         >
                           Edit
                         </Link>
@@ -541,7 +548,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
         {/* One episode form at a time — add, or edit the row picked in the URL.
             Rendering a form per row would put a dozen inputs with the same id on
             the page, which quietly breaks every label. */}
-        <div id="episode-form" className="mt-8 max-w-3xl border border-rule bg-white p-6">
+        <div id="episode-form" className="mt-8 max-w-3xl border border-admin-line-strong bg-admin-panel p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="font-display text-lg tracking-wide">
               {editing ? `Edit: ${editing.title}` : "Add an episode"}
@@ -632,10 +639,10 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
 
       {/* ----------------------------------------------------------- danger */}
 
-      <section className="mt-16 max-w-3xl border border-brand/30 bg-brand/5 p-6">
-        <h2 className="font-display text-lg tracking-wide text-ink">Delete this show</h2>
+      <section className="notice-strong mt-16 max-w-3xl p-6">
+        <h2 className="font-display text-lg tracking-wide text-admin-text">Delete this show</h2>
 
-        <ul className="mt-4 space-y-2 text-sm text-ink">
+        <ul className="mt-4 space-y-2 text-sm text-admin-text">
           <li>
             <Count n={show.episodes.length} one="episode" many="episodes" />{" "}
             {show.episodes.length === 1 ? "is" : "are"} deleted with it. Episodes cascade —
@@ -654,11 +661,11 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
           </li>
         </ul>
 
-        <p className="mt-4 text-sm text-neutral-700">
+        <p className="mt-4 text-sm text-admin-muted">
           There is almost always a better option.{" "}
-          <span className="text-ink">Closed</span> or{" "}
-          <span className="text-ink">Archived</span> keeps a finished season on the site as
-          a past season; <span className="text-ink">Draft</span> removes it from the public
+          <span className="text-admin-text">Closed</span> or{" "}
+          <span className="text-admin-text">Archived</span> keeps a finished season on the site as
+          a past season; <span className="text-admin-text">Draft</span> removes it from the public
           site entirely. Both keep the episodes.
         </p>
 
@@ -671,7 +678,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
               redirectTo="/admin/shows"
             />
           ) : (
-            <p className="text-xs uppercase tracking-widest text-neutral-400">
+            <p className="text-xs uppercase tracking-widest text-admin-faint">
               Owner only
             </p>
           )}
@@ -685,7 +692,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
 function Count({ n, one, many }: { n: number; one: string; many: string }) {
   return (
     <>
-      <span className="text-ink">{n}</span> {n === 1 ? one : many}
+      <span className="text-admin-text">{n}</span> {n === 1 ? one : many}
     </>
   );
 }
@@ -697,7 +704,7 @@ function ShowLinks({ shows }: { shows: { id: string; title: string }[] }) {
       {shows.map((s, i) => (
         <span key={s.id}>
           {i > 0 && ", "}
-          <Link href={`/admin/shows/${s.id}`} className="text-brand hover:underline">
+          <Link href={`/admin/shows/${s.id}`} className="text-brand-onDark hover:underline">
             {s.title}
           </Link>
         </span>

@@ -13,11 +13,11 @@ import { LogoutButton } from "@/components/admin/LogoutButton";
  * rendered admin pages — including the full lead table — to anyone who got past
  * middleware.
  *
- * The dashboard uses the public site's system: paper ground, ink, red, radius 0,
+ * The dashboard runs the admin dark scale: near-black ground, red, radius 0,
  * 2px rules. It is the same product and should not feel like a different one.
- * What differs is density, not language: the sidebar is ink so the working area
- * reads as the page, and panels sit on white so a table separates from the
- * ground without needing a shadow.
+ * What differs is density, not language: the sidebar is admin-sunk so the
+ * working area reads as the page, and panels sit on admin-panel so a table
+ * separates from the ground without needing a shadow.
  */
 export default async function AdminLayout({
   children,
@@ -27,12 +27,13 @@ export default async function AdminLayout({
   const session = await requireSession();
 
   return (
-    <div className="flex min-h-screen bg-ground">
-      {/* The ink runs the full page height; the panel inside it sticks. Without
-          the wrapper the column ends at 100vh and paper shows beneath it on any
-          page longer than the viewport, which reads as a rendering fault. */}
-      <div className="w-60 shrink-0 bg-ink">
-        <aside className="sticky top-0 flex h-screen flex-col px-5 py-6 text-ground">
+    <div className="admin flex min-h-screen">
+      {/* The sunk column runs the full page height; the panel inside it sticks.
+          Without the wrapper the column ends at 100vh and the page ground shows
+          beneath it on any page longer than the viewport, which reads as a
+          rendering fault. */}
+      <div className="w-60 shrink-0 bg-admin-sunk">
+        <aside className="sticky top-0 flex h-screen flex-col px-5 py-6 text-admin-text">
           <Link href="/admin" className="flex items-center gap-3">
             <img
               src={`${mediaImage("/media/brand/logo")}.png`}
@@ -46,9 +47,9 @@ export default async function AdminLayout({
 
           <AdminNav role={session.role} />
 
-          <div className="mt-auto border-t-2 border-rule-dark pt-5">
-            <p className="text-[12px] text-ground/70">{session.name}</p>
-            <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-ground/40">
+          <div className="mt-auto border-t-2 border-admin-line-strong pt-5">
+            <p className="text-[12px] text-admin-muted">{session.name}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-admin-faint">
               {session.role}
             </p>
             <LogoutButton />

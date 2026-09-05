@@ -79,7 +79,7 @@ export default async function AdminOverview() {
   return (
     <>
       <h1 className="font-display text-3xl tracking-wide">Overview</h1>
-      <p className="mt-2 text-sm text-neutral-700">
+      <p className="mt-2 text-sm text-admin-muted">
         Everything captured since the new site went live.
       </p>
 
@@ -90,27 +90,33 @@ export default async function AdminOverview() {
             href={c.href}
             className="card-interactive block p-5"
           >
-            <p className="text-xs uppercase tracking-widest text-neutral-600">{c.label}</p>
+            <p className="text-xs uppercase tracking-widest text-admin-faint">{c.label}</p>
+            {/* Accent is `newCount > 0`: red is the queue that has work in it,
+                and it only means that if the other three numbers are not also
+                red. Both arms of this ternary said brand-onDark, which spent
+                the accent on every card and told a reviewer nothing. */}
             <p
               className={`mt-2 font-display text-4xl ${
-                c.accent ? "text-brand-onLight" : "text-brand"
+                c.accent ? "text-brand-onDark" : "text-admin-text"
               }`}
             >
               {c.value.toLocaleString("en-US")}
             </p>
-            {c.note && <p className="mt-1 text-[11px] text-neutral-400">{c.note}</p>}
+            {c.note && <p className="mt-1 text-[11px] text-admin-faint">{c.note}</p>}
           </Link>
         ))}
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <div className="card p-5">
-          <p className="text-xs uppercase tracking-widest text-neutral-600">Last 7 days</p>
-          <p className="mt-2 font-display text-4xl text-brand">{last7}</p>
+          <p className="text-xs uppercase tracking-widest text-admin-faint">Last 7 days</p>
+          {/* Plain text for the same reason: with the accent restored above, a
+              second red figure beside it would put the eye back to guessing. */}
+          <p className="mt-2 font-display text-4xl text-admin-text">{last7}</p>
           {delta !== null && (
             <p
               className={`mt-1 text-xs ${
-                delta >= 0 ? "text-emerald-700" : "text-neutral-600"
+                delta >= 0 ? "text-admin-ok" : "text-admin-faint"
               }`}
             >
               {delta >= 0 ? "+" : ""}
@@ -120,24 +126,24 @@ export default async function AdminOverview() {
         </div>
 
         <div className="card p-5 lg:col-span-2">
-          <p className="text-xs uppercase tracking-widest text-neutral-600">By type</p>
+          <p className="text-xs uppercase tracking-widest text-admin-faint">By type</p>
           <div className="mt-3 space-y-2">
-            {byType.length === 0 && <p className="text-sm text-neutral-400">No leads yet.</p>}
+            {byType.length === 0 && <p className="text-sm text-admin-faint">No leads yet.</p>}
             {byType.map((t) => {
               const n = typeof t._count === "number" ? t._count : 0;
               const pct = total ? Math.round((n / total) * 100) : 0;
               return (
                 <div key={t.type} className="flex items-center gap-3">
-                  <span className="w-28 shrink-0 text-xs uppercase tracking-wider text-neutral-700">
+                  <span className="w-28 shrink-0 text-xs uppercase tracking-wider text-admin-muted">
                     {t.type.toLowerCase()}
                   </span>
-                  <span className="h-1.5 flex-1 overflow-hidden bg-surface">
+                  <span className="h-1.5 flex-1 overflow-hidden bg-admin-raised">
                     <span
                       className="block h-full bg-brand"
                       style={{ width: `${pct}%` }}
                     />
                   </span>
-                  <span className="w-10 shrink-0 text-right text-xs tabular-nums text-neutral-600">
+                  <span className="w-10 shrink-0 text-right text-xs tabular-nums text-admin-faint">
                     {n}
                   </span>
                 </div>
@@ -150,9 +156,9 @@ export default async function AdminOverview() {
       {/* A standing reminder, not decoration: an unverified figure on the public
           site is an advertising claim nobody has checked. */}
       {unverifiedStats > 0 && (
-        <div className="mt-4 border border-brand/30 bg-brand/5 p-5">
-          <p className="text-sm text-ink">
-            <span className="font-semibold text-brand">
+        <div className="notice mt-4">
+          <p className="text-sm text-admin-text">
+            <span className="font-semibold text-brand-onDark">
               {unverifiedStats} unconfirmed statistic{unverifiedStats > 1 ? "s" : ""}
             </span>{" "}
             {unverifiedStats > 1 ? "are" : "is"} hidden from the public site until someone
@@ -164,28 +170,28 @@ export default async function AdminOverview() {
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="card overflow-hidden">
-          <p className="border-b border-rule px-5 py-4 text-xs uppercase tracking-widest text-neutral-600">
+          <p className="border-b border-admin-line px-5 py-4 text-xs uppercase tracking-widest text-admin-faint">
             Latest submissions
           </p>
           {recent.length === 0 ? (
-            <p className="px-5 py-10 text-center text-sm text-neutral-400">
+            <p className="px-5 py-10 text-center text-sm text-admin-faint">
               Nothing yet. Submissions from every public form land here.
             </p>
           ) : (
             <ul>
               {recent.map((r) => (
-                <li key={r.id} className="border-b border-rule last:border-0">
+                <li key={r.id} className="border-b border-admin-line last:border-0">
                   <Link
                     href={`/admin/leads/${r.id}`}
-                    className="flex items-center justify-between gap-4 px-5 py-3 transition-colors hover:bg-surface"
+                    className="flex items-center justify-between gap-4 px-5 py-3 transition-colors hover:bg-admin-raised"
                   >
                     <span className="min-w-0">
-                      <span className="block truncate text-sm text-ink">
+                      <span className="block truncate text-sm text-admin-text">
                         {r.firstName} {r.lastName ?? ""}
                       </span>
-                      <span className="block truncate text-xs text-neutral-600">{r.email}</span>
+                      <span className="block truncate text-xs text-admin-faint">{r.email}</span>
                     </span>
-                    <span className="shrink-0 text-xs text-neutral-600">
+                    <span className="shrink-0 text-xs text-admin-faint">
                       {r.createdAt.toLocaleDateString("en-GB", {
                         day: "2-digit",
                         month: "short",
@@ -199,22 +205,22 @@ export default async function AdminOverview() {
         </div>
 
         <div className="card p-5">
-          <p className="text-xs uppercase tracking-widest text-neutral-600">
+          <p className="text-xs uppercase tracking-widest text-admin-faint">
             Top countries · 30 days
           </p>
           {byCountry.length === 0 ? (
-            <p className="mt-3 text-sm text-neutral-400">No country data yet.</p>
+            <p className="mt-3 text-sm text-admin-faint">No country data yet.</p>
           ) : (
             <ul className="mt-3 space-y-2">
               {byCountry.map((c) => (
                 <li key={c.country} className="flex justify-between text-sm">
                   <Link
                     href={`/admin/leads?country=${encodeURIComponent(c.country ?? "")}`}
-                    className="text-neutral-700 transition-colors hover:text-brand"
+                    className="text-admin-muted transition-colors hover:text-brand-onDark"
                   >
                     {c.country}
                   </Link>
-                  <span className="tabular-nums text-neutral-600">
+                  <span className="tabular-nums text-admin-faint">
                     {typeof c._count === "number" ? c._count : 0}
                   </span>
                 </li>

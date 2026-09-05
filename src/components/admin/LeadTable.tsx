@@ -23,22 +23,23 @@ type Row = {
 };
 
 /**
- * Status colours for the light ground.
+ * Status colours for the dark ground, drawn from the admin status tokens.
  *
- * The previous set was tuned for the dark dashboard: sky-300, emerald-300 and
- * violet-300 land around 1.7:1 on white, which is a label you cannot read. The
- * 700 steps carry the same hue at a contrast that works on paper.
+ * Each chip is edge-first: the tint fill is around 1.3:1 here and is a hint,
+ * not the signal, so the border at /60 is what actually separates the chip
+ * from the row. The roles map onto the pipeline — a lead in motion is `info`,
+ * a settled good outcome is `ok`, a fact worth marking is `note`.
  *
  * NEW is the only one in brand red, because it is the only one that means
  * "somebody has to look at this".
  */
 const STATUS_STYLE: Record<string, string> = {
   NEW: "border-brand bg-brand text-white",
-  REVIEWED: "border-rule bg-white text-neutral-700",
-  SHORTLISTED: "border-sky-700 bg-sky-50 text-sky-800",
-  FINALIST: "border-emerald-700 bg-emerald-50 text-emerald-800",
-  REJECTED: "border-neutral-300 bg-surface text-neutral-600",
-  CONTACTED: "border-violet-700 bg-violet-50 text-violet-800",
+  REVIEWED: "border-admin-line-strong bg-admin-raised text-admin-muted",
+  SHORTLISTED: "border-admin-info/60 bg-admin-info-tint text-admin-info",
+  FINALIST: "border-admin-ok/60 bg-admin-ok-tint text-admin-ok",
+  REJECTED: "border-admin-line-strong bg-admin-raised text-admin-faint",
+  CONTACTED: "border-admin-note/60 bg-admin-note-tint text-admin-note",
 };
 
 export function LeadTable({ rows }: { rows: Row[] }) {
@@ -74,8 +75,8 @@ export function LeadTable({ rows }: { rows: Row[] }) {
 
   if (rows.length === 0) {
     return (
-      <div className="border border-rule bg-white p-14 text-center">
-        <p className="text-neutral-700">No submissions match these filters.</p>
+      <div className="border border-admin-line-strong bg-admin-panel p-14 text-center">
+        <p className="text-admin-muted">No submissions match these filters.</p>
       </div>
     );
   }
@@ -85,8 +86,8 @@ export function LeadTable({ rows }: { rows: Row[] }) {
       {/* Bulk bar only appears with a selection, so it never competes with the
           table for attention when it has nothing to do. */}
       {selected.size > 0 && (
-        <div className="mb-4 flex flex-wrap items-center gap-3 border border-brand/30 bg-brand/5 px-5 py-3">
-          <span className="text-sm text-ink">{selected.size} selected</span>
+        <div className="notice-strong mb-4 flex flex-wrap items-center gap-3 px-5 py-3">
+          <span className="text-sm text-admin-text">{selected.size} selected</span>
 
           <select
             defaultValue=""
@@ -123,22 +124,26 @@ export function LeadTable({ rows }: { rows: Row[] }) {
           <button
             type="button"
             onClick={() => setSelected(new Set())}
-            className="text-xs uppercase tracking-widest text-neutral-600 hover:text-brand"
+            className="text-xs uppercase tracking-widest text-admin-faint hover:text-brand-onDark"
           >
             Clear
           </button>
 
           {pending && (
-            <span className="text-xs text-neutral-600">Applying…</span>
+            <span className="text-xs text-admin-faint">Applying…</span>
           )}
           {error && <span className="error-text !mt-0">{error}</span>}
         </div>
       )}
 
-      <div className="overflow-x-auto border border-rule">
+      {/* Same structure as AdminTable in crud.tsx: line-strong outline because
+          the panel fill is only 1.10:1 on the page and the edge is doing all of
+          the work, a raised header band closed by a 2px line-strong rule, and
+          quiet `line` rules between rows so a long table does not stripe. */}
+      <div className="overflow-x-auto border border-admin-line-strong bg-admin-panel">
         <table className="w-full min-w-[62rem] text-left text-sm">
-          <thead className="bg-white text-xs uppercase tracking-widest text-neutral-600">
-            <tr>
+          <thead className="bg-admin-sunk text-xs uppercase tracking-widest text-admin-faint">
+            <tr className="border-b-2 border-admin-line-strong">
               <th className="w-10 px-4 py-3">
                 <input
                   type="checkbox"
@@ -166,9 +171,26 @@ export function LeadTable({ rows }: { rows: Row[] }) {
             {rows.map((r) => (
               <tr
                 key={r.id}
+                data-selected={selected.has(r.id) || undefined}
                 className={cn(
-                  "border-t border-rule transition-colors hover:bg-white",
-                  selected.has(r.id) && "bg-brand/5",
+                  "border-t border-admin-line transition-colors",
+                  /*
+                    Selection has to survive hover. `bg-brand/15` was 1.07:1 on
+                    this ground and `hover:bg-admin-raised` overwrote what little
+                    of it there was, so a hovered row looked selected and a
+                    selected row looked hovered — on the only control that says
+                    which rows a bulk status change will hit.
+
+                    So: an opaque raised ground the hover repeats rather than
+                    replaces, plus a 4px red rule down the left edge that hover
+                    cannot touch. The transparent rule on unselected rows keeps
+                    the first cell from shifting 4px as rows are ticked. Both
+                    branches carry a border-left-colour, so the two utilities
+                    never race each other in the cascade.
+                  */
+                  selected.has(r.id)
+                    ? "border-l-4 border-l-brand-onDark bg-admin-raised hover:bg-admin-raised"
+                    : "border-l-4 border-l-transparent hover:bg-admin-raised",
                 )}
               >
                 <td className="px-4 py-3">
@@ -184,7 +206,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/leads/${r.id}`}
-                    className="font-medium text-ink transition-colors hover:text-brand"
+                    className="font-medium text-admin-text transition-colors hover:text-brand-onDark"
                   >
                     {r.firstName} {r.lastName ?? ""}
                   </Link>
@@ -193,7 +215,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                       {r.tags.map((t) => (
                         <span
                           key={t.tag.id}
-                          className="border border-rule px-2 py-0.5 text-[10px] uppercase tracking-wider text-neutral-600"
+                          className="border border-admin-line px-2 py-0.5 text-[10px] uppercase tracking-wider text-admin-faint"
                         >
                           {t.tag.name}
                         </span>
@@ -202,35 +224,35 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                   )}
                 </td>
 
-                <td className="px-4 py-3 text-neutral-700">
+                <td className="px-4 py-3 text-admin-muted">
                   {r.email}
                   {r.marketingOptIn && (
-                    <span className="ml-2 text-[10px] uppercase tracking-wider text-brand">
+                    <span className="ml-2 text-[10px] uppercase tracking-wider text-brand-onDark">
                       opt-in
                     </span>
                   )}
                 </td>
 
-                <td className="px-4 py-3 text-neutral-700">
+                <td className="px-4 py-3 text-admin-muted">
                   {r.type.charAt(0) + r.type.slice(1).toLowerCase()}
                   {r.show && (
-                    <span className="block text-[11px] text-neutral-600">
+                    <span className="block text-[11px] text-admin-faint">
                       {r.show.title}
                     </span>
                   )}
                 </td>
 
-                <td className="px-4 py-3 text-neutral-700">
+                <td className="px-4 py-3 text-admin-muted">
                   {r.talentCategory ?? "—"}
                 </td>
-                <td className="px-4 py-3 text-neutral-700">
+                <td className="px-4 py-3 text-admin-muted">
                   {r.country ?? "—"}
                 </td>
 
                 <td className="px-4 py-3">
                   <span
                     className={cn(
-                      "inline-block  border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
+                      "pill",
                       STATUS_STYLE[r.status] ?? STATUS_STYLE.REVIEWED,
                     )}
                   >
@@ -238,7 +260,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                   </span>
                 </td>
 
-                <td className="px-4 py-3 text-neutral-600">
+                <td className="px-4 py-3 text-admin-faint">
                   {new Date(r.createdAt).toLocaleDateString("en-GB", {
                     day: "2-digit",
                     month: "short",

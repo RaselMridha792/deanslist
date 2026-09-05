@@ -79,9 +79,9 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
         the client needs to know it is not a fault before they report it as one.
       */}
       {!showForm && activeCount === 0 && sponsors.length > 0 && (
-        <div className="mt-6 border border-brand/30 bg-brand/5 p-5">
-          <p className="text-sm leading-relaxed text-ink">
-            <span className="font-semibold text-brand">
+        <div className="notice mt-6">
+          <p className="text-sm leading-relaxed text-admin-text">
+            <span className="font-semibold text-brand-onDark">
               Nothing is showing on the public site.
             </span>{" "}
             Every sponsor below is switched off, so the &ldquo;In partnership with&rdquo; strip
@@ -200,11 +200,11 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
                     <span className="min-w-0">
                       <Link
                         href={`${LIST}?edit=${s.id}`}
-                        className="block truncate font-medium text-ink transition-colors hover:text-brand"
+                        className="block truncate font-medium text-admin-text transition-colors hover:text-brand-onDark"
                       >
                         {s.name}
                       </Link>
-                      <span className="block truncate text-xs text-neutral-600">{s.slug}</span>
+                      <span className="block truncate text-xs text-admin-faint">{s.slug}</span>
                     </span>
                   </div>
                 </Cell>
@@ -219,7 +219,7 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
                       href={s.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="transition-colors hover:text-brand"
+                      className="transition-colors hover:text-brand-onDark"
                     >
                       {s.url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
                     </a>
@@ -243,7 +243,7 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
                   <div className="flex items-center justify-end gap-4">
                     <Link
                       href={`${LIST}?edit=${s.id}`}
-                      className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
+                      className="text-xs font-semibold uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark"
                     >
                       Edit
                     </Link>
@@ -258,7 +258,7 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
         )}
       </div>
 
-      <p className="mt-6 max-w-prose text-xs leading-relaxed text-neutral-600">
+      <p className="mt-6 max-w-prose text-xs leading-relaxed text-admin-faint">
         Sponsor logos are the one place on the site where a third party&apos;s brand appears.
         Only add a logo the sponsor has actually supplied or approved — a logo lifted from
         their website is a trademark use nobody has agreed to.

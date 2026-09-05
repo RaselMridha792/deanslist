@@ -66,8 +66,8 @@ export default async function CampaignsPage() {
       />
 
       {!mailEnabled && (
-        <p className="mt-6 border border-brand/40 bg-brand/10 p-4 text-sm text-ink">
-          <span className="font-semibold text-brand-onLight">
+        <p className="notice mt-6 p-4 text-sm text-admin-text">
+          <span className="font-semibold text-brand-onDark">
             No email provider is connected.
           </span>{" "}
           Campaigns can be composed and previewed, but a send will be refused rather than
@@ -76,16 +76,16 @@ export default async function CampaignsPage() {
       )}
 
       {!env.CRON_SECRET && (
-        <p className="mt-4 border border-brand/30 bg-brand/5 p-4 text-sm text-ink">
-          <span className="font-semibold text-brand">The scheduler is not configured.</span>{" "}
+        <p className="notice mt-4 p-4 text-sm text-admin-text">
+          <span className="font-semibold text-brand-onDark">The scheduler is not configured.</span>{" "}
           Set <code>CRON_SECRET</code> and point a timer at{" "}
           <code>GET /api/cron/tick</code>, or a scheduled campaign will never fire.
         </p>
       )}
 
       {env.CRON_SECRET && schedulerSilent && (
-        <p className="mt-4 border border-brand/30 bg-brand/5 p-4 text-sm text-ink">
-          <span className="font-semibold text-brand">
+        <p className="notice mt-4 p-4 text-sm text-admin-text">
+          <span className="font-semibold text-brand-onDark">
             The scheduler has not run in the last 24 hours.
           </span>{" "}
           Check the systemd timer or PM2 cron that calls <code>/api/cron/tick</code>.
@@ -129,7 +129,7 @@ export default async function CampaignsPage() {
               <Row key={c.id}>
                 <Cell>
                   <RowLink href={`/admin/campaigns/${c.id}`}>{c.name}</RowLink>
-                  <span className="mt-1 block truncate text-xs text-neutral-600">
+                  <span className="mt-1 block truncate text-xs text-admin-faint">
                     {c.subject}
                   </span>
                 </Cell>
@@ -137,7 +137,7 @@ export default async function CampaignsPage() {
                 <Cell muted>
                   {c.segment?.name ?? "One-off filter"}
                   {c.show && (
-                    <span className="mt-1 block text-[11px] text-neutral-400">
+                    <span className="mt-1 block text-[11px] text-admin-faint">
                       {c.show.title}
                     </span>
                   )}
@@ -149,7 +149,7 @@ export default async function CampaignsPage() {
 
                 <Cell muted className="tabular-nums">
                   {c.totalSent.toLocaleString("en-US")}
-                  <span className="block text-[11px] text-neutral-400">
+                  <span className="block text-[11px] text-admin-faint">
                     of {c.totalRecipients.toLocaleString("en-US")}
                   </span>
                 </Cell>
@@ -187,10 +187,10 @@ function Stat({
 }) {
   return (
     <div className="card p-5">
-      <dt className="text-xs uppercase tracking-widest text-neutral-600">{label}</dt>
+      <dt className="text-xs uppercase tracking-widest text-admin-faint">{label}</dt>
       <dd
         className={`mt-2 font-display text-2xl ${
-          accent ? "text-brand-onLight" : "text-ink"
+          accent ? "text-brand-onDark" : "text-admin-text"
         }`}
       >
         {text ?? (value ?? 0).toLocaleString("en-US")}
@@ -201,11 +201,11 @@ function Stat({
 
 /** Never divide by zero, and never print a rate for a campaign that never sent. */
 function rate(part: number, whole: number) {
-  if (!whole) return <span className="text-neutral-400">—</span>;
+  if (!whole) return <span className="text-admin-faint">—</span>;
   return (
     <>
       {part.toLocaleString("en-US")}
-      <span className="block text-[11px] text-neutral-400">
+      <span className="block text-[11px] text-admin-faint">
         {Math.round((part / whole) * 100)}%
       </span>
     </>
@@ -222,6 +222,6 @@ function when(sentAt: Date | null, scheduledFor: Date | null, createdAt: Date) {
     });
 
   if (sentAt) return <>Sent {fmt(sentAt)}</>;
-  if (scheduledFor) return <span className="text-brand">For {fmt(scheduledFor)}</span>;
+  if (scheduledFor) return <span className="text-brand-onDark">For {fmt(scheduledFor)}</span>;
   return <>Drafted {fmt(createdAt)}</>;
 }

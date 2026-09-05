@@ -16,7 +16,8 @@
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:purge-test": "node scripts/purge-test-data.mjs",
-    "db:purge-test:apply": "node scripts/purge-test-data.mjs --delete"
+    "db:purge-test:apply": "node scripts/purge-test-data.mjs --delete",
+    "audit:contrast": "node scripts/contrast-audit.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",

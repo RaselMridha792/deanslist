@@ -133,8 +133,8 @@ export default async function EditWinnerPage({ params }: Props) {
           </CrudForm>
 
           {user.role === "OWNER" && (
-            <div className="mt-8 border-t border-rule pt-6">
-              <p className="text-xs text-neutral-600">
+            <div className="mt-8 border-t border-admin-line pt-6">
+              <p className="text-xs text-admin-faint">
                 Deleting removes the winner and the public page at /winners/{winner.slug}. The
                 image files in /media are untouched.
               </p>
@@ -169,14 +169,14 @@ export default async function EditWinnerPage({ params }: Props) {
 
             {winner.photoUrl ? (
               <div className="mt-4">
-                <p className="text-[10px] uppercase tracking-widest text-neutral-600">
+                <p className="text-[10px] uppercase tracking-widest text-admin-faint">
                   Files requested, in order
                 </p>
                 <ul className="mt-2 space-y-1">
                   {[".avif", ".webp", ".jpg"].map((ext) => (
-                    <li key={ext} className="break-all font-mono text-xs text-neutral-700">
+                    <li key={ext} className="break-all font-mono text-xs text-admin-muted">
                       {mediaImage(winner.photoUrl ?? "")}
-                      <span className="text-brand">{ext}</span>
+                      <span className="text-brand-onDark">{ext}</span>
                     </li>
                   ))}
                 </ul>
@@ -195,7 +195,7 @@ export default async function EditWinnerPage({ params }: Props) {
 
           <div className="card p-5">
             <p className="eyebrow">Publishing checks</p>
-            <ul className="mt-3 space-y-2 text-sm text-ink">
+            <ul className="mt-3 space-y-2 text-sm text-admin-text">
               <Check ok={Boolean(winner.announcedAt)} label="Announcement date confirmed" />
               <Check ok={Boolean(winner.showId)} label="Linked to a show" />
               <Check ok={winner.prizeAwarded !== null} label="Prize recorded" />
@@ -220,11 +220,11 @@ function Check({ ok, label }: { ok: boolean; label: string }) {
         aria-hidden
         className={
           ok
-            ? "mt-1.5 h-1.5 w-1.5 shrink-0  bg-brand"
-            : "mt-1.5 h-1.5 w-1.5 shrink-0  bg-neutral-400"
+            ? "mt-1.5 h-2 w-2 shrink-0 bg-brand-onDark"
+            : "mt-1.5 h-2 w-2 shrink-0 border-2 border-admin-line-strong"
         }
       />
-      <span className={ok ? "text-ink" : "text-neutral-600"}>
+      <span className={ok ? "text-admin-text" : "text-admin-faint"}>
         {label}
         <span className="sr-only">{ok ? " — done" : " — outstanding"}</span>
       </span>
@@ -235,15 +235,15 @@ function Check({ ok, label }: { ok: boolean; label: string }) {
 /** See the note on the same helper in ../new/page.tsx. */
 function MediaPathHelp() {
   return (
-    <div className="border border-rule bg-surface p-5 sm:col-span-2">
+    <div className="border border-admin-line-strong bg-admin-raised p-5 sm:col-span-2">
       <p className="eyebrow">Image paths</p>
-      <p className="mt-2 text-sm leading-relaxed text-ink">
-        Store the path <strong className="text-ink">without a file extension</strong>. The site
+      <p className="mt-2 text-sm leading-relaxed text-admin-text">
+        Store the path <strong className="text-admin-text">without a file extension</strong>. The site
         serves three encodings of every image and lets the browser take the smallest one it can
         decode.
       </p>
-      <p className="mt-3 text-xs text-neutral-600">
-        <code className="text-brand">/media/winners/pj-galloway</code> is requested as{" "}
+      <p className="mt-3 text-xs text-admin-faint">
+        <code className="text-brand-onDark">/media/winners/pj-galloway</code> is requested as{" "}
         <code>.avif</code>, then <code>.webp</code>, then <code>.jpg</code>. Typing{" "}
         <code>/media/winners/pj-galloway.jpg</code> would ask for{" "}
         <code>pj-galloway.jpg.avif</code> and show nothing, so it is rejected on save.

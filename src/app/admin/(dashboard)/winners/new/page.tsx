@@ -107,15 +107,15 @@ export default async function NewWinnerPage() {
  */
 function MediaPathHelp() {
   return (
-    <div className="border border-rule bg-surface p-5 sm:col-span-2">
+    <div className="border border-admin-line-strong bg-admin-raised p-5 sm:col-span-2">
       <p className="eyebrow">Image paths</p>
-      <p className="mt-2 text-sm leading-relaxed text-ink">
-        Store the path <strong className="text-ink">without a file extension</strong>. The site
+      <p className="mt-2 text-sm leading-relaxed text-admin-text">
+        Store the path <strong className="text-admin-text">without a file extension</strong>. The site
         serves three encodings of every image and lets the browser take the smallest one it can
         decode.
       </p>
-      <p className="mt-3 text-xs text-neutral-600">
-        <code className="text-brand">/media/winners/pj-galloway</code> is requested as{" "}
+      <p className="mt-3 text-xs text-admin-faint">
+        <code className="text-brand-onDark">/media/winners/pj-galloway</code> is requested as{" "}
         <code>.avif</code>, then <code>.webp</code>, then <code>.jpg</code>. Typing{" "}
         <code>/media/winners/pj-galloway.jpg</code> would ask for{" "}
         <code>pj-galloway.jpg.avif</code> and show nothing, so it is rejected on save.

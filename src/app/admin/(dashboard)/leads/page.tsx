@@ -27,7 +27,7 @@ export default async function LeadsPage({ searchParams }: Props) {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl tracking-wide">Leads &amp; Entries</h1>
-          <p className="mt-2 text-sm text-neutral-700">
+          <p className="mt-2 text-sm text-admin-muted">
             Every submission from every form, in the client&apos;s own database.
           </p>
         </div>
@@ -66,7 +66,7 @@ export default async function LeadsPage({ searchParams }: Props) {
           className="mt-6 flex items-center justify-between text-sm"
           aria-label="Pagination"
         >
-          <p className="text-neutral-600">
+          <p className="text-admin-faint">
             Page {page} of {pages}
           </p>
           <div className="flex gap-2">

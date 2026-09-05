@@ -32,7 +32,7 @@ export default async function LeadDetailPage({ params }: Props) {
           <h1 className="font-display text-3xl tracking-wide">
             {lead.firstName} {lead.lastName ?? ""}
           </h1>
-          <p className="mt-2 text-sm text-neutral-700">
+          <p className="mt-2 text-sm text-admin-muted">
             {lead.type.charAt(0) + lead.type.slice(1).toLowerCase()} ·{" "}
             {lead.source.replace(/_/g, " ").toLowerCase()} ·{" "}
             {lead.createdAt.toLocaleString("en-GB", {
@@ -54,7 +54,7 @@ export default async function LeadDetailPage({ params }: Props) {
             <section>
               <p className="label">Performance</p>
               {youTubeId ? (
-                <div className="aspect-video overflow-hidden border border-rule">
+                <div className="aspect-video overflow-hidden border border-admin-line">
                   <iframe
                     src={`https://www.youtube-nocookie.com/embed/${youTubeId}`}
                     title="Submitted performance"
@@ -63,8 +63,8 @@ export default async function LeadDetailPage({ params }: Props) {
                   />
                 </div>
               ) : (
-                <div className="border border-rule bg-white p-5">
-                  <p className="text-sm text-neutral-700">
+                <div className="border border-admin-line-strong bg-admin-panel p-5">
+                  <p className="text-sm text-admin-muted">
                     {facebookVideo
                       ? "Facebook video — open in a new tab to watch."
                       : "Link submitted. Open it to review."}
@@ -75,7 +75,7 @@ export default async function LeadDetailPage({ params }: Props) {
                 href={lead.performanceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 block break-all text-sm text-brand hover:underline"
+                className="mt-3 block break-all text-sm text-brand-onDark hover:underline"
               >
                 {lead.performanceUrl}
               </a>
@@ -84,7 +84,12 @@ export default async function LeadDetailPage({ params }: Props) {
 
           <section>
             <p className="label">Submitted details</p>
-            <dl className="grid gap-px overflow-hidden border border-rule bg-rule sm:grid-cols-2">
+            {/* The grid's own background is the gutter, so it has to be a line
+                that reads: 2px of line-strong, not 1px of line. The cells step
+                up to `raised` so the twelve of them are countable rather than
+                fusing into one slab — `panel` is 1.10:1 against the page here
+                and would leave the rule doing the whole job on its own. */}
+            <dl className="grid gap-0.5 overflow-hidden border border-admin-line-strong bg-admin-line-strong sm:grid-cols-2">
               <Field label="Email" value={lead.email} href={`mailto:${lead.email}`} />
               <Field label="Phone" value={lead.phone} href={lead.phone ? `tel:${lead.phone}` : undefined} />
               <Field label="Address" value={lead.addressLine1} />
@@ -112,7 +117,7 @@ export default async function LeadDetailPage({ params }: Props) {
           {lead.message && (
             <section>
               <p className="label">Their message</p>
-              <div className="whitespace-pre-wrap border border-rule bg-white p-5 text-sm leading-relaxed text-ink">
+              <div className="whitespace-pre-wrap border border-admin-line-strong bg-admin-panel p-5 text-sm leading-relaxed text-admin-text">
                 {lead.message}
               </div>
             </section>
@@ -121,15 +126,15 @@ export default async function LeadDetailPage({ params }: Props) {
           {lead.conversations.length > 0 && (
             <section>
               <p className="label">Chatbot transcript</p>
-              <div className="space-y-3 border border-rule bg-white p-5">
+              <div className="space-y-3 border border-admin-line-strong bg-admin-panel p-5">
                 {lead.conversations.flatMap((c) =>
                   c.messages.map((m) => (
                     <p key={m.id} className="text-sm">
-                      <span className="text-xs uppercase tracking-widest text-neutral-600">
+                      <span className="text-xs uppercase tracking-widest text-admin-faint">
                         {m.role}
                       </span>
                       <br />
-                      <span className="text-ink">{m.content}</span>
+                      <span className="text-admin-text">{m.content}</span>
                     </p>
                   )),
                 )}
@@ -139,8 +144,8 @@ export default async function LeadDetailPage({ params }: Props) {
 
           {/* Kept in a collapsed block: useful when investigating spam, noise
               the rest of the time. */}
-          <details className="border border-rule bg-white p-5">
-            <summary className="cursor-pointer text-xs uppercase tracking-widest text-neutral-600">
+          <details className="border border-admin-line-strong bg-admin-panel p-5">
+            <summary className="cursor-pointer text-xs uppercase tracking-widest text-admin-faint">
               Technical detail
             </summary>
             <dl className="mt-4 grid gap-3 text-xs sm:grid-cols-2">
@@ -154,7 +159,7 @@ export default async function LeadDetailPage({ params }: Props) {
           </details>
         </div>
 
-        <aside className="border border-rule bg-white p-6">
+        <aside className="border border-admin-line-strong bg-admin-panel p-6">
           <LeadDetailPanel
             leadId={lead.id}
             status={lead.status}
@@ -177,19 +182,19 @@ function Field({
   href?: string;
 }) {
   return (
-    <div className="bg-white px-5 py-4">
-      <dt className="text-[10px] uppercase tracking-widest text-neutral-600">{label}</dt>
-      <dd className="mt-1 break-words text-sm text-ink">
+    <div className="bg-admin-raised px-5 py-4">
+      <dt className="text-[10px] uppercase tracking-widest text-admin-faint">{label}</dt>
+      <dd className="mt-1 break-words text-sm text-admin-text">
         {value ? (
           href ? (
-            <a href={href} className="text-brand hover:underline">
+            <a href={href} className="text-brand-onDark hover:underline">
               {value}
             </a>
           ) : (
             value
           )
         ) : (
-          <span className="text-neutral-400">—</span>
+          <span className="text-admin-faint">—</span>
         )}
       </dd>
     </div>
@@ -199,8 +204,8 @@ function Field({
 function Raw({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
-      <dt className="text-neutral-600">{label}</dt>
-      <dd className="mt-0.5 break-all text-neutral-700">{value ?? "—"}</dd>
+      <dt className="text-admin-faint">{label}</dt>
+      <dd className="mt-0.5 break-all text-admin-muted">{value ?? "—"}</dd>
     </div>
   );
 }

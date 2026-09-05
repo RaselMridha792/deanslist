@@ -59,7 +59,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
           <h1 className="font-display text-3xl tracking-wide">
             {convo.intent ? titleCase(convo.intent) : "Conversation"}
           </h1>
-          <p className="mt-2 text-sm text-neutral-700">
+          <p className="mt-2 text-sm text-admin-muted">
             {started} · {convo.messages.length}{" "}
             {convo.messages.length === 1 ? "message" : "messages"}
           </p>
@@ -85,7 +85,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
         <section>
           <p className="label">Transcript</p>
           {convo.messages.length === 0 ? (
-            <div className="border border-dashed border-rule bg-white p-8 text-center text-sm text-neutral-700">
+            <div className="border border-dashed border-admin-line-strong bg-admin-panel p-8 text-center text-sm text-admin-muted">
               This conversation was opened but nothing was ever said.
             </div>
           ) : (
@@ -99,9 +99,9 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                     key={m.id}
                     className={[
                       " border p-4",
-                      isAssistant && "border-brand/25 bg-surface",
-                      isSystem && "border-dashed border-rule bg-transparent",
-                      !isAssistant && !isSystem && "border-rule bg-white",
+                      isAssistant && "border-brand/50 bg-admin-raised",
+                      isSystem && "border-dashed border-admin-line bg-transparent",
+                      !isAssistant && !isSystem && "border-admin-line-strong bg-admin-panel",
                     ]
                       .filter(Boolean)
                       .join(" ")}
@@ -110,14 +110,14 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                       <span
                         className={[
                           "text-[10px] font-semibold uppercase tracking-widest",
-                          isAssistant ? "text-brand" : "text-neutral-600",
+                          isAssistant ? "text-brand-onDark" : "text-admin-faint",
                         ].join(" ")}
                       >
                         {isAssistant ? "Assistant" : isSystem ? "System" : "Visitor"}
                       </span>
                       <time
                         dateTime={m.createdAt.toISOString()}
-                        className="text-[10px] text-neutral-400"
+                        className="text-[10px] text-admin-faint"
                       >
                         {m.createdAt.toLocaleTimeString("en-GB", {
                           hour: "2-digit",
@@ -128,7 +128,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                     <p
                       className={[
                         "mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed",
-                        isSystem ? "text-neutral-600" : "text-ink",
+                        isSystem ? "text-admin-faint" : "text-admin-text",
                       ].join(" ")}
                     >
                       {m.content}
@@ -141,13 +141,13 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
         </section>
 
         <aside className="space-y-6">
-          <div className="border border-rule bg-white p-6">
+          <div className="border border-admin-line-strong bg-admin-panel p-6">
             <p className="label">Captured contact</p>
             {convo.lead ? (
               <>
                 <Link
                   href={`/admin/leads/${convo.lead.id}`}
-                  className="font-display text-xl tracking-wide text-ink transition-colors hover:text-brand"
+                  className="font-display text-xl tracking-wide text-admin-text transition-colors hover:text-brand-onDark"
                 >
                   {[convo.lead.firstName, convo.lead.lastName].filter(Boolean).join(" ") ||
                     convo.lead.email}
@@ -170,7 +170,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                   Open the full lead</Link>
               </>
             ) : (
-              <p className="text-sm leading-relaxed text-neutral-700">
+              <p className="text-sm leading-relaxed text-admin-muted">
                 No contact details were captured. The widget creates a lead the moment it has an
                 email address, so a chat with nothing attached means the visitor left before
                 giving one.
@@ -178,9 +178,9 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
             )}
           </div>
 
-          <div className="border border-rule bg-white p-6">
+          <div className="border border-admin-line-strong bg-admin-panel p-6">
             <p className="label">Review</p>
-            <p className="mb-4 text-xs leading-relaxed text-neutral-600">
+            <p className="mb-4 text-xs leading-relaxed text-admin-faint">
               {reviewedOn
                 ? `Read on ${reviewedOn}${
                     convo.reviewedBy ? ` by ${convo.reviewedBy}` : ""
@@ -200,8 +200,8 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
             </CrudForm>
           </div>
 
-          <details className="border border-rule bg-white p-6">
-            <summary className="cursor-pointer text-xs uppercase tracking-widest text-neutral-600">
+          <details className="border border-admin-line-strong bg-admin-panel p-6">
+            <summary className="cursor-pointer text-xs uppercase tracking-widest text-admin-faint">
               Technical detail
             </summary>
             <dl className="mt-4 space-y-2 text-xs">
@@ -229,18 +229,18 @@ function Line({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
-      <dt className="shrink-0 text-[10px] uppercase tracking-widest text-neutral-600">{label}</dt>
-      <dd className="break-all text-right text-ink">
+      <dt className="shrink-0 text-[10px] uppercase tracking-widest text-admin-faint">{label}</dt>
+      <dd className="break-all text-right text-admin-text">
         {value ? (
           href ? (
-            <a href={href} className="text-brand hover:underline">
+            <a href={href} className="text-brand-onDark hover:underline">
               {value}
             </a>
           ) : (
             value
           )
         ) : (
-          <span className="text-neutral-400">—</span>
+          <span className="text-admin-faint">—</span>
         )}
       </dd>
     </div>

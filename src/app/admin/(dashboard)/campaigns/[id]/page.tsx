@@ -181,7 +181,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
         </div>
 
         {(queued > 0 || skipped > 0) && (
-          <p className="mt-3 text-xs text-neutral-600">
+          <p className="mt-3 text-xs text-admin-faint">
             {queued > 0 && (
               <span className="mr-4">
                 {queued.toLocaleString("en-US")} still queued — the send resumes on the next
@@ -198,7 +198,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
         )}
 
         {(opensTotal._sum.openCount ?? 0) > openedUnique && (
-          <p className="mt-2 text-xs text-neutral-400">
+          <p className="mt-2 text-xs text-admin-faint">
             {(opensTotal._sum.openCount ?? 0).toLocaleString("en-US")} opens and{" "}
             {(clicksTotal._sum.clickCount ?? 0).toLocaleString("en-US")} clicks in total,
             counting repeats. Open tracking is approximate — image proxies inflate it and
@@ -213,10 +213,10 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="eyebrow">Audience</p>
-            <p className="mt-2 text-sm text-ink">
+            <p className="mt-2 text-sm text-admin-text">
               {campaign.segment ? (
                 <>
-                  Segment <span className="text-ink">{campaign.segment.name}</span>
+                  Segment <span className="text-admin-text">{campaign.segment.name}</span>
                 </>
               ) : (
                 <FilterSummary filter={filter} shows={options.shows} />
@@ -224,17 +224,17 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
             </p>
             <Link
               href={`/admin/leads${filterToQuery({ ...filter, optIn: "yes" })}`}
-              className="mt-2 inline-block text-[11px] uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
+              className="mt-2 inline-block text-[11px] uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark"
             >
               Open these contacts in leads
             </Link>
           </div>
 
           <div className="text-right">
-            <p className="font-display text-3xl text-brand">
+            <p className="font-display text-3xl text-brand-onDark">
               {audience.mailable.toLocaleString("en-US")}
             </p>
-            <p className="text-xs text-neutral-600">
+            <p className="text-xs text-admin-faint">
               consented, of {audience.matching.toLocaleString("en-US")} matching
             </p>
             {editable && (
@@ -246,7 +246,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
               >
                 <button
                   type="submit"
-                  className="mt-2 text-[11px] uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
+                  className="mt-2 text-[11px] uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark"
                 >
                   Recount
                 </button>
@@ -262,7 +262,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="card p-6">
             <p className="eyebrow">Send a test</p>
-            <p className="mt-2 text-sm text-neutral-700">
+            <p className="mt-2 text-sm text-admin-muted">
               One message to one address, rendered by the same code path as the real send.
             </p>
             <div className="mt-4">
@@ -275,7 +275,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
 
           <div className="card p-6">
             <p className="eyebrow">Schedule</p>
-            <p className="mt-2 text-sm text-neutral-700">
+            <p className="mt-2 text-sm text-admin-muted">
               {campaign.scheduledFor
                 ? `Scheduled for ${formatDate(campaign.scheduledFor)}. A timer fires it unattended.`
                 : "Pick a time and the job runner sends it without anyone present."}
@@ -303,7 +303,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
               >
                 <button
                   type="submit"
-                  className="mt-4 text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
+                  className="mt-4 text-xs font-semibold uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark"
                 >
                   Cancel schedule
                 </button>
@@ -311,15 +311,15 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
             )}
           </div>
 
-          <div className="card border-brand/30 p-6">
-            <p className="eyebrow !text-brand-onLight">Send now</p>
-            <p className="mt-2 text-sm text-neutral-700">
+          <div className="notice-strong p-6">
+            <p className="eyebrow text-brand-onDark">Send now</p>
+            <p className="mt-2 text-sm text-admin-muted">
               Queues the send immediately. There is no recall — the only stop is the
               recipient&apos;s inbox.
             </p>
-            <p className="mt-3 text-sm text-ink">
+            <p className="mt-3 text-sm text-admin-text">
               Going to{" "}
-              <span className="font-semibold text-ink">
+              <span className="font-semibold text-admin-text">
                 {audience.mailable.toLocaleString("en-US")}
               </span>{" "}
               people.
@@ -346,8 +346,8 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
       <section className="mt-8 grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-start">
         <div className="card p-6">
           <p className="eyebrow">Preview</p>
-          <p className="mt-2 text-sm text-neutral-700">
-            Rendered with sample data. <span className="text-ink">Subject:</span>{" "}
+          <p className="mt-2 text-sm text-admin-muted">
+            Rendered with sample data. <span className="text-admin-text">Subject:</span>{" "}
             {preview?.subject || campaign.subject}
           </p>
           {previewError ? (
@@ -359,15 +359,15 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
               // body is HTML an editor typed.
               sandbox=""
               srcDoc={preview?.html ?? ""}
-              className="mt-4 h-[640px] w-full border border-rule bg-white"
+              className="mt-4 h-[640px] w-full border border-admin-line bg-white"
             />
           )}
           {preview?.text && (
             <details className="mt-4">
-              <summary className="cursor-pointer text-xs uppercase tracking-widest text-neutral-600">
+              <summary className="cursor-pointer text-xs uppercase tracking-widest text-admin-faint">
                 Plain text alternative
               </summary>
-              <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap border border-rule bg-surface p-4 text-xs text-neutral-700">
+              <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap border border-admin-line-strong bg-admin-raised p-4 text-xs text-admin-muted">
                 {preview.text}
               </pre>
             </details>
@@ -479,7 +479,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
               </CrudForm>
             </div>
 
-            <div className="mt-8 border-t border-rule pt-6">
+            <div className="mt-8 border-t border-admin-line pt-6">
               <DeleteButton
                 action={deleteCampaign.bind(null, campaign.id)}
                 name={campaign.name}
@@ -491,13 +491,13 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
         ) : (
           <div className="card p-6">
             <p className="eyebrow">Locked</p>
-            <p className="mt-2 text-sm text-neutral-700">
+            <p className="mt-2 text-sm text-admin-muted">
               This campaign is {campaign.status.toLowerCase()}. Its content is now the record
               of what went out, so it can no longer be edited — the numbers above have to
               describe the email people actually received.
             </p>
             {campaign.sentAt && (
-              <p className="mt-4 text-sm text-ink">
+              <p className="mt-4 text-sm text-admin-text">
                 Sent {formatDate(campaign.sentAt)}.
               </p>
             )}
@@ -509,13 +509,13 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
 
       <section className="mt-10">
         <h2 className="font-display text-2xl tracking-wide">Recipients</h2>
-        <p className="mt-2 text-sm text-neutral-700">
+        <p className="mt-2 text-sm text-admin-muted">
           One row per person, with what the provider reported back.
         </p>
 
         <div className="mt-5">
           {recipients.length === 0 ? (
-            <p className="border border-dashed border-rule bg-white p-10 text-center text-sm text-neutral-700">
+            <p className="border border-dashed border-admin-line-strong bg-admin-panel p-10 text-center text-sm text-admin-muted">
               No recipient rows yet. They are created in full the moment a send starts, which
               is what makes an interrupted send resumable instead of duplicated.
             </p>
@@ -527,7 +527,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
                     <RowLink href={`/admin/leads/${r.lead.id}`}>
                       {r.lead.firstName} {r.lead.lastName ?? ""}
                     </RowLink>
-                    <span className="mt-1 block truncate text-xs text-neutral-600">
+                    <span className="mt-1 block truncate text-xs text-admin-faint">
                       {r.lead.email}
                     </span>
                   </Cell>
@@ -560,7 +560,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
 
         {pages > 1 && (
           <nav className="mt-6 flex items-center justify-between text-sm" aria-label="Pagination">
-            <p className="text-neutral-600">
+            <p className="text-admin-faint">
               Page {page} of {pages}
             </p>
             <div className="flex gap-2">
@@ -603,16 +603,16 @@ function Metric({
 }) {
   return (
     <div className="card p-4">
-      <p className="text-[11px] uppercase tracking-widest text-neutral-600">{label}</p>
+      <p className="text-[11px] uppercase tracking-widest text-admin-faint">{label}</p>
       <p
         className={`mt-1.5 font-display text-3xl ${
-          accent ? "text-brand-onLight" : "text-ink"
+          accent ? "text-brand-onDark" : "text-admin-text"
         }`}
       >
         {value.toLocaleString("en-US")}
       </p>
       {of !== undefined && of > 0 && (
-        <p className="mt-0.5 text-[11px] text-neutral-400">
+        <p className="mt-0.5 text-[11px] text-admin-faint">
           {Math.round((value / of) * 100)}%
         </p>
       )}

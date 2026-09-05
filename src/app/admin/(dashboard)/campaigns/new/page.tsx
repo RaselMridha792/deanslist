@@ -76,7 +76,7 @@ export default async function NewCampaignPage({ searchParams }: Props) {
       />
 
       {!mailEnabled && (
-        <p className="mt-6 border border-brand/30 bg-brand/5 p-4 text-sm text-ink">
+        <p className="notice mt-6 p-4 text-sm text-admin-text">
           No email provider is connected yet. You can compose and preview; sending is
           refused until <code>RESEND_API_KEY</code> is set.
         </p>
@@ -223,26 +223,26 @@ export default async function NewCampaignPage({ searchParams }: Props) {
             <p className="eyebrow">Audience right now</p>
             {prefillCount ? (
               <>
-                <p className="mt-3 font-display text-4xl text-brand">
+                <p className="mt-3 font-display text-4xl text-brand-onDark">
                   {prefillCount.mailable.toLocaleString("en-US")}
                 </p>
-                <p className="mt-2 text-sm text-neutral-700">
+                <p className="mt-2 text-sm text-admin-muted">
                   consented recipients out of {prefillCount.matching.toLocaleString("en-US")}{" "}
                   matching contacts.
                 </p>
               </>
             ) : (
               <>
-                <p className="mt-3 font-display text-4xl text-brand">
+                <p className="mt-3 font-display text-4xl text-brand-onDark">
                   {wholeList.mailable.toLocaleString("en-US")}
                 </p>
-                <p className="mt-2 text-sm text-neutral-700">
+                <p className="mt-2 text-sm text-admin-muted">
                   consented recipients on the whole list. Choose a segment or narrow the
                   filter to reduce it.
                 </p>
               </>
             )}
-            <p className="mt-4 text-xs text-neutral-600">
+            <p className="mt-4 text-xs text-admin-faint">
               Counted live. The exact figure is confirmed again on the campaign page, and
               consent is re-checked once more for each recipient at the moment of sending.
             </p>
@@ -250,7 +250,7 @@ export default async function NewCampaignPage({ searchParams }: Props) {
 
           <div className="card p-6">
             <p className="eyebrow">Personalisation</p>
-            <ul className="mt-3 space-y-2 text-sm text-neutral-700">
+            <ul className="mt-3 space-y-2 text-sm text-admin-muted">
               {[
                 ["{{firstName}}", "Falls back to “there”"],
                 ["{{showTitle}}", "From the chosen show"],
@@ -260,8 +260,8 @@ export default async function NewCampaignPage({ searchParams }: Props) {
                 ["{{unsubscribeLink}}", "Added by the template automatically"],
               ].map(([token, note]) => (
                 <li key={token}>
-                  <code className="text-brand">{token}</code>
-                  <span className="ml-2 text-xs text-neutral-600">{note}</span>
+                  <code className="text-brand-onDark">{token}</code>
+                  <span className="ml-2 text-xs text-admin-faint">{note}</span>
                 </li>
               ))}
             </ul>
@@ -274,9 +274,9 @@ export default async function NewCampaignPage({ searchParams }: Props) {
           <div className="card p-6">
             <p className="eyebrow">Segments</p>
             {segments.length === 0 ? (
-              <p className="mt-3 text-sm text-neutral-700">
+              <p className="mt-3 text-sm text-admin-muted">
                 None saved yet.{" "}
-                <Link href="/admin/segments" className="text-brand hover:underline">
+                <Link href="/admin/segments" className="text-brand-onDark hover:underline">
                   Save one
                 </Link>{" "}
                 so the next campaign takes two clicks.
@@ -285,8 +285,8 @@ export default async function NewCampaignPage({ searchParams }: Props) {
               <ul className="mt-3 space-y-2 text-sm">
                 {segments.map((s) => (
                   <li key={s.id} className="flex justify-between gap-3">
-                    <span className="text-neutral-700">{s.name}</span>
-                    <span className="tabular-nums text-neutral-600">
+                    <span className="text-admin-muted">{s.name}</span>
+                    <span className="tabular-nums text-admin-faint">
                       {s.lastCount === null ? "—" : s.lastCount.toLocaleString("en-US")}
                     </span>
                   </li>

@@ -64,7 +64,7 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
           {tags.map((t) => (
             <span
               key={t.id}
-              className="inline-flex items-center gap-2 border border-rule bg-surface px-3 py-1 text-xs text-neutral-700"
+              className="inline-flex items-center gap-2 border border-admin-line-strong bg-admin-raised px-3 py-1 text-xs text-admin-muted"
             >
               {t.name}
               <button
@@ -72,13 +72,16 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
                 disabled={pending}
                 onClick={() => run(() => removeTag({ leadId, tagId: t.id }))}
                 aria-label={`Remove tag ${t.name}`}
-                className="text-neutral-600 transition-colors hover:text-brand-onLight"
+                className="text-admin-faint transition-colors hover:text-brand-onDark"
               >
                 ×
               </button>
             </span>
           ))}
 
+          {/* The dashed edge is the only thing that says this is a control, so
+              it has to be an EDGE: line-strong at 3.4:1, not line at 1.3:1,
+              which read as a stray word sitting after the tags. */}
           <button
             type="button"
             disabled={pending}
@@ -86,7 +89,7 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
               const name = window.prompt("Tag name");
               if (name?.trim()) run(() => addTag({ leadId, name: name.trim() }));
             }}
-            className="border border-dashed border-rule px-3 py-1 text-xs text-neutral-600 transition-colors hover:border-brand hover:text-brand"
+            className="border border-dashed border-admin-line-strong px-3 py-1 text-xs text-admin-muted transition-colors hover:border-brand-onDark hover:text-brand-onDark"
           >
             + Add tag
           </button>
@@ -124,7 +127,7 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
           >
             {pending ? "Saving…" : "Save note"}
           </button>
-          {noteSaved && !dirty && <span className="text-xs text-neutral-600">Saved</span>}
+          {noteSaved && !dirty && <span className="text-xs text-admin-faint">Saved</span>}
         </div>
       </div>
 

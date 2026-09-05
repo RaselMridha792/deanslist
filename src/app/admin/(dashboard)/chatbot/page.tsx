@@ -195,7 +195,7 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
 
       {/* No JavaScript: a GET form puts the filter in the URL, which is what makes
           a view shareable and what the pagination links rebuild from. */}
-      <form method="get" className="mt-6 border border-rule bg-white p-5">
+      <form method="get" className="mt-6 border border-admin-line-strong bg-admin-panel p-5">
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <label className="label" htmlFor="f-review">
@@ -260,12 +260,12 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
           </button>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-rule pt-4 text-xs">
-          <span className="text-neutral-700">{total.toLocaleString("en-US")} matching</span>
+        <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-admin-line pt-4 text-xs">
+          <span className="text-admin-muted">{total.toLocaleString("en-US")} matching</span>
           {filtered && (
             <Link
               href="/admin/chatbot"
-              className="uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
+              className="uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark"
             >
               Back to the unread queue
             </Link>
@@ -321,13 +321,13 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
                   {c.lead ? (
                     <Link
                       href={`/admin/leads/${c.lead.id}`}
-                      className="text-brand transition-colors hover:underline"
+                      className="text-brand-onDark transition-colors hover:underline"
                     >
                       {[c.lead.firstName, c.lead.lastName].filter(Boolean).join(" ") ||
                         c.lead.email}
                     </Link>
                   ) : (
-                    <span className="text-neutral-400">—</span>
+                    <span className="text-admin-faint">—</span>
                   )}
                 </Cell>
 
@@ -347,7 +347,7 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
                   {c.reviewedAt ? (
                     <span className="flex flex-col items-start gap-1">
                       <StatusPill value="Read" tone="good" />
-                      <span className="break-all text-[10px] leading-tight text-neutral-600">
+                      <span className="break-all text-[10px] leading-tight text-admin-faint">
                         {formatDate(c.reviewedAt)}
                         {c.reviewedBy ? ` · ${c.reviewedBy}` : ""}
                       </span>
@@ -364,7 +364,7 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
 
       {pages > 1 && (
         <nav className="mt-6 flex items-center justify-between text-sm" aria-label="Pagination">
-          <p className="text-neutral-600">
+          <p className="text-admin-faint">
             Page {pageNum} of {pages}
           </p>
           <div className="flex gap-2">
@@ -404,9 +404,9 @@ function Stat({
 }) {
   return (
     <Link href={href} className="card-interactive block p-5">
-      <p className="text-[10px] uppercase tracking-widest text-neutral-600">{label}</p>
-      <p className="mt-2 font-display text-3xl text-ink">{value.toLocaleString("en-US")}</p>
-      {note && <p className="mt-1 text-xs text-neutral-600">{note}</p>}
+      <p className="text-[10px] uppercase tracking-widest text-admin-faint">{label}</p>
+      <p className="mt-2 font-display text-3xl text-admin-text">{value.toLocaleString("en-US")}</p>
+      {note && <p className="mt-1 text-xs text-admin-faint">{note}</p>}
     </Link>
   );
 }

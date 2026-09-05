@@ -157,6 +157,51 @@ Carried forward from `docs/PROJECT-BRIEF.md` §8 and still open:
 
 ## Decisions taken while implementing the design
 
+**The dashboard is dark; the public site is not.** The client said the light
+admin was unreadable, and they were right about the reason: the public site is
+a light editorial system read in bursts, while a leads table is read for an
+hour on a bright monitor, where paper is glare. So the two now diverge on
+ground and agree on everything else - same red, same Archivo, radius 0, 2px
+rules, flush-left button labels.
+
+The dashboard has its own token vocabulary (`admin.bg`, `admin.panel`,
+`admin.raised`, `admin.sunk`, `admin.text/muted/faint/ghost`, `admin.line`,
+`admin.line-strong`) named for ROLE, not lightness. Nothing under src/app/admin
+should reach for `bg-white`, `text-ink` or `text-neutral-*` again: borrowing the
+public site's tokens is exactly what let the two themes tangle, because
+flipping one flipped both.
+
+Two things are worth knowing before touching it:
+
+*Theming is variables, not selectors.* The first version wrote
+`.admin .card { ... }`, which is specificity (0,2,0) and beats the (0,1,0)
+utility written beside it. `class="card border-brand/50"` on the irreversible
+"Send now" panel silently rendered with a grey edge, and nothing errored,
+because the markup was correct and the cascade was not. `.admin` now only sets
+CSS custom properties and the component classes read them, so each stays a
+single class selector and a utility wins on source order the way Tailwind
+intends. Do not reintroduce a `.admin .x` rule.
+
+*`admin.ghost` is for input placeholders and nothing else.* It is under 4.5:1
+on every ground in the system by design. An earlier pass used it for "Not set",
+"No country data yet" and a row of timestamps - all content - because it was
+simply the quietest step available. `admin.faint` is the quietest step text may
+use.
+
+**`npm run audit:contrast` is the guard, and it measures the rendered page.**
+Source review cannot answer "is this readable": a class can be right and still
+land on a ground three ancestors up, an opacity in between can multiply a token
+into something else, and a `hover:` variant can beat the plain class beside it.
+The script drives a real browser across all 21 admin routes (index screens, the
+new-record forms, the login page signed out, and one detail route per
+collection, discovered by following the first row link so no id is hardcoded)
+and composites every semi-transparent layer to get the actual painted colour.
+It checks text (4.5:1, 3:1 for large), input placeholders (which are not text
+nodes and never appear in a DOM walk), and the border of any control or panel
+whose fill is within 1.2:1 of its surround, where the border is the only thing
+identifying it. It exits non-zero on any failure. Run it after any change to
+the admin palette.
+
 **The app and the test suite share one database, and the test rows are still
 in it.** There is a single `DATABASE_URL`. `npx playwright test` drives the real
 public forms against localhost, and localhost writes to Neon, so a full pass

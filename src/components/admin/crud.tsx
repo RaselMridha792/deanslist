@@ -33,7 +33,7 @@ export function AdminPageHeader({
       <div>
         <h1 className="font-display text-3xl tracking-wide">{title}</h1>
         {description && (
-          <p className="mt-2 max-w-2xl text-sm text-neutral-700">
+          <p className="mt-2 max-w-2xl text-sm text-admin-muted">
             {description}
           </p>
         )}
@@ -53,11 +53,11 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="border border-dashed border-rule bg-white p-14 text-center">
-      <p className="font-display text-2xl uppercase tracking-wide text-ink">
+    <div className="border border-dashed border-admin-line-strong bg-admin-panel p-14 text-center">
+      <p className="font-display text-2xl uppercase tracking-wide text-admin-text">
         {title}
       </p>
-      <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-neutral-700">
+      <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-admin-muted">
         {body}
       </p>
       {action && <div className="mt-7">{action}</div>}
@@ -90,7 +90,7 @@ export function Field({
   return (
     <div className={span ? "sm:col-span-2" : undefined}>
       <label className="label" htmlFor={id}>
-        {label} {required && <span className="text-brand">*</span>}
+        {label} {required && <span className="text-brand-onDark">*</span>}
       </label>
       <input
         id={id}
@@ -127,7 +127,7 @@ export function TextArea({
   return (
     <div className="sm:col-span-2">
       <label className="label" htmlFor={id}>
-        {label} {required && <span className="text-brand">*</span>}
+        {label} {required && <span className="text-brand-onDark">*</span>}
       </label>
       <textarea
         id={id}
@@ -164,7 +164,7 @@ export function Select({
   return (
     <div>
       <label className="label" htmlFor={id}>
-        {label} {required && <span className="text-brand">*</span>}
+        {label} {required && <span className="text-brand-onDark">*</span>}
       </label>
       <select
         id={id}
@@ -197,7 +197,7 @@ export function Checkbox({
   help?: string;
 }) {
   return (
-    <label className="flex items-start gap-3 text-sm text-neutral-700 sm:col-span-2">
+    <label className="flex items-start gap-3 text-sm text-admin-muted sm:col-span-2">
       <input
         type="checkbox"
         name={name}
@@ -207,7 +207,7 @@ export function Checkbox({
       <span>
         {label}
         {help && (
-          <span className="mt-0.5 block text-xs text-neutral-600">{help}</span>
+          <span className="mt-0.5 block text-xs text-admin-faint">{help}</span>
         )}
       </span>
     </label>
@@ -277,7 +277,7 @@ export function CrudForm({
           {pending ? "Saving…" : submitLabel}
         </button>
         {saved && !pending && (
-          <span className="text-xs text-neutral-600">Saved</span>
+          <span className="text-xs text-admin-faint">Saved</span>
         )}
       </div>
     </form>
@@ -323,7 +323,7 @@ export function DeleteButton({
             else router.refresh();
           });
         }}
-        className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand-onLight disabled:opacity-50"
+        className="text-xs font-semibold uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark disabled:opacity-50"
       >
         {pending ? "Deleting…" : label}
       </button>
@@ -342,10 +342,23 @@ export function AdminTable({
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-x-auto border border-rule">
+    /*
+      Three separate jobs, three different weights:
+
+        the outline  is an EDGE, so line-strong (3.4:1). A panel fill is only
+                     1.10:1 against the page here, so nothing but the border
+                     tells you where the table stops.
+        the header   is a band, so it steps up to `raised` and is closed by a
+                     2px line-strong rule. Raised on panel is 1.12:1 on its
+                     own — it is the rule, not the fill, that makes the header
+                     read as a header on this ground.
+        the row rules stay `line` (2:1), quiet enough not to stripe a long
+                     table. They live on Row below.
+    */
+    <div className="overflow-x-auto border border-admin-line-strong bg-admin-panel">
       <table className="w-full min-w-[44rem] text-left text-sm">
-        <thead className="bg-white text-xs uppercase tracking-widest text-neutral-600">
-          <tr>
+        <thead className="bg-admin-sunk text-xs uppercase tracking-widest text-admin-faint">
+          <tr className="border-b-2 border-admin-line-strong">
             {head.map((h) => (
               <th key={h} className="px-4 py-3">
                 {h}
@@ -361,7 +374,7 @@ export function AdminTable({
 
 export function Row({ children }: { children: React.ReactNode }) {
   return (
-    <tr className="border-t border-rule transition-colors hover:bg-white">
+    <tr className="border-t border-admin-line-strong transition-colors hover:bg-admin-raised">
       {children}
     </tr>
   );
@@ -377,7 +390,7 @@ export function Cell({
   className?: string;
 }) {
   return (
-    <td className={cn("px-4 py-3", muted && "text-neutral-700", className)}>
+    <td className={cn("px-4 py-3", muted && "text-admin-muted", className)}>
       {children}
     </td>
   );
@@ -393,7 +406,7 @@ export function RowLink({
   return (
     <Link
       href={href}
-      className="font-medium text-ink transition-colors hover:text-brand"
+      className="font-medium text-admin-text transition-colors hover:text-brand-onDark"
     >
       {children}
     </Link>
@@ -411,9 +424,9 @@ export function StatusPill({
     <span
       className={cn(
         "pill",
-        tone === "good" && "border-emerald-700 bg-emerald-50 text-emerald-800",
+        tone === "good" && "border-admin-ok/60 bg-admin-ok-tint text-admin-ok",
         tone === "warn" && "border-brand bg-brand text-white",
-        (!tone || tone === "mute") && "border-rule bg-surface text-neutral-700",
+        (!tone || tone === "mute") && "border-admin-line-strong bg-admin-raised text-admin-muted",
       )}
     >
       {value}

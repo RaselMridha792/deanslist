@@ -58,6 +58,88 @@ export default {
         /** Divider on the light ground, and its counterpart on ink. */
         rule: "rgba(32,30,29,.4)",
         "rule-dark": "rgba(243,242,242,.22)",
+
+        /*
+         * The dashboard runs dark, and it has its own vocabulary on purpose.
+         *
+         * The public site is a light editorial system read in bursts. The admin
+         * is a working surface read for an hour at a time, and on a large bright
+         * table the same paper ground is glare. So the admin inverts: near-black
+         * ground, panels a step up from it, one accent.
+         *
+         * These are named for their ROLE, not their lightness, and nothing in
+         * src/app/admin should reach for `bg-white`, `text-ink` or `text-neutral-*`
+         * again. That is what let the two themes tangle the first time: the admin
+         * borrowed the public site's tokens, so flipping one flipped both.
+         *
+         * Red as text is always brand.onDark (#ff5a4a, 5.3:1 here). Plain #d40000
+         * is 3:1 on this ground and is only ever a fill behind white.
+         */
+        admin: {
+          /** The page itself. */
+          bg: "#171615",
+          /** Cards, tables, the filter bar. One step up from the page. */
+          panel: "#211f1e",
+          /** Inputs, row hover, table headers. One step up again. */
+          raised: "#2b2827",
+          /** The sidebar. Below the page, so the working area comes forward. */
+          sunk: "#0f0e0e",
+          /** Body copy. */
+          text: "#f3f2f2",
+          /** Secondary copy: help text, table cells that are not the subject. */
+          muted: "rgba(243,242,242,.72)",
+          /** Labels, timestamps, counts. */
+          faint: "rgba(243,242,242,.52)",
+          /*
+           * Input placeholders only, and it is applied once, by .field in
+           * globals.css. Do NOT reach for it as a text colour: it is under 4.5:1
+           * on every ground here by design, and an earlier pass used it for
+           * "Not set", "No country data yet" and a row of timestamps, all of
+           * which are content. `faint` is the quietest step text may use.
+           * scripts/contrast-audit.mjs catches the mistake if it comes back.
+           */
+          ghost: "rgba(243,242,242,.56)",
+          /*
+           * Dividers and cell separators only: table row rules, the line under
+           * a section head. 2:1, which is enough to read as a rule and quiet
+           * enough not to stripe a long table.
+           */
+          line: "rgba(243,242,242,.22)",
+          /*
+           * Anything whose EDGE is the thing you see: card borders, inputs, the
+           * table outline. 3.4:1, clearing WCAG 1.4.11. On this ground a panel
+           * fill is never more than 1.12:1 against the page, so the border is
+           * doing all of the work and cannot be decorative.
+           */
+          "line-strong": "rgba(243,242,242,.38)",
+          /*
+           * Status colours, named for the ROLE and not the hue, so a chip keeps
+           * its meaning if the hue is ever retuned:
+           *
+           *   ok    a settled, good state — Finalist, Live, a rising delta
+           *   info  a state in motion — Shortlisted, in progress
+           *   note  a neutral fact worth marking — Contacted
+           *
+           * Each is a pair. The DEFAULT is the TEXT value and is the only one
+           * that has to carry a reading; all three clear 4.5:1 on both grounds:
+           *
+           *   ok   #57d9a3   9.27:1 on panel   10.21:1 on bg
+           *   info #79c0ff   8.44:1 on panel    9.29:1 on bg
+           *   note #c9a9ff   8.29:1 on panel    9.12:1 on bg
+           *
+           * `tint` is the fill behind that text, and like every fill on this
+           * ground it is barely a tint at all — 1.28:1 against the panel. So a
+           * status chip is read by its EDGE, the same way .notice is: pair the
+           * tint with `border-admin-<role>/60`, which lands at 3.9:1, in the
+           * same band as line-strong's 3.4:1.
+           *
+           * Brand red is deliberately not in this set. Red means "somebody has
+           * to look at this" and stays the one pill that fills solid.
+           */
+          ok: { DEFAULT: "#57d9a3", tint: "rgba(87,217,163,.12)" },
+          info: { DEFAULT: "#79c0ff", tint: "rgba(121,192,255,.12)" },
+          note: { DEFAULT: "#c9a9ff", tint: "rgba(201,169,255,.12)" },
+        },
       },
 
       fontFamily: {

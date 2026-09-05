@@ -90,18 +90,18 @@ export default async function GalleryPage({ searchParams }: Props) {
 
         {editing && (
           <div className="mt-5 flex gap-5">
-            <div className="aspect-[3/4] w-28 shrink-0 overflow-hidden border border-rule bg-surface">
+            <div className="aspect-[3/4] w-28 shrink-0 overflow-hidden border border-admin-line-strong bg-admin-raised">
               <Picture src={editing.url} alt="" sizes="112px" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-widest text-neutral-600">
+              <p className="text-[10px] uppercase tracking-widest text-admin-faint">
                 Files requested, in order
               </p>
               <ul className="mt-2 space-y-1">
                 {[".avif", ".webp", ".jpg"].map((ext) => (
-                  <li key={ext} className="break-all font-mono text-xs text-neutral-700">
+                  <li key={ext} className="break-all font-mono text-xs text-admin-muted">
                     {mediaImage(editing.url)}
-                    <span className="text-brand">{ext}</span>
+                    <span className="text-brand-onDark">{ext}</span>
                   </li>
                 ))}
               </ul>
@@ -147,8 +147,8 @@ export default async function GalleryPage({ searchParams }: Props) {
         </div>
 
         {editing && user.role === "OWNER" && (
-          <div className="mt-8 border-t border-rule pt-6">
-            <p className="text-xs text-neutral-600">
+          <div className="mt-8 border-t border-admin-line pt-6">
+            <p className="text-xs text-admin-faint">
               Removing the row does not delete the file in /media, so the same path can be added
               back later.
             </p>
@@ -177,7 +177,7 @@ export default async function GalleryPage({ searchParams }: Props) {
             <h2 className="font-display text-xl tracking-wide">
               {images.length} image{images.length === 1 ? "" : "s"}
             </h2>
-            <p className="text-xs text-neutral-600">
+            <p className="text-xs text-admin-faint">
               Lower order numbers come first. Leave gaps — 10, 20, 30 — so a new image can be
               slotted in without renumbering the set.
             </p>
@@ -191,18 +191,18 @@ export default async function GalleryPage({ searchParams }: Props) {
                   key={image.id}
                   className={
                     active
-                      ? "overflow-hidden  border border-brand bg-white"
-                      : "overflow-hidden  border border-rule bg-white"
+                      ? "overflow-hidden border-2 border-brand bg-admin-panel"
+                      : "overflow-hidden border-2 border-admin-line-strong bg-admin-panel"
                   }
                 >
                   {/* Same 3:4 crop the homepage strip uses, on the same filled
                       panel, so what is judged here is what ships. */}
-                  <div className="relative aspect-[3/4] bg-surface">
+                  <div className="relative aspect-[3/4] bg-admin-raised">
                     {/* alt="" here on purpose: the alt text is printed as visible
                         text directly below, and repeating it on the image makes
                         a screen reader announce every card twice. */}
                     <Picture src={image.url} alt="" sizes="(min-width: 1280px) 20vw, 40vw" />
-                    <span className="absolute left-3 top-3 bg-ink/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink">
+                    <span className="absolute left-3 top-3 bg-admin-sunk/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-admin-text">
                       #{image.sortOrder}
                     </span>
                     {index >= HOMEPAGE_LIMIT && (
@@ -213,18 +213,18 @@ export default async function GalleryPage({ searchParams }: Props) {
                   </div>
 
                   <div className="space-y-2 p-4">
-                    <p className="text-sm leading-snug text-ink">{image.alt}</p>
+                    <p className="text-sm leading-snug text-admin-text">{image.alt}</p>
                     {image.caption && (
-                      <p className="text-xs text-neutral-600">{image.caption}</p>
+                      <p className="text-xs text-admin-faint">{image.caption}</p>
                     )}
-                    <p className="break-all font-mono text-[11px] text-neutral-600">{image.url}</p>
+                    <p className="break-all font-mono text-[11px] text-admin-faint">{image.url}</p>
                     <div className="flex items-center justify-between gap-3 pt-1">
-                      <span className="text-[10px] uppercase tracking-widest text-neutral-600">
+                      <span className="text-[10px] uppercase tracking-widest text-admin-faint">
                         {image.show?.title ?? "No show"}
                       </span>
                       <Link
                         href={`/admin/gallery?edit=${image.id}`}
-                        className="text-xs font-semibold uppercase tracking-widest text-neutral-700 transition-colors hover:text-brand"
+                        className="text-xs font-semibold uppercase tracking-widest text-admin-muted transition-colors hover:text-brand-onDark"
                       >
                         {active ? "Editing" : "Edit"}
                       </Link>
@@ -286,7 +286,7 @@ function PathChecker({
   editId?: string;
 }) {
   return (
-    <div className="mt-6 border border-rule bg-surface p-6">
+    <div className="mt-6 border border-admin-line-strong bg-admin-raised p-6">
       <form method="get" action="/admin/gallery" className="flex flex-wrap items-end gap-3">
         {editId && <input type="hidden" name="edit" value={editId} />}
         <div className="min-w-[16rem] flex-1">
@@ -327,18 +327,18 @@ function PathChecker({
 
       {preview.state === "ok" && (
         <div className="mt-5 flex flex-wrap gap-5">
-          <div className="aspect-[3/4] w-32 shrink-0 overflow-hidden border border-rule bg-surface">
+          <div className="aspect-[3/4] w-32 shrink-0 overflow-hidden border border-admin-line-strong bg-admin-raised">
             <Picture src={preview.path} alt="" sizes="128px" />
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-widest text-neutral-600">
+            <p className="text-[10px] uppercase tracking-widest text-admin-faint">
               Files the browser will try, in order
             </p>
             <ul className="mt-2 space-y-1">
               {[".avif", ".webp", ".jpg"].map((ext) => (
-                <li key={ext} className="break-all font-mono text-xs text-neutral-700">
+                <li key={ext} className="break-all font-mono text-xs text-admin-muted">
                   {mediaImage(preview.path)}
-                  <span className="text-brand">{ext}</span>
+                  <span className="text-brand-onDark">{ext}</span>
                 </li>
               ))}
             </ul>
@@ -446,21 +446,21 @@ function GalleryFields({
  */
 function AltTextRule() {
   return (
-    <div className="mt-6 border border-rule bg-surface p-6">
+    <div className="mt-6 border border-admin-line-strong bg-admin-raised p-6">
       <p className="eyebrow">Alt text is required</p>
-      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink">
-        Every image needs a description of <strong className="text-ink">the scene</strong> — what
+      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-admin-text">
+        Every image needs a description of <strong className="text-admin-text">the scene</strong> — what
         is happening, where, and with what energy. Not who is in it:{" "}
-        <span className="text-ink">nobody in these photographs is identified anywhere on the
+        <span className="text-admin-text">nobody in these photographs is identified anywhere on the
         old site</span>, so naming a person here would be a guess published as a fact.
       </p>
       <div className="mt-4 grid gap-4 text-xs sm:grid-cols-2">
-        <p className="text-neutral-700">
-          <span className="text-brand">Good</span> — “The crowd during a live round”,
+        <p className="text-admin-muted">
+          <span className="text-brand-onDark">Good</span> — “The crowd during a live round”,
           “Contestant mid-performance under the stage lights”, “Judges watching from the front row”.
         </p>
-        <p className="text-neutral-600">
-          <span className="text-brand-onLight">Rejected</span> — “photo”, “cts-01”, a pasted file
+        <p className="text-admin-faint">
+          <span className="text-brand-onDark">Rejected</span> — “photo”, “cts-01”, a pasted file
           path, or anything under eight characters. It passes a required check and tells a
           screen-reader user nothing.
         </p>

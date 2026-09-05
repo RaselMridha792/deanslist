@@ -11,14 +11,51 @@
 */
 
 @layer base {
+  /*
+    Theme variables, not theme selectors.
+    ------------------------------------------------------------------
+    The component classes below read these, so each one stays a SINGLE class
+    selector and a Tailwind utility beside it still wins. An earlier version
+    themed the dashboard with `.admin .card { ... }`, which is (0,2,0) and
+    silently discarded every colour utility written next to `card` — the red
+    edge on the irreversible "Send now" panel simply never rendered, and
+    nothing reported it because the markup was correct. Specificity is not a
+    detail here; it is the whole mechanism.
+  */
   :root {
     color-scheme: light;
+
+    --panel-bg: #fff;
+    --panel-line: rgba(32,30,29,.4);
+    --panel-hover: theme("colors.surface");
+    --chip-bg: theme("colors.surface");
+    --chip-line: rgba(32,30,29,.4);
+    --chip-text: theme("colors.neutral.700");
+    --quiet-text: theme("colors.neutral.600");
+    --field-bg: #fff;
+    --field-line: theme("colors.ink");
+    --field-text: theme("colors.ink");
+    --field-holder: theme("colors.neutral.500");
+    --field-focus: theme("colors.brand.DEFAULT");
+    --accent-text: theme("colors.brand.onLight");
+    --notice-bg: theme("colors.surface");
+    --outline-text: theme("colors.ink");
+    --outline-line: theme("colors.ink");
   }
 
   html {
     scroll-behavior: smooth;
     /* The header is sticky at 66px; without this an in-page anchor lands under it. */
     scroll-padding-top: 66px;
+  }
+
+  /* The dashboard is dark and the page behind it must be too, or the overscroll
+     gutter flashes paper. Keyed off the shell so the single .admin class still
+     switches the entire theme, with no second layout and no route check. */
+  html:has(.admin),
+  body:has(.admin) {
+    background: theme("colors.admin.bg");
+    color-scheme: dark;
   }
 
   body {
@@ -90,7 +127,9 @@
 
   /* On the light ground. */
   .btn-outline {
-    @apply border-ink bg-transparent text-ink hover:bg-ink hover:text-ground;
+    @apply bg-transparent hover:bg-ink hover:text-ground;
+    border-color: var(--outline-line);
+    color: var(--outline-text);
   }
 
   /* On ink. Border brightens rather than filling, so dark sections stay dark. */
@@ -99,15 +138,25 @@
   }
 
   .btn-ghost {
-    @apply border-transparent bg-transparent px-0 text-ink underline-offset-4 hover:text-brand-onLight hover:underline;
+    @apply border-transparent bg-transparent px-0 underline-offset-4 hover:underline;
+    color: var(--outline-text);
+  }
+
+  .btn-ghost:hover {
+    color: var(--accent-text);
   }
 
   /* Text-only action. Kept because the dashboard uses it in a dozen places
      where a bordered button would crowd a table row. */
   .btn-quiet {
     @apply inline-flex items-center gap-2 text-btn font-extrabold uppercase
-           text-neutral-700 underline-offset-4 transition-colors duration-200
-           ease-dl hover:text-brand hover:underline;
+           underline-offset-4 transition-colors duration-200 ease-dl
+           hover:underline;
+    color: var(--chip-text);
+  }
+
+  .btn-quiet:hover {
+    color: var(--accent-text);
   }
 
   .btn-ghost-dark {
@@ -159,9 +208,19 @@
   /* ------------------------------------------------------------- forms */
 
   .field {
-    @apply w-full border-2 border-ink bg-white px-4 py-3 text-body text-ink
-           outline-none transition-colors duration-200 ease-dl
-           placeholder:text-neutral-500 focus:border-brand;
+    @apply w-full border-2 px-4 py-3 text-body outline-none
+           transition-colors duration-200 ease-dl;
+    border-color: var(--field-line);
+    background: var(--field-bg);
+    color: var(--field-text);
+  }
+
+  .field::placeholder {
+    color: var(--field-holder);
+  }
+
+  .field:focus {
+    border-color: var(--field-focus);
   }
 
   /* Underlined variant, used on the red poster CTA where a boxed input would
@@ -173,7 +232,8 @@
   }
 
   .label {
-    @apply mb-2 block text-eyebrow font-semibold uppercase text-neutral-700;
+    @apply mb-2 block text-eyebrow font-semibold uppercase;
+    color: var(--chip-text);
   }
 
   .label-dark {
@@ -181,40 +241,53 @@
   }
 
   .help {
-    @apply mt-2 text-[12px] leading-relaxed text-neutral-600;
+    @apply mt-2 text-[12px] leading-relaxed;
+    color: var(--quiet-text);
   }
 
   .error-text {
-    @apply mt-2 text-[12px] font-semibold text-brand-onLight;
+    @apply mt-2 text-[12px] font-semibold;
+    color: var(--accent-text);
   }
 
   /* Success state: grey panel with a 4px red left rule. Used by every form. */
   .success-panel {
-    @apply border-l-4 border-brand bg-surface p-6;
+    @apply border-l-4 border-brand p-6;
+    background: var(--notice-bg);
   }
 
   /* ---------------------------------------------------------- dashboard */
 
   /*
-    The admin shares the public site's system: same paper ground, same ink, same
-    red, radius 0, 2px rules. It is the same product and it should not feel like
-    a different one.
-    Where it differs is density. A leads table is read for minutes at a time, so
-    the type steps down and the panels sit on white rather than paper, which
-    gives a table enough separation from the page without a shadow.
+    The dashboard runs dark. Everything else it keeps from the public site:
+    the same red, the same Archivo, radius 0, 2px rules, flush-left button
+    labels. What changes is the ground, and it changes for a reason. The public
+    site is read in bursts; a leads table is read for an hour on a bright
+    monitor, and paper at that duration is glare.
+
+    Scoped under .admin rather than swapped globally, because .card, .field and
+    .badge are shared with the public site and a global redefinition would drag
+    /contact and /enter into the dark with it. The class goes on the dashboard
+    shell and on the login page, which sits outside the (dashboard) group.
   */
 
   .card {
-    @apply border-2 border-rule bg-white;
+    border: 2px solid var(--panel-line);
+    background: var(--panel-bg);
   }
 
   .card-interactive {
-    @apply card transition-colors duration-200 ease-dl hover:bg-surface;
+    @apply card transition-colors duration-200 ease-dl;
+  }
+
+  .card-interactive:hover {
+    background: var(--panel-hover);
   }
 
   /* Small caps label above a value or a field group. The dashboard's .kicker. */
   .eyebrow {
-    @apply text-eyebrow font-semibold uppercase text-neutral-600;
+    @apply text-eyebrow font-semibold uppercase;
+    color: var(--quiet-text);
   }
 
   /*
@@ -223,8 +296,11 @@
     why the colour lives here and not in a variant.
   */
   .badge {
-    @apply inline-block border-2 border-rule bg-surface px-2.5 py-1 text-[10px]
-           font-extrabold uppercase tracking-[.08em] text-neutral-700;
+    @apply inline-block border-2 px-2.5 py-1 text-[10px] font-extrabold
+           uppercase tracking-[.08em];
+    border-color: var(--chip-line);
+    background: var(--chip-bg);
+    color: var(--chip-text);
   }
 
   /* Small chip used for status and role. Colour comes from the caller. */
@@ -237,5 +313,83 @@
   /* Every photograph and every video. No colorized imagery anywhere. */
   .grayscale-media {
     filter: grayscale(1) contrast(1.08);
+  }
+
+  /* ------------------------------------------------- dashboard, dark */
+
+  /*
+    The dashboard, expressed as fifteen variable values and nothing else.
+
+    Every rule here is a single class selector, so `class="card border-brand"`
+    still gets a red edge: the utility and the component class tie on
+    specificity and the utility wins on source order, which is how Tailwind is
+    supposed to work. The previous version used `.admin .card { ... }`, won the
+    cascade it should have lost, and threw away colour utilities across the
+    whole dashboard without a single error.
+
+    Red is brand.onDark whenever it is TEXT. Plain #d40000 is 3:1 on this
+    ground: correct as a fill behind white, unreadable as a word.
+  */
+
+  .admin {
+    /* Structural, not inherited: a native select, a number spinner and a
+       checkbox each paint the browser's own light chrome unless the subtree
+       declares this. Declaring it here rather than on <html> means the theme
+       travels with the shell instead of with the route. */
+    color-scheme: dark;
+
+    @apply bg-admin-bg text-admin-text;
+
+    --panel-bg: theme("colors.admin.panel");
+    --panel-line: theme("colors.admin.line-strong");
+    --panel-hover: theme("colors.admin.raised");
+    --chip-bg: theme("colors.admin.raised");
+    --chip-line: theme("colors.admin.line-strong");
+    --chip-text: theme("colors.admin.muted");
+    --quiet-text: theme("colors.admin.faint");
+    --field-bg: theme("colors.admin.raised");
+    --field-line: theme("colors.admin.line-strong");
+    --field-text: theme("colors.admin.text");
+    --field-holder: theme("colors.admin.ghost");
+    --field-focus: theme("colors.brand.onDark");
+    --accent-text: theme("colors.brand.onDark");
+    --notice-bg: theme("colors.admin.raised");
+    --outline-text: theme("colors.admin.text");
+    --outline-line: theme("colors.admin.line-strong");
+  }
+
+  /* btn-outline fills with ink on hover, which is invisible here. On dark it
+     brightens its edge instead, the same move .btn-outline-dark makes. */
+  .admin .btn-outline:hover {
+    @apply bg-transparent text-admin-text;
+    border-color: theme("colors.admin.text");
+  }
+
+  /*
+    The focus ring. #d40000 is 3.3:1 on the page and 2.7:1 on a raised surface,
+    under the 3:1 that WCAG 1.4.11 asks of a focus indicator, so the dashboard
+    would have had its weakest focus state anywhere in the product. onDark is
+    4.8:1 on every ground here.
+  */
+  .admin :focus-visible {
+    outline-color: theme("colors.brand.onDark");
+  }
+
+  /*
+    Alerts and danger zones. `bg-brand/15` over near-black is 1.07:1 — a tint
+    nobody can see — and it was carrying the warning that live admin accounts
+    are still on the seeded password. On this ground an alert reads by its EDGE,
+    not its fill, so it uses the .success-panel construction: a raised surface
+    with a 4px red rule. .notice is the one to reach for; the old tint is not.
+  */
+  .notice {
+    @apply border-l-4 border-brand-onDark p-5;
+    background: var(--notice-bg);
+  }
+
+  .notice-strong {
+    @apply notice border-l-4;
+    border-color: theme("colors.brand.onDark");
+    box-shadow: inset 0 0 0 2px theme("colors.admin.line-strong");
   }
 }

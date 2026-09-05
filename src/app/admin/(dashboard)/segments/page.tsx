@@ -99,14 +99,14 @@ export default async function SegmentsPage({ searchParams }: Props) {
             {counted.map(({ segment, filter, matching, mailable }) => (
               <Row key={segment.id}>
                 <Cell>
-                  <span className="font-medium text-ink">{segment.name}</span>
+                  <span className="font-medium text-admin-text">{segment.name}</span>
                   {segment.description && (
-                    <span className="mt-1 block text-xs text-neutral-600">
+                    <span className="mt-1 block text-xs text-admin-faint">
                       {segment.description}
                     </span>
                   )}
                   {segment._count.campaigns > 0 && (
-                    <span className="mt-1 block text-[11px] uppercase tracking-widest text-neutral-400">
+                    <span className="mt-1 block text-[11px] uppercase tracking-widest text-admin-faint">
                       used by {segment._count.campaigns} campaign
                       {segment._count.campaigns === 1 ? "" : "s"}
                     </span>
@@ -117,17 +117,17 @@ export default async function SegmentsPage({ searchParams }: Props) {
                   <FilterSummary filter={filter} showTitle={showTitle} />
                   <Link
                     href={`/admin/leads${filterToQuery(filter)}`}
-                    className="mt-2 inline-block text-[11px] uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
+                    className="mt-2 inline-block text-[11px] uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark"
                   >
                     Open in leads
                   </Link>
                 </Cell>
 
                 <Cell>
-                  <span className="font-display text-2xl text-brand">
+                  <span className="font-display text-2xl text-brand-onDark">
                     {mailable.toLocaleString("en-US")}
                   </span>
-                  <span className="mt-1 block text-[11px] text-neutral-400">
+                  <span className="mt-1 block text-[11px] text-admin-faint">
                     of {matching.toLocaleString("en-US")} matching · rest have not opted in
                   </span>
                   {/* Inline server action: the recount is idempotent and needs no
@@ -140,7 +140,7 @@ export default async function SegmentsPage({ searchParams }: Props) {
                   >
                     <button
                       type="submit"
-                      className="mt-2 text-[11px] uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
+                      className="mt-2 text-[11px] uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark"
                     >
                       Recount now
                     </button>
@@ -162,7 +162,7 @@ export default async function SegmentsPage({ searchParams }: Props) {
       <section className="mt-10 card p-6">
         <p className="eyebrow">New segment</p>
         <h2 className="mt-2 font-display text-2xl tracking-wide">Save an audience</h2>
-        <p className="mt-2 max-w-2xl text-sm text-neutral-700">
+        <p className="mt-2 max-w-2xl text-sm text-admin-muted">
           Every field is optional. Leave one blank and it does not narrow the audience.
           Marketing consent is not a filter here — a campaign never reaches somebody who has
           not opted in, whatever the segment says.
@@ -274,7 +274,7 @@ function FilterSummary({
   if (filter.to) parts.push(`to ${filter.to}`);
 
   if (parts.length === 0) {
-    return <span className="text-neutral-600">Everyone who consented</span>;
+    return <span className="text-admin-faint">Everyone who consented</span>;
   }
 
   return (

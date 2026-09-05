@@ -104,7 +104,7 @@ export function StatEditor({
 
       <div>
         <label className="label" htmlFor="f-label">
-          Label <span className="text-brand">*</span>
+          Label <span className="text-brand-onDark">*</span>
         </label>
         <input
           id="f-label"
@@ -121,7 +121,7 @@ export function StatEditor({
 
       <div>
         <label className="label" htmlFor="f-value">
-          Value <span className="text-brand">*</span>
+          Value <span className="text-brand-onDark">*</span>
         </label>
         <input
           id="f-value"
@@ -180,16 +180,16 @@ export function StatEditor({
       {/* --------------------------------------------------------- preview */}
       <div className="sm:col-span-2">
         <p className="eyebrow">Exactly how it will render</p>
-        <div className="mt-3 border border-rule bg-surface px-6 py-7">
+        <div className="mt-3 border border-admin-line-strong bg-admin-raised px-6 py-7">
           <p
-            className={`font-display text-5xl leading-none text-brand transition-opacity duration-fast ${
+            className={`font-display text-5xl leading-none text-brand-onDark transition-opacity duration-200 ease-dl ${
               previewStale ? "opacity-40" : "opacity-100"
             }`}
             aria-live="polite"
           >
             {preview}
           </p>
-          <p className="mt-2 text-eyebrow uppercase text-neutral-600">
+          <p className="mt-2 text-eyebrow uppercase text-admin-faint">
             {label.trim() || "Label goes here"}
           </p>
         </div>
@@ -226,7 +226,7 @@ export function StatEditor({
 
       {/* ------------------------------------------------ the verified gate */}
       <div className="sm:col-span-2">
-        <label className="flex items-start gap-3 text-sm text-neutral-700">
+        <label className="flex items-start gap-3 text-sm text-admin-muted">
           <input
             type="checkbox"
             name="verified"
@@ -236,7 +236,7 @@ export function StatEditor({
           />
           <span>
             Verified — publish this figure on the public site
-            <span className="mt-0.5 block text-xs text-neutral-600">
+            <span className="mt-0.5 block text-xs text-admin-faint">
               Unverified figures are stored here and never sent to a visitor. This is the only
               switch that puts the number in public.
             </span>
@@ -245,13 +245,13 @@ export function StatEditor({
       </div>
 
       {goingPublic && (
-        <div className="border border-brand/40 bg-brand/5 p-5 sm:col-span-2">
-          <p className="text-sm font-semibold text-brand">
+        <div className="notice-strong sm:col-span-2">
+          <p className="text-sm font-semibold text-brand-onDark">
             You are about to publish a public claim.
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-ink">
+          <p className="mt-2 text-sm leading-relaxed text-admin-text">
             Once saved,{" "}
-            <span className="font-semibold text-ink">
+            <span className="font-semibold text-admin-text">
               {preview} {label.trim() || "…"}
             </span>{" "}
             appears on the homepage and on the sponsors page, where prospective sponsors read
@@ -259,7 +259,7 @@ export function StatEditor({
             against YouTube, Facebook or the show&apos;s own records — not a figure carried
             over from the old site or a proposal.
           </p>
-          <label className="mt-4 flex items-start gap-3 text-sm text-ink">
+          <label className="mt-4 flex items-start gap-3 text-sm text-admin-text">
             <input
               type="checkbox"
               name="confirmVerified"
@@ -277,9 +277,9 @@ export function StatEditor({
       )}
 
       {comingDown && (
-        <div className="border border-rule bg-surface p-5 sm:col-span-2">
-          <p className="text-sm leading-relaxed text-ink">
-            Saving now <span className="font-semibold text-ink">removes this figure</span>{" "}
+        <div className="border border-admin-line-strong bg-admin-raised p-5 sm:col-span-2">
+          <p className="text-sm leading-relaxed text-admin-text">
+            Saving now <span className="font-semibold text-admin-text">removes this figure</span>{" "}
             from the homepage and the sponsors page. The number stays here so it can be
             re-published once it has been confirmed.
           </p>
@@ -316,7 +316,7 @@ export function TakeDownButton({ id, label }: { id: string; label: string }) {
             else router.refresh();
           });
         }}
-        className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand-onLight disabled:opacity-50"
+        className="text-xs font-semibold uppercase tracking-widest text-admin-faint transition-colors hover:text-brand-onDark disabled:opacity-50"
       >
         {pending ? "Removing…" : "Take down"}
       </button>

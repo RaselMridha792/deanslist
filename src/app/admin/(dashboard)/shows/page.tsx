@@ -87,9 +87,9 @@ export default async function ShowsPage() {
           homepage picks one on an ordering nobody chose, and it will not be
           obvious which — so this is a warning, not a note. */}
       {live.length > 1 && (
-        <div className="mt-8 border border-brand/40 bg-brand/5 p-5">
-          <p className="text-sm text-ink">
-            <span className="font-semibold text-brand-onLight">
+        <div className="notice mt-8">
+          <p className="text-sm text-admin-text">
+            <span className="font-semibold text-brand-onDark">
               {live.length} shows are LIVE at once.
             </span>{" "}
             The homepage hero can only feature one, and which one it picks is not
@@ -97,7 +97,7 @@ export default async function ShowsPage() {
             {live.map((s, i) => (
               <span key={s.id}>
                 {i > 0 && ", "}
-                <Link href={`/admin/shows/${s.id}`} className="text-brand hover:underline">
+                <Link href={`/admin/shows/${s.id}`} className="text-brand-onDark hover:underline">
                   {s.title}
                 </Link>
               </span>
@@ -108,9 +108,9 @@ export default async function ShowsPage() {
       )}
 
       {live.length === 0 && open.length === 0 && shows.length > 0 && (
-        <div className="mt-8 border border-brand/30 bg-brand/5 p-5">
-          <p className="text-sm text-ink">
-            <span className="font-semibold text-brand">No show is LIVE or OPEN.</span> The
+        <div className="notice mt-8">
+          <p className="text-sm text-admin-text">
+            <span className="font-semibold text-brand-onDark">No show is LIVE or OPEN.</span> The
             homepage hero falls back to whichever show is listed first, and nothing is
             taking entries. Set one to OPEN when entries reopen.
           </p>
@@ -145,7 +145,7 @@ export default async function ShowsPage() {
                 <Row key={s.id}>
                   <Cell>
                     <RowLink href={`/admin/shows/${s.id}`}>{s.title}</RowLink>
-                    <span className="mt-0.5 block text-xs text-neutral-600">/shows/{s.slug}</span>
+                    <span className="mt-0.5 block text-xs text-admin-faint">/shows/{s.slug}</span>
                   </Cell>
                   <Cell>
                     <StatusPill value={s.status} tone={STATUS_TONE[s.status]} />
@@ -158,7 +158,7 @@ export default async function ShowsPage() {
                     {s._count.leads > 0 ? (
                       <Link
                         href={`/admin/leads?showId=${s.id}`}
-                        className="text-neutral-700 transition-colors hover:text-brand"
+                        className="text-admin-muted transition-colors hover:text-brand-onDark"
                       >
                         {s._count.leads}
                       </Link>
@@ -170,7 +170,7 @@ export default async function ShowsPage() {
               ))}
             </AdminTable>
 
-            <p className="mt-4 text-xs text-neutral-600">
+            <p className="mt-4 text-xs text-admin-faint">
               All times shown in {DISPLAY_TZ.replace("_", " ")}. A blank date is a date the
               client has not confirmed — the countdown stays hidden until one is set, which
               is deliberate: the old site published two different show dates.
@@ -184,5 +184,5 @@ export default async function ShowsPage() {
 
 /** An unset date is a pending client answer, not a formatting failure. */
 function Missing() {
-  return <span className="text-neutral-400">Not set</span>;
+  return <span className="text-admin-faint">Not set</span>;
 }

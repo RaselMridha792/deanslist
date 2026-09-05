@@ -180,7 +180,7 @@ export default async function NewShowPage() {
         </CrudForm>
       </div>
 
-      <p className="mt-8 max-w-3xl text-xs text-neutral-600">
+      <p className="mt-8 max-w-3xl text-xs text-admin-faint">
         Episodes are added on the show&apos;s own page once it exists.
       </p>
     </>
