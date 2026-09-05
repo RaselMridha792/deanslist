@@ -14,7 +14,9 @@
     "test:headed": "playwright test --headed",
     "snapshot": "node scripts/snapshot.mjs",
     "postinstall": "prisma generate",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "db:purge-test": "node scripts/purge-test-data.mjs",
+    "db:purge-test:apply": "node scripts/purge-test-data.mjs --delete"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",

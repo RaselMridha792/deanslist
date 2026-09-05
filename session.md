@@ -157,6 +157,19 @@ Carried forward from `docs/PROJECT-BRIEF.md` §8 and still open:
 
 ## Decisions taken while implementing the design
 
+**The app and the test suite share one database, and the test rows are still
+in it.** There is a single `DATABASE_URL`. `npx playwright test` drives the real
+public forms against localhost, and localhost writes to Neon, so a full pass
+adds around 160 leads. Right now the dashboard reads 169 leads and **every one
+of them is synthetic** — 160 from the suite, 5 from manual browser
+verification, 4 demo rows that predate both. There are zero real leads.
+
+`npm run db:purge-test` reports them and `npm run db:purge-test:apply` deletes
+them, matching on address (every fixture is `@deanslist.test`) rather than on a
+flag, because a flag would have to be written by the code under test. **Run the
+apply before the client is shown the dashboard.** The real fix is a separate
+test database, which arrives with the Docker move to the VPS.
+
 **The dashboard was moved onto the public site's design system.** Same paper
 ground, same ink, same red, radius 0, 2px rules. What differs is density, not
 language: the sidebar is ink so the working area reads as the page, and panels
