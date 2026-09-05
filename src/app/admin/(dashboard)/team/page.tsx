@@ -146,11 +146,11 @@ export default async function TeamPage({ searchParams }: Props) {
         description="Who can sign in to this dashboard, and exactly what each of them is allowed to do."
         action={
           inviting ? (
-            <Link href="/admin/team" className="btn-ghost">
+            <Link href="/admin/team" className="btn btn-ghost">
               Cancel
             </Link>
           ) : (
-            <Link href="/admin/team?new=1" className="btn-primary">
+            <Link href="/admin/team?new=1" className="btn btn-primary">
               Add teammate
             </Link>
           )

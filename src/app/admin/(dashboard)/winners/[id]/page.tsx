@@ -35,7 +35,7 @@ export default async function EditWinnerPage({ params }: Props) {
   return (
     <>
       <Link href="/admin/winners" className="btn-quiet">
-        ← Back to winners
+        Back to winners
       </Link>
 
       <div className="mt-6">
@@ -47,7 +47,7 @@ export default async function EditWinnerPage({ params }: Props) {
               href={`/winners/${winner.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-ghost"
+              className="btn btn-ghost"
             >
               View public page
             </a>

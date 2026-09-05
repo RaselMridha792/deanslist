@@ -148,7 +148,7 @@ export function LeadFilters({ shows, countries, tags, total }: Props) {
           />
         </div>
 
-        <button type="submit" className="btn-primary !px-5 !py-2.5 !text-xs">
+        <button type="submit" className="btn btn-primary !px-5 !py-2.5 !text-xs">
           Search
         </button>
       </form>

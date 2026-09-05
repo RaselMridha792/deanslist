@@ -84,10 +84,10 @@ export const SHOWS: ShowSeed[] = [
       "This is not just another talent show. On Drop That Mike, YOU decide who stays and who gets eliminated with Freeze or Pass. Perform from home. Compete for real cash. Every talent is welcome.",
     /** Verbatim from the old homepage. The client's own words about their own format. */
     pitch: [
-      "DROP THAT MIKE — the only show where YOU control the cash!",
-      "The prize pool is DRAINING in real time… and the only thing standing between the money and zero is YOU. Hit FREEZE to lock the pot and save the performer's payday!",
+      "DROP THAT MIKE. The only show where YOU control the cash!",
+      "The prize pool is DRAINING in real time, and the only thing standing between the money and zero is YOU. Hit FREEZE to lock the pot and save the performer's payday!",
       "The better they perform, the harder you fight to keep that money alive.",
-      "Tune in LIVE — drop a comment if you're ready to FREEZE!",
+      "Tune in LIVE. Drop a comment if you're ready to FREEZE!",
     ],
     entryDeadline: null,
     startsAt: null,
@@ -170,7 +170,7 @@ export const WINNERS: WinnerSeed[] = [
     showSlug: "crown-the-sound",
     prizeAwarded: 1000,
     story:
-      "Winner of a Crown the Sound contest and recipient of the $1,000 cash prize. Sophia's talent, passion, and voice truly set her apart. Her performance captured the hearts of the audience and the judges, showcasing exactly what the Dean's List stands for — excellence, artistry, and authenticity. Sophia's journey is a testament to what happens when preparation meets opportunity. Whether you've been performing for years or are just finding your voice, her story proves that this platform is open to all who are ready to be heard.",
+      "Winner of a Crown the Sound contest and recipient of the $1,000 cash prize. Sophia's talent, passion, and voice truly set her apart. Her performance captured the hearts of the audience and the judges, showcasing exactly what the Dean's List stands for: excellence, artistry, and authenticity. Sophia's journey is a testament to what happens when preparation meets opportunity. Whether you've been performing for years or are just finding your voice, her story proves that this platform is open to all who are ready to be heard.",
     photoUrl: null,
     videoUrl: null,
     announcedAt: null,
@@ -189,9 +189,9 @@ export const WINNERS: WinnerSeed[] = [
 
 /** YouTube ids embedded on the old site, confirmed present in its markup. */
 export const EPISODES = [
-  { videoId: "NFh5taSg_84", title: "Drop That Mike — the format", showSlug: "drop-that-mike" },
-  { videoId: "CesbWtmVFhk", title: "Crown the Sound — highlights", showSlug: "crown-the-sound" },
-  { videoId: "HFz3r0V1uag", title: "Crown the Sound — performances", showSlug: "crown-the-sound" },
+  { videoId: "NFh5taSg_84", title: "Drop That Mike: the format", showSlug: "drop-that-mike" },
+  { videoId: "CesbWtmVFhk", title: "Crown the Sound: highlights", showSlug: "crown-the-sound" },
+  { videoId: "HFz3r0V1uag", title: "Crown the Sound: performances", showSlug: "crown-the-sound" },
   { videoId: "PusRA6BfZOk", title: "On the Dean's List stage", showSlug: "crown-the-sound" },
   { videoId: "hwHebUj7VHs", title: "Behind the judges' table", showSlug: "crown-the-sound" },
   { videoId: "xbpJOjiUnaY", title: "Season moments", showSlug: "crown-the-sound" },
@@ -340,7 +340,7 @@ export const HOW_IT_WORKS = [
   {
     step: "02",
     title: "Perform",
-    body: "Compete from wherever you are. No travel, no venue, no gatekeeping — just the performance.",
+    body: "Compete from wherever you are. No travel, no venue, no gatekeeping. Just the performance.",
   },
   {
     step: "03",
@@ -393,14 +393,14 @@ export const SPONSOR_TIERS = [
  */
 
 export const ABOUT_COPY = [
-  "The Dean's List is more than just a name — it is a platform created to celebrate excellence and showcase worldwide musical talent. Designed as a stage where creativity meets recognition, The Dean's List invites contestants from around the globe to step forward and demonstrate their artistry. Contestants bring their wit, their creativity, and their presence to the stage as they compete for recognition that will set them apart in the music world.",
+  "The Dean's List is more than just a name. It is a platform created to celebrate excellence and showcase worldwide musical talent. Designed as a stage where creativity meets recognition, The Dean's List invites contestants from around the globe to step forward and demonstrate their artistry. Contestants bring their wit, their creativity, and their presence to the stage as they compete for recognition that will set them apart in the music world.",
   "Each performance becomes part of the experience, highlighting the diversity of style, skill, and originality that exists in music today. The Dean's List not only honors performers for their ability, but also gives them the chance to inspire others and gain exposure in front of audiences who are searching for fresh, standout talent.",
-  "Every season builds anticipation as musicians bring their very best in pursuit of the ultimate prize. At the end of each season, the winner earns more than just applause — they secure a cash prize and, even more importantly, a coveted place on the Principal's Roll of the Dean's List. This honor cements their status as one of the standout talents in the world, ensuring their name is forever connected with excellence, creativity, and achievement.",
+  "Every season builds anticipation as musicians bring their very best in pursuit of the ultimate prize. At the end of each season, the winner earns more than just applause. They secure a cash prize and, even more importantly, a coveted place on the Principal's Roll of the Dean's List. This honor cements their status as one of the standout talents in the world, ensuring their name is forever connected with excellence, creativity, and achievement.",
   "By combining recognition, reward, and the thrill of competition, The Dean's List continues to grow as the premier platform for celebrating the best in worldwide musical talent.",
 ] as const;
 
 export const WATCH_COPY = [
-  "The Dean's List isn't just a platform — it's an experience. Through our official YouTube channel, you can watch performances, highlights, and behind-the-scenes moments that bring the competition to life. Each video showcases the creativity, presence, and excellence that contestants bring to the stage season after season.",
+  "The Dean's List isn't just a platform. It is an experience. Through our official YouTube channel, you can watch performances, highlights, and behind-the-scenes moments that bring the competition to life. Each video showcases the creativity, presence, and excellence that contestants bring to the stage season after season.",
   "Our videos make it easy for fans, music lovers, and industry professionals to stay connected with the journey of our contestants. From electrifying live performances to exclusive interviews and recaps, the Dean's List channel captures every step of the competition.",
 ] as const;
 
@@ -419,7 +419,7 @@ export const WINNERS_INTRO =
 export const NEXT_WINNER_COPY = {
   heading: "Want to be the next winner?",
   body: [
-    "If you missed your shot this time, don't worry — another chance to win $1,000 is coming soon. This is more than just a contest; it's your moment to be recognised, celebrated, and remembered.",
+    "If you missed your shot this time, don't worry. Another chance to win $1,000 is coming soon. This is more than just a contest; it's your moment to be recognised, celebrated, and remembered.",
     "Whether you're a seasoned performer or a new artist ready to take the stage, this is your opportunity to showcase your talent to the world.",
     "Follow us on all platforms and stay locked in for updates on the next Crown the Sound competition. You could be next.",
   ],

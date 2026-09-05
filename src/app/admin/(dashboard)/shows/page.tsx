@@ -77,7 +77,7 @@ export default async function ShowsPage() {
         title="Shows & Events"
         description="The show that is LIVE — or OPEN if none is live — is the one the homepage hero, the countdown and the entry funnel point at."
         action={
-          <Link href="/admin/shows/new" className="btn-primary">
+          <Link href="/admin/shows/new" className="btn btn-primary">
             New show
           </Link>
         }
@@ -123,7 +123,7 @@ export default async function ShowsPage() {
             title="No shows yet"
             body="A show is what the homepage hero, the countdown, the entry form and every episode hang off. Create the first one to give the public site something to point at."
             action={
-              <Link href="/admin/shows/new" className="btn-primary">
+              <Link href="/admin/shows/new" className="btn btn-primary">
                 Create the first show
               </Link>
             }

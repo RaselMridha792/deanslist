@@ -120,7 +120,7 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
                 return res;
               })
             }
-            className="btn-primary !px-5 !py-2.5 !text-xs disabled:opacity-40"
+            className="btn btn-primary !px-5 !py-2.5 !text-xs disabled:opacity-40"
           >
             {pending ? "Saving…" : "Save note"}
           </button>

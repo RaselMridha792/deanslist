@@ -65,7 +65,7 @@ export default async function NewShowPage() {
   return (
     <>
       <Link href="/admin/shows" className="btn-quiet">
-        ← Back to shows
+        Back to shows
       </Link>
 
       <div className="mt-6">

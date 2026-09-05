@@ -62,11 +62,11 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
         description="Logos for the homepage strip and the sponsors page. Order runs low number first."
         action={
           showForm ? (
-            <Link href={LIST} className="btn-ghost !px-5 !py-2.5 !text-xs">
+            <Link href={LIST} className="btn btn-ghost !px-5 !py-2.5 !text-xs">
               Cancel
             </Link>
           ) : (
-            <Link href={`${LIST}?new=1`} className="btn-primary !px-6 !py-2.5 !text-xs">
+            <Link href={`${LIST}?new=1`} className="btn btn-primary !px-6 !py-2.5 !text-xs">
               Add sponsor
             </Link>
           )
@@ -176,7 +176,7 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
             title="No sponsors yet"
             body="Nothing is broken. The 'In partnership with' strip on the homepage hides itself entirely while there are no active sponsors, rather than rendering an empty logo row — so the site simply skips that band until the first one is added."
             action={
-              <Link href={`${LIST}?new=1`} className="btn-primary">
+              <Link href={`${LIST}?new=1`} className="btn btn-primary">
                 Add the first sponsor
               </Link>
             }

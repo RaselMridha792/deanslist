@@ -17,7 +17,7 @@ export default async function NewWinnerPage() {
   return (
     <>
       <Link href="/admin/winners" className="btn-quiet">
-        ← Back to winners
+        Back to winners
       </Link>
 
       <div className="mt-6">

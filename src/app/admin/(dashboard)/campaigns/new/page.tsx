@@ -69,7 +69,7 @@ export default async function NewCampaignPage({ searchParams }: Props) {
         title="New campaign"
         description="Write it here, then preview, test and send from the campaign's own page."
         action={
-          <Link href="/admin/campaigns" className="btn-ghost !px-5 !py-2.5 !text-xs">
+          <Link href="/admin/campaigns" className="btn btn-ghost !px-5 !py-2.5 !text-xs">
             Back to campaigns
           </Link>
         }

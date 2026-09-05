@@ -63,7 +63,7 @@ export default async function GalleryPage({ searchParams }: Props) {
         description={`Ordered lowest number first. The homepage strip shows the first ${HOMEPAGE_LIMIT}; the rest are stored and ready for the show pages.`}
         action={
           editing ? (
-            <Link href="/admin/gallery" className="btn-ghost">
+            <Link href="/admin/gallery" className="btn btn-ghost">
               Add an image instead
             </Link>
           ) : undefined
@@ -302,7 +302,7 @@ function PathChecker({
             className="field"
           />
         </div>
-        <button type="submit" className="btn-ghost">
+        <button type="submit" className="btn btn-ghost">
           Preview
         </button>
       </form>

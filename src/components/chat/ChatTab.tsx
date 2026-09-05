@@ -323,7 +323,7 @@ export function ChatTab({
               placeholder={view.placeholder}
               className="field"
             />
-            <button type="submit" disabled={busy} className="btn-primary !px-5 disabled:opacity-50">
+            <button type="submit" disabled={busy} className="btn btn-primary !px-5 disabled:opacity-50">
               Next
             </button>
           </form>
@@ -348,7 +348,7 @@ export function ChatTab({
               <button
                 type="submit"
                 disabled={busy}
-                className="btn-primary flex-1 disabled:opacity-50"
+                className="btn btn-primary flex-1 disabled:opacity-50"
               >
                 {draft.trim() ? "Continue" : "Skip"}
               </button>
@@ -371,7 +371,7 @@ export function ChatTab({
               type="button"
               disabled={busy}
               onClick={() => void confirmFlow()}
-              className="btn-primary w-full disabled:opacity-50"
+              className="btn btn-primary w-full disabled:opacity-50"
             >
               Send to the team
             </button>
@@ -402,7 +402,7 @@ export function ChatTab({
             <button
               type="submit"
               disabled={busy || !draft.trim()}
-              className="btn-primary !px-5 disabled:opacity-50"
+              className="btn btn-primary !px-5 disabled:opacity-50"
             >
               Ask
             </button>

@@ -1,158 +1,155 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Red, white and black — the client's brand, taken from their logo.
+ * Tokens from design_handoff_deanslist/README.md, "Design tokens".
  *
- * Red is a harder accent to make expensive than gold. What separates a luxury
- * red from a loud one is almost entirely restraint and depth:
+ * A light editorial system, not the dark one this replaces: paper ground,
+ * near-black ink, red as the single accent. Three rules carry most of the look
+ * and are easy to erode one component at a time, so they are worth stating:
  *
- *   red    — the accent, not the surface. Under 10% of any screen. Buttons,
- *            eyebrows, key numbers, active states, the live badge. The old site
- *            fills whole bands with bright red gradient, which is exactly what
- *            makes it read as a template rather than a broadcast brand.
- *   depth  — a single flat #C8102E looks like a warning label. The brand scale
- *            runs from a bright specular through the mark's own red down to a
- *            near-black oxblood, so a fill has somewhere to fall away to.
- *   black  — never #000. Pure black kills depth and flattens the red on top.
- *   white  — full white is for display type only. Body copy steps down the
- *            `chalk` ramp; white paragraphs on near-black glare.
+ *   radius 0     everywhere, with no exceptions
+ *   rules 2px    dividers and cell separators, never 1px
+ *   grayscale    every photograph and every video, filter: grayscale(1)
+ *                contrast(1.08). No colorized imagery anywhere.
  *
- * `brand.DEFAULT` is #C8102E, sampled from the logo, so the site and the mark
- * agree. The gloss gradient is what the gold metal treatment used to do: a
- * flat fill at button size reads as plastic, a gradient with a specular band
- * reads as lacquer.
+ * Red is a full field only twice on the site — the ticker and the closing
+ * poster CTA. Everywhere else it is a chip, a rule, a button, or a word.
+ *
+ * The accent is #d40000. The bundled design-system stylesheet ships #ec3013 as
+ * its default, but every design file overrides it in its own <style> block, and
+ * the handoff says so in as many words: "Red primary is #d40000 (not orange)."
  */
 export default {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       colors: {
-        // Surface ramp. Every step is a real elevation, not a random shade.
-        ink: {
-          DEFAULT: "#0A0A0C", // page
-          raised: "#101015", // section band
-          soft: "#16161C", // card
-          high: "#1E1E26", // hover / popover
-          line: "#2A2A34", // hairline
-          edge: "#3A3A46", // emphasised border
-        },
+        /** Paper. The page sits on this, not on white. */
+        ground: "#f3f2f2",
+        /** One step down from ground: cell hover, inset panels, the gallery band. */
+        surface: "#eae9e9",
+        /** Near-black. Used as a background for dark sections and as body text. */
+        ink: "#201e1d",
 
-        // Text ramp. Full white is reserved for large display type.
-        chalk: {
-          DEFAULT: "#FFFFFF",
-          body: "rgba(255,255,255,0.72)",
-          muted: "rgba(255,255,255,0.50)",
-          faint: "rgba(255,255,255,0.34)",
-          ghost: "rgba(255,255,255,0.16)",
-        },
-
-        /**
-         * The brand red. Sampled from the logo mark, with a bright specular
-         * above it and an oxblood below, so a gradient has range. A flat fill
-         * of the base value at any size above a chip reads as a warning label.
-         */
         brand: {
-          light: "#FF6B7D", // specular highlight
-          soft: "#E8384F",
-          DEFAULT: "#C8102E", // the logo's red
-          deep: "#8E0B20",
-          shadow: "#4A0511", // near-black oxblood
+          DEFAULT: "#d40000",
+          hover: "#b80000",
+          /** Red that stays legible as text on the light ground. */
+          onLight: "#8f0000",
+          /** Red that stays legible on ink. Links and hovers in dark sections. */
+          onDark: "#ff5a4a",
+          bright: "#e60f0f",
+          tint: "#ffefee",
+          tint2: "#ffd9d6",
         },
 
-        /** Urgency only: the live badge, the final-hours countdown. */
-        live: "#FF2D42",
-
-        /** Kept so `brandred` usages keep resolving during the rename. */
-        brandred: {
-          DEFAULT: "#C8102E",
-          live: "#FF2D42",
+        neutral: {
+          100: "#f8f4f4",
+          200: "#eae7e7",
+          300: "#d7d3d3",
+          400: "#bab6b6",
+          500: "#9b9797",
+          600: "#7d7979",
+          700: "#605d5d",
+          800: "#444141",
+          900: "#2d2b2b",
         },
-      },
 
-      backgroundImage: {
-        // A specular band and a fall to oxblood. This is what stops a red
-        // button reading as plastic — the same job the gold gradient did.
-        "brand-gloss":
-          "linear-gradient(150deg, #FF6B7D 0%, #E8384F 22%, #C8102E 46%, #A00C24 68%, #7A0819 100%)",
-        "brand-hairline":
-          "linear-gradient(90deg, transparent 0%, #C8102E 22%, #FF6B7D 50%, #C8102E 78%, transparent 100%)",
-        // Vignette that keeps hero text legible over any video frame.
-        "hero-scrim":
-          "linear-gradient(180deg, rgba(10,10,12,0.35) 0%, rgba(10,10,12,0.55) 45%, rgba(10,10,12,0.94) 100%)",
-        // Same scrim weighted to the right, for a hero whose artwork sits left.
-        "hero-scrim-right":
-          "linear-gradient(255deg, rgba(10,10,12,0.92) 0%, rgba(10,10,12,0.72) 42%, rgba(10,10,12,0.30) 100%)",
+        /** Divider on the light ground, and its counterpart on ink. */
+        rule: "rgba(32,30,29,.4)",
+        "rule-dark": "rgba(243,242,242,.22)",
       },
 
       fontFamily: {
-        display: ["var(--font-display)", "Impact", "Haettenschweiler", "sans-serif"],
-        body: ["var(--font-body)", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        // One family for everything. Weight and size carry the hierarchy.
+        sans: ["var(--font-archivo)", "system-ui", "sans-serif"],
+        display: ["var(--font-archivo)", "system-ui", "sans-serif"],
       },
 
       fontSize: {
-        // Display sizes are fluid: they must not wrap awkwardly at 360px and must
-        // still feel broadcast-scale at 1440px.
-        "display-xl": ["clamp(3.25rem, 9vw, 8rem)", { lineHeight: "0.9", letterSpacing: "0.01em" }],
-        "display-lg": ["clamp(2.5rem, 6vw, 5rem)", { lineHeight: "0.94", letterSpacing: "0.01em" }],
-        "display-md": ["clamp(1.875rem, 4vw, 3.25rem)", { lineHeight: "1", letterSpacing: "0.015em" }],
-        "display-sm": ["clamp(1.5rem, 2.5vw, 2.25rem)", { lineHeight: "1.05", letterSpacing: "0.02em" }],
-        eyebrow: ["0.6875rem", { lineHeight: "1.4", letterSpacing: "0.28em" }],
-        "body-lg": ["1.0625rem", { lineHeight: "1.65" }],
-      },
-
-      maxWidth: {
-        shell: "1240px",
-        prose: "68ch",
+        // Display type is fluid and tightly tracked. The negative letter-spacing
+        // is doing real work here — Archivo 800 at 100px set at 0 looks loose.
+        "display-xl": ["clamp(56px,8.5vw,160px)", { lineHeight: ".88", letterSpacing: "-.05em" }],
+        "display-lg": ["clamp(48px,6.5vw,120px)", { lineHeight: ".9", letterSpacing: "-.045em" }],
+        "display-md": ["clamp(40px,5vw,88px)", { lineHeight: ".95", letterSpacing: "-.04em" }],
+        "display-sm": ["clamp(26px,2.4vw,40px)", { lineHeight: "1", letterSpacing: "-.03em" }],
+        hero: ["clamp(44px,6.2vw,104px)", { lineHeight: ".92", letterSpacing: "-.04em" }],
+        stat: ["clamp(40px,5vw,84px)", { lineHeight: ".9", letterSpacing: "-.04em" }],
+        kicker: ["11px", { lineHeight: "1.4", letterSpacing: ".16em" }],
+        eyebrow: ["11px", { lineHeight: "1.4", letterSpacing: ".14em" }],
+        nav: ["12px", { lineHeight: "1", letterSpacing: ".12em" }],
+        btn: ["13px", { lineHeight: "1", letterSpacing: ".06em" }],
+        "btn-lg": ["15px", { lineHeight: "1", letterSpacing: ".06em" }],
+        body: ["15px", { lineHeight: "1.55" }],
+        lede: ["clamp(17px,1.4vw,21px)", { lineHeight: "1.5" }],
       },
 
       spacing: {
-        section: "clamp(4rem, 9vw, 8rem)",
-        "section-sm": "clamp(2.5rem, 5vw, 4.5rem)",
+        // The design's own scale, plus the two fluid values it uses everywhere.
+        section: "clamp(56px,7vw,112px)",
+        "section-lg": "clamp(64px,8vw,128px)",
+        gutter: "clamp(20px,4vw,56px)",
+      },
+
+      maxWidth: {
+        shell: "1680px",
+        form: "520px",
+        countdown: "560px",
       },
 
       borderRadius: {
-        card: "14px",
+        // Zero everywhere. Listed explicitly so `rounded` resolves to nothing
+        // rather than silently falling back to Tailwind's 0.25rem.
+        none: "0",
+        DEFAULT: "0",
+        sm: "0",
+        md: "0",
+        lg: "0",
+        xl: "0",
+        full: "0",
       },
 
-      transitionTimingFunction: {
-        // Reveals. Decisive start, long soft settle — the one that reads cinematic.
-        cine: "cubic-bezier(0.16, 1, 0.3, 1)",
-        // Interface feedback. Quicker settle so buttons feel responsive.
-        crisp: "cubic-bezier(0.25, 1, 0.5, 1)",
-        // Symmetric, for things that move both ways.
-        swing: "cubic-bezier(0.65, 0, 0.35, 1)",
-      },
-
-      transitionDuration: {
-        fast: "150ms",
-        base: "240ms",
-        slow: "420ms",
-        cine: "800ms",
+      borderWidth: {
+        DEFAULT: "2px",
+        1: "1px",
+        2: "2px",
       },
 
       boxShadow: {
-        "brand-glow": "0 0 0 1px rgba(200,16,46,0.35), 0 8px 40px -12px rgba(200,16,46,0.45)",
-        lift: "0 18px 50px -20px rgba(0,0,0,0.9)",
+        sm: "0 1px 2px rgba(45,43,43,.14)",
+        md: "0 3px 10px rgba(45,43,43,.16)",
+        lg: "0 12px 32px rgba(45,43,43,.22)",
+      },
+
+      transitionTimingFunction: {
+        // The one curve the whole design moves on.
+        dl: "cubic-bezier(.2,.7,.2,1)",
       },
 
       keyframes: {
-        "rise-in": {
-          from: { opacity: "0", transform: "translateY(18px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
+        "dl-rise": {
+          from: { opacity: "0", transform: "translateY(40px)" },
+          to: { opacity: "1", transform: "none" },
         },
-        "pulse-live": {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.35" },
+        "dl-marquee": {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
         },
-        shimmer: {
-          from: { backgroundPosition: "200% 0" },
-          to: { backgroundPosition: "-200% 0" },
+        "dl-pulse": {
+          "0%,100%": { opacity: "1" },
+          "50%": { opacity: ".25" },
+        },
+        "dl-wipe": {
+          from: { transform: "scaleX(0)" },
+          to: { transform: "scaleX(1)" },
         },
       },
 
       animation: {
-        "rise-in": "rise-in 800ms cubic-bezier(0.16, 1, 0.3, 1) both",
-        "pulse-live": "pulse-live 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite",
+        "dl-rise": "dl-rise 1s cubic-bezier(.2,.7,.2,1) both",
+        "dl-marquee": "dl-marquee 28s linear infinite",
+        "dl-marquee-slow": "dl-marquee 60s linear infinite",
+        "dl-pulse": "dl-pulse 1.6s ease-in-out infinite",
       },
     },
   },

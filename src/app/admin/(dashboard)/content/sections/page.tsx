@@ -80,11 +80,11 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
         description="Copy blocks for the pages the client writes themselves. Plain text — line breaks are kept, formatting marks are not."
         action={
           showForm ? (
-            <Link href={LIST} className="btn-ghost !px-5 !py-2.5 !text-xs">
+            <Link href={LIST} className="btn btn-ghost !px-5 !py-2.5 !text-xs">
               Cancel
             </Link>
           ) : (
-            <Link href={`${LIST}?new=1`} className="btn-primary !px-6 !py-2.5 !text-xs">
+            <Link href={`${LIST}?new=1`} className="btn btn-primary !px-6 !py-2.5 !text-xs">
               New section
             </Link>
           )
@@ -192,7 +192,7 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
             title="No sections written yet"
             body="Nothing is missing. Each public page falls back to the copy that ships with the site, and a section written here replaces that block once it is published. The rules page is the one waiting on the client — it is noindex until the official wording lands."
             action={
-              <Link href={`${LIST}?new=1&page=rules`} className="btn-primary">
+              <Link href={`${LIST}?new=1&page=rules`} className="btn btn-primary">
                 Start the rules copy
               </Link>
             }

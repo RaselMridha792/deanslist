@@ -114,7 +114,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
         title="Knowledge base"
         description="The answers the assistant is allowed to give. It has no other source."
         action={
-          <Link href="/admin/chatbot" className="btn-ghost !px-5 !py-2.5 !text-xs">
+          <Link href="/admin/chatbot" className="btn btn-ghost !px-5 !py-2.5 !text-xs">
             Transcripts
           </Link>
         }
@@ -195,7 +195,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
               ))}
             </select>
           </div>
-          <button type="submit" className="btn-ghost !px-5 !py-2.5 !text-xs">
+          <button type="submit" className="btn btn-ghost !px-5 !py-2.5 !text-xs">
             Filter
           </button>
           {filtered && (
@@ -209,7 +209,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
         </form>
 
         {!creating && (
-          <Link href={hrefWith("new", "1")} className="btn-primary !px-5 !py-2.5 !text-xs">
+          <Link href={hrefWith("new", "1")} className="btn btn-primary !px-5 !py-2.5 !text-xs">
             Add an answer
           </Link>
         )}
@@ -238,11 +238,11 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
             }
             action={
               filtered ? (
-                <Link href="/admin/chatbot/knowledge" className="btn-ghost !px-5 !py-2.5 !text-xs">
+                <Link href="/admin/chatbot/knowledge" className="btn btn-ghost !px-5 !py-2.5 !text-xs">
                   Clear filters
                 </Link>
               ) : (
-                <Link href={hrefWith("new", "1")} className="btn-primary !px-5 !py-2.5 !text-xs">
+                <Link href={hrefWith("new", "1")} className="btn btn-primary !px-5 !py-2.5 !text-xs">
                   Add the first answer
                 </Link>
               )

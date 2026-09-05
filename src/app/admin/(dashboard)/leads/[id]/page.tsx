@@ -24,7 +24,7 @@ export default async function LeadDetailPage({ params }: Props) {
   return (
     <>
       <Link href="/admin/leads" className="btn-quiet">
-        ← Back to leads
+        Back to leads
       </Link>
 
       <div className="mt-6 flex flex-wrap items-start justify-between gap-4">

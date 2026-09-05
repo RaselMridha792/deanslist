@@ -133,10 +133,10 @@ export default async function UnsubscribePage({ params, searchParams }: Props) {
         <input type="hidden" name="redirect" value="1" />
 
         <div className="flex flex-wrap items-center gap-4">
-          <button type="submit" className="btn-primary">
+          <button type="submit" className="btn btn-primary">
             Unsubscribe me
           </button>
-          <Link href="/" className="btn-ghost">
+          <Link href="/" className="btn btn-ghost">
             Keep me on the list
           </Link>
         </div>

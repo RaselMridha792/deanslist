@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 /**
  * A factual description of what this application actually does with personal
- * data — not invented legal boilerplate. Every claim below is true of the code
+ * data, not invented legal boilerplate. Every claim below is true of the code
  * as built and can be checked against src/app/api/leads/route.ts and the Prisma
  * schema.
  *
@@ -37,7 +37,7 @@ const SECTIONS = [
     body: [
       "To review your entry, contact you about it, and run the competition.",
       "To answer enquiries you send us.",
-      "To send show announcements, entry deadlines and results — but only if you ticked the box asking for them. Consent is recorded with a timestamp at the moment you give it.",
+      "To send show announcements, entry deadlines and results, but only if you ticked the box asking for them. Consent is recorded with a timestamp at the moment you give it.",
       "To keep the forms working and free of spam.",
     ],
   },
@@ -91,8 +91,8 @@ export default function PrivacyPage() {
             </p>
             <p className="mt-3 text-sm leading-relaxed text-chalk-body">
               This describes exactly what the website does with your data today. The formal
-              wording — registered company details, the legal basis relied on, retention
-              periods and the supervisory authority to complain to — is being confirmed with
+              wording, registered company details, the legal basis relied on, retention
+              periods and the supervisory authority to complain to, is being confirmed with
               Dean&apos;s List LTD before launch.
             </p>
           </div>

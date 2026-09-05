@@ -114,20 +114,36 @@ export async function getShows(): Promise<Show[]> {
 
   if (!rows || rows.length === 0) return SHOWS.map(fromSeedShow);
 
-  return rows.map((r) => ({
-    slug: r.slug,
-    title: r.title,
-    tagline: r.tagline,
-    description: r.description,
-    entryDeadline: r.entryDeadline?.toISOString() ?? null,
-    startsAt: r.startsAt?.toISOString() ?? null,
-    cadence: null,
-    prizeAmount: r.prizeAmount,
-    status: r.status,
-    heroVideo: r.trailerUrl,
-    heroPoster: r.heroImageUrl,
-    keyArt: r.heroImageUrl,
-  }));
+  return rows.map((r) => {
+    // Editorial fields the schema has no column for: the Freeze/Pass mechanic,
+    // the show's pitch copy, and the cadence line. They live in the content
+    // module and are matched back on by slug.
+    //
+    // Without this a seeded show renders without its mechanic section and its
+    // pitch — the page looks correct against the design today and quietly
+    // empties out the moment the client seeds the database. If these ever
+    // become client-editable they want real columns; until then this keeps the
+    // two sources from disagreeing.
+    const seed = SHOWS.find((s) => s.slug === r.slug);
+
+    return {
+      slug: r.slug,
+      title: r.title,
+      tagline: r.tagline,
+      description: r.description,
+      entryDeadline: r.entryDeadline?.toISOString() ?? null,
+      startsAt: r.startsAt?.toISOString() ?? null,
+      cadence: seed?.cadence ?? null,
+      prizeAmount: r.prizeAmount,
+      status: r.status,
+      heroVideo: r.trailerUrl ?? seed?.heroVideo ?? null,
+      heroPoster: r.heroImageUrl ?? seed?.heroPoster ?? null,
+      keyArt: r.heroImageUrl ?? seed?.keyArt ?? null,
+      mechanic: seed?.mechanic,
+      pitch: seed?.pitch,
+      pending: seed?.pending,
+    };
+  });
 }
 
 export async function getShow(slug: string): Promise<Show | null> {

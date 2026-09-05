@@ -51,7 +51,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
   return (
     <>
       <Link href="/admin/chatbot" className="btn-quiet">
-        ← Back to transcripts
+        Back to transcripts
       </Link>
 
       <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
@@ -167,8 +167,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                   href={`/admin/leads/${convo.lead.id}`}
                   className="btn-quiet mt-5 !text-xs"
                 >
-                  Open the full lead →
-                </Link>
+                  Open the full lead</Link>
               </>
             ) : (
               <p className="text-sm leading-relaxed text-chalk-muted">

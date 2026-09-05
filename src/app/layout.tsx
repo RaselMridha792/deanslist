@@ -1,29 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Bebas_Neue, Inter } from "next/font/google";
+import { Archivo } from "next/font/google";
 import "./globals.css";
 import { env } from "@/lib/env";
 
 /**
- * Self-hosted by next/font — no request to fonts.googleapis.com at runtime, which
- * is one render-blocking third-party round trip the old site pays on every page.
+ * One family for the whole site, per the design handoff.
  *
- * Bebas Neue: tall condensed caps, one weight, built for titling. It carries the
- * broadcast feel at 96px and has no lowercase, which is fine because display type
- * here is always uppercase by design.
- * Inter: the body face. Wide weight range and it stays legible at 14px on a phone,
- * where most of this audience arrives from Facebook and YouTube.
+ * Archivo at 400 / 600 / 800. Hierarchy comes from weight and size rather than
+ * from a second face, which is what keeps an editorial system this dense from
+ * looking busy. 800 carries every display heading and every button label; 600
+ * the kickers and nav; 400 body copy.
+ *
+ * Self-hosted by next/font, so there is no render-blocking request to
+ * fonts.googleapis.com — the old site pays for two of those on every page.
  */
-const display = Bebas_Neue({
-  weight: "400",
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const body = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-body",
+  weight: ["400", "600", "800"],
+  variable: "--font-archivo",
   display: "swap",
 });
 
@@ -61,13 +55,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0C",
-  colorScheme: "dark",
+  themeColor: "#201e1d",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    <html lang="en" className={archivo.variable}>
       {/* No site chrome here. The public header and footer belong to the
           (site) route group; the dashboard has its own shell. Putting them in
           the root layout wrapped /admin in the visitor navigation, which is how

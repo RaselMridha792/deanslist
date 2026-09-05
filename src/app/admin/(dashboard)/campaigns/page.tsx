@@ -59,7 +59,7 @@ export default async function CampaignsPage() {
         title="Campaigns"
         description="Announcements and reminders to a saved audience. Every send is logged per recipient."
         action={
-          <Link href="/admin/campaigns/new" className="btn-primary !px-6 !py-3 !text-xs">
+          <Link href="/admin/campaigns/new" className="btn btn-primary !px-6 !py-3 !text-xs">
             New campaign
           </Link>
         }
@@ -116,7 +116,7 @@ export default async function CampaignsPage() {
             title="No campaigns yet"
             body="A campaign is a subject line, a template, and an audience. Save a segment first if you want to reach a specific group."
             action={
-              <Link href="/admin/campaigns/new" className="btn-primary !px-6 !py-3 !text-xs">
+              <Link href="/admin/campaigns/new" className="btn btn-primary !px-6 !py-3 !text-xs">
                 Compose the first one
               </Link>
             }

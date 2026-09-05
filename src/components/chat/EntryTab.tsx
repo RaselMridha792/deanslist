@@ -73,8 +73,7 @@ export function EntryTab({
           you right now.
         </p>
         <Link href="/enter" className="btn-quiet mt-5">
-          Add more detail →
-        </Link>
+          Add more detail</Link>
       </div>
     );
   }
@@ -176,7 +175,7 @@ export function EntryTab({
       <button
         type="submit"
         disabled={status === "loading"}
-        className="btn-primary w-full disabled:opacity-50"
+        className="btn btn-primary w-full disabled:opacity-50"
       >
         {status === "loading" ? "Sending…" : "Submit my entry"}
       </button>

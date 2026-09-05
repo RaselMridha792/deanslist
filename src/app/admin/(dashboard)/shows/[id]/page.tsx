@@ -272,7 +272,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
   return (
     <>
       <Link href="/admin/shows" className="btn-quiet">
-        ← Back to shows
+        Back to shows
       </Link>
 
       <div className="mt-6">

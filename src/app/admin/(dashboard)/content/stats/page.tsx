@@ -101,11 +101,11 @@ export default async function StatsAdminPage({ searchParams }: Props) {
         description="The audience and prize figures in the stats band on the homepage and the sponsors page."
         action={
           showForm ? (
-            <Link href={LIST} className="btn-ghost !px-5 !py-2.5 !text-xs">
+            <Link href={LIST} className="btn btn-ghost !px-5 !py-2.5 !text-xs">
               Cancel
             </Link>
           ) : (
-            <Link href={`${LIST}?new=1`} className="btn-primary !px-6 !py-2.5 !text-xs">
+            <Link href={`${LIST}?new=1`} className="btn btn-primary !px-6 !py-2.5 !text-xs">
               Add statistic
             </Link>
           )
@@ -150,7 +150,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
             title="No statistics yet"
             body="The stats band renders nothing until a figure is added and confirmed. That is the safe default: an empty band is better than an unchecked number in front of a sponsor."
             action={
-              <Link href={`${LIST}?new=1`} className="btn-primary">
+              <Link href={`${LIST}?new=1`} className="btn btn-primary">
                 Add the first statistic
               </Link>
             }

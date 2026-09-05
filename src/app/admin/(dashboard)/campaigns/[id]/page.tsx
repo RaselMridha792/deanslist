@@ -160,7 +160,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
               value={campaign.status}
               tone={campaign.status === "SENT" ? "good" : campaign.status === "DRAFT" ? "mute" : "warn"}
             />
-            <Link href="/admin/campaigns" className="btn-ghost !px-5 !py-2.5 !text-xs">
+            <Link href="/admin/campaigns" className="btn btn-ghost !px-5 !py-2.5 !text-xs">
               All campaigns
             </Link>
           </div>
@@ -567,7 +567,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
               {page > 1 && (
                 <Link
                   href={`/admin/campaigns/${campaign.id}?page=${page - 1}`}
-                  className="btn-ghost !px-4 !py-2 !text-xs"
+                  className="btn btn-ghost !px-4 !py-2 !text-xs"
                 >
                   Previous
                 </Link>
@@ -575,7 +575,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
               {page < pages && (
                 <Link
                   href={`/admin/campaigns/${campaign.id}?page=${page + 1}`}
-                  className="btn-ghost !px-4 !py-2 !text-xs"
+                  className="btn btn-ghost !px-4 !py-2 !text-xs"
                 >
                   Next
                 </Link>

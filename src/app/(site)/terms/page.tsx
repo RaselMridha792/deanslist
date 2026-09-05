@@ -10,8 +10,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Website terms only. Contest terms are a separate document and live on /rules —
- * conflating the two is how a prize competition ends up with unenforceable rules.
+ * Website terms only. Contest terms are a separate document and live on /rules,  * conflating the two is how a prize competition ends up with unenforceable rules.
  * Both need the client's sign-off; neither is drafted here.
  */
 const SECTIONS = [
@@ -64,8 +63,7 @@ export default function TermsPage() {
                 <p className="mt-4 leading-relaxed text-chalk-muted">{s.body}</p>
                 {s.link && (
                   <Link href={s.link.href} className="btn-quiet mt-4">
-                    {s.link.label} →
-                  </Link>
+                    {s.link.label}</Link>
                 )}
               </section>
             ))}
@@ -73,7 +71,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl uppercase tracking-wide text-brand">Contact</h2>
               <p className="mt-4 leading-relaxed text-chalk-muted">
-                {SITE.legalName}, {SITE.location} —{" "}
+                {SITE.legalName}, {SITE.location}.{" "}
                 <a href={`mailto:${SITE.email}`} className="text-brand hover:underline">{SITE.email}</a>
               </p>
             </section>

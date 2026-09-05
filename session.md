@@ -7,6 +7,28 @@ Last updated: 4 September 2026
 
 ---
 
+## Design
+
+The client supplied a full redesign on 5 September 2026:
+`Downloads/Deanslist Homepage Redesign/design_handoff_deanslist/`, twelve
+`*.dc.html` reference pages plus a README of tokens and behaviour.
+
+It replaces the dark system entirely. Light editorial: paper ground `#f3f2f2`,
+near-black ink `#201e1d`, red `#d40000` as the only accent, Archivo throughout,
+**zero border radius**, 2px rules, and every photograph and video in grayscale.
+
+One thing worth recording because it looks like a contradiction: the bundled
+design-system stylesheet ships `--color-accent: #ec3013`, but every design file
+overrides it to `#d40000` in its own `<style>` block, and the handoff says so
+outright — "Red primary is #d40000 (not orange)". `#d40000` is correct.
+
+All referenced assets were already harvested, transcoded and uploaded during the
+earlier phases — 12 gallery photographs, 9 clips with poster frames, logo, key
+art. Verified present on Cloudinary. **Nothing needs downloading from
+deanslist.live.**
+
+---
+
 ## Brand
 
 | | |
@@ -106,7 +128,22 @@ Carried forward from `docs/PROJECT-BRIEF.md` §8 and still open:
 3. **Next show date and entry deadline.** The old homepage says "Show Starts August
    11" while its own winner story is dated August 28. Both are unpublished; the
    countdown appears the moment a real date is entered in the dashboard.
-4. **Audience figures.** The proposal claims 700,000+ subscribers. The old site's own
+4. **Audience figures — three different numbers now.** The signed proposal says
+   700,000+. The new design also shows "700K+ YouTube subscribers". But the
+   client's own live site, once its counter finishes animating, reads
+   **1.7Mil+ YouTube and 208K Facebook** — two and a half times the proposal's
+   figure. An earlier capture read that counter as broken (".7Mil+") because a
+   static fetch catches it mid-count; it is not broken, it was mis-measured.
+
+   All of them are stored with `verified: false` and **withheld from the public
+   site** until someone confirms the real number against the channel. Shown to a
+   sponsor this is an advertising claim, and three sources disagreeing is exactly
+   the case for not guessing.
+
+   The design's "30+ countries" cell is flagged as a placeholder in the handoff
+   itself and has no source at all.
+
+   Original note: the proposal claims 700,000+ subscribers. The old site's own
    counter renders `.7Mil+` and a bare `K`, so it corroborates nothing. Stored with
    `verified: false` and **withheld from the public site** until someone confirms it.
    This is an advertising claim shown to sponsors — it needs to be right.

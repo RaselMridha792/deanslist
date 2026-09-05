@@ -73,7 +73,7 @@ export default async function LeadsPage({ searchParams }: Props) {
             {page > 1 && (
               <Link
                 href={`/admin/leads${filterToQuery(filter, { page: page - 1 })}`}
-                className="btn-ghost !px-4 !py-2 !text-xs"
+                className="btn btn-ghost !px-4 !py-2 !text-xs"
               >
                 Previous
               </Link>
@@ -81,7 +81,7 @@ export default async function LeadsPage({ searchParams }: Props) {
             {page < pages && (
               <Link
                 href={`/admin/leads${filterToQuery(filter, { page: page + 1 })}`}
-                className="btn-ghost !px-4 !py-2 !text-xs"
+                className="btn btn-ghost !px-4 !py-2 !text-xs"
               >
                 Next
               </Link>

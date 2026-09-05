@@ -41,7 +41,7 @@ export default async function WinnersPage() {
         title="Winners"
         description="Everything here publishes straight to /winners and the homepage spotlight. Names, prizes and dates are the client's facts to confirm — never fill a gap with a guess."
         action={
-          <Link href="/admin/winners/new" className="btn-primary">
+          <Link href="/admin/winners/new" className="btn btn-primary">
             New winner
           </Link>
         }
@@ -53,7 +53,7 @@ export default async function WinnersPage() {
             title="No winners yet"
             body="Add the first one and it appears on /winners immediately, along with the spotlight on the homepage. A winner with no photograph still publishes — the page renders a designed stand-in rather than a broken image."
             action={
-              <Link href="/admin/winners/new" className="btn-primary">
+              <Link href="/admin/winners/new" className="btn btn-primary">
                 Add a winner
               </Link>
             }

@@ -157,7 +157,7 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
         title="Chatbot"
         description="Every conversation the widget has had, the contacts it captured, and the answers it is allowed to give. A chat the visitor finished still has to be read by someone here, so this list opens on the unread ones."
         action={
-          <Link href="/admin/chatbot/knowledge" className="btn-ghost !px-5 !py-2.5 !text-xs">
+          <Link href="/admin/chatbot/knowledge" className="btn btn-ghost !px-5 !py-2.5 !text-xs">
             Knowledge base
           </Link>
         }
@@ -255,7 +255,7 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
             </select>
           </div>
 
-          <button type="submit" className="btn-primary !px-5 !py-2.5 !text-xs">
+          <button type="submit" className="btn btn-primary !px-5 !py-2.5 !text-xs">
             Apply
           </button>
         </div>
@@ -292,15 +292,15 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
             }
             action={
               filtered ? (
-                <Link href="/admin/chatbot" className="btn-ghost !px-5 !py-2.5 !text-xs">
+                <Link href="/admin/chatbot" className="btn btn-ghost !px-5 !py-2.5 !text-xs">
                   Back to the unread queue
                 </Link>
               ) : allCount > 0 ? (
-                <Link href="/admin/chatbot?review=any" className="btn-ghost !px-5 !py-2.5 !text-xs">
+                <Link href="/admin/chatbot?review=any" className="btn btn-ghost !px-5 !py-2.5 !text-xs">
                   Show every conversation
                 </Link>
               ) : (
-                <Link href="/admin/chatbot/knowledge" className="btn-ghost !px-5 !py-2.5 !text-xs">
+                <Link href="/admin/chatbot/knowledge" className="btn btn-ghost !px-5 !py-2.5 !text-xs">
                   Review what the bot can answer
                 </Link>
               )
@@ -371,7 +371,7 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
             {pageNum > 1 && (
               <Link
                 href={`/admin/chatbot${query({ page: pageNum - 1 })}`}
-                className="btn-ghost !px-4 !py-2 !text-xs"
+                className="btn btn-ghost !px-4 !py-2 !text-xs"
               >
                 Previous
               </Link>
@@ -379,7 +379,7 @@ export default async function ChatbotTranscriptsPage({ searchParams }: Props) {
             {pageNum < pages && (
               <Link
                 href={`/admin/chatbot${query({ page: pageNum + 1 })}`}
-                className="btn-ghost !px-4 !py-2 !text-xs"
+                className="btn btn-ghost !px-4 !py-2 !text-xs"
               >
                 Next
               </Link>

@@ -82,7 +82,7 @@ export default async function SegmentsPage({ searchParams }: Props) {
         title="Segments"
         description="Saved audiences for the campaign composer. Build the view you want in Leads &amp; Entries, then save it here — a segment is that same filter with a name on it."
         action={
-          <Link href="/admin/leads" className="btn-ghost !px-5 !py-2.5 !text-xs">
+          <Link href="/admin/leads" className="btn btn-ghost !px-5 !py-2.5 !text-xs">
             Build a view in Leads
           </Link>
         }

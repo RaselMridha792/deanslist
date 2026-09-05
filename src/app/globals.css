@@ -3,30 +3,49 @@
 @tailwind utilities;
 
 /*
-  --font-display and --font-body are injected by next/font in src/app/layout.tsx.
-  They used to be hardcoded family names here, which meant the "design system"
-  silently rendered in a fallback face if the font ever failed to load.
+  --font-archivo is injected by next/font in src/app/layout.tsx.
+
+  Everything below is the light editorial system from the design handoff. Three
+  rules carry the look and are the easiest to erode by accident: zero radius,
+  2px rules, and grayscale imagery.
 */
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   html {
     scroll-behavior: smooth;
-    /* Keeps a fixed header from covering the target of an in-page anchor. */
-    scroll-padding-top: 6rem;
+    /* The header is sticky at 66px; without this an in-page anchor lands under it. */
+    scroll-padding-top: 66px;
   }
 
+  body {
+    @apply bg-ground font-sans text-body text-ink antialiased;
+    /* overflow-x: clip rather than hidden — hidden would break position: sticky
+       on the header, which is the bug this design would hit first. */
+    overflow-x: clip;
+  }
+
+  /* One focus treatment, never the browser default. */
+  :focus-visible {
+    outline: 2px solid theme("colors.brand.DEFAULT");
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: theme("colors.brand.DEFAULT");
+    color: #fff;
+  }
+
+  /*
+    Honour the OS setting by removing motion, not shortening it. The design is
+    heavy on entrance and marquee animation, so this matters more than usual:
+    a visitor who asks for reduced motion gets a static page, and the reveal
+    system marks everything visible rather than leaving it at opacity 0.
+  */
   @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-    /*
-      Honour the OS setting rather than merely shortening animations. A visitor
-      who asks for reduced motion gets none, including the scroll reveals.
-    */
     *,
     *::before,
     *::after {
@@ -36,140 +55,148 @@
       scroll-behavior: auto !important;
     }
   }
-
-  body {
-    @apply bg-ink font-body text-chalk-body antialiased;
-    text-rendering: optimizeLegibility;
-  }
-
-  /* Display type is always large and always uppercase, so it gets a touch of
-     tracking to stop the condensed face from setting too tight. */
-  h1,
-  h2,
-  h3 {
-    @apply font-display text-chalk;
-  }
-
-  ::selection {
-    background: theme("colors.brand.DEFAULT");
-    color: #fff;
-  }
-
-  /* One focus treatment everywhere. Brand, offset, never removed. */
-  :focus-visible {
-    outline: 2px solid theme("colors.brand.soft");
-    outline-offset: 3px;
-    border-radius: 3px;
-  }
-
-  /* Ensure the fallback stack does not shift layout when the webfont lands. */
-  img,
-  video {
-    @apply max-w-full;
-  }
 }
 
 @layer components {
+  /* ------------------------------------------------------------- layout */
+
   .shell {
-    @apply mx-auto w-full max-w-shell px-5 md:px-8;
+    @apply mx-auto w-full max-w-shell px-gutter;
   }
 
   .section {
     @apply py-section;
   }
 
-  /* Small uppercase label that sits above a heading. */
-  .eyebrow {
-    @apply font-body text-eyebrow font-semibold uppercase text-brand;
-  }
+  /* ------------------------------------------------------------ buttons */
 
   /*
-    Primary action. The gradient is what makes the brand read as metal — a flat
-    fill of #C8102E looks like mustard at this size. The ::after band is a
-    specular sweep on hover.
+    Button labels are flush left, not centred. It is the single most
+    identifiable thing about this system and the first thing a stray
+    `justify-center` undoes.
   */
+  .btn {
+    @apply inline-flex items-center justify-start gap-3 border-2 px-[18px] py-[10px]
+           text-btn font-extrabold uppercase transition-colors duration-200 ease-dl;
+  }
+
   .btn-primary {
-    @apply relative inline-flex items-center justify-center overflow-hidden rounded-full
-           bg-brand-gloss px-7 py-3 text-sm font-semibold uppercase tracking-widest
-           text-ink transition-transform duration-base ease-crisp
-           hover:-translate-y-0.5 active:translate-y-0;
+    @apply border-brand bg-brand text-white hover:border-brand-hover hover:bg-brand-hover;
   }
 
-  .btn-primary::after {
-    content: "";
-    @apply pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-slow ease-crisp;
-    background: linear-gradient(
-      100deg,
-      transparent 30%,
-      rgba(255, 255, 255, 0.55) 50%,
-      transparent 70%
-    );
+  .btn-lg {
+    @apply px-6 py-[14px] text-btn-lg;
   }
 
-  .btn-primary:hover::after {
-    @apply opacity-100;
+  /* On the light ground. */
+  .btn-outline {
+    @apply border-ink bg-transparent text-ink hover:bg-ink hover:text-ground;
+  }
+
+  /* On ink. Border brightens rather than filling, so dark sections stay dark. */
+  .btn-outline-dark {
+    @apply border-rule-dark bg-transparent text-ground hover:border-ground;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center rounded-full border border-ink-edge px-7 py-3
-           text-sm font-semibold uppercase tracking-widest text-chalk
-           transition-colors duration-base ease-crisp hover:border-brand hover:text-brand;
+    @apply border-transparent bg-transparent px-0 text-ink underline-offset-4 hover:text-brand-onLight hover:underline;
   }
 
+  /* Text-only action. Kept because the dashboard uses it in a dozen places
+     where a bordered button would crowd a table row. */
   .btn-quiet {
-    @apply inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest
-           text-chalk-muted transition-colors duration-base ease-crisp hover:text-brand;
+    @apply inline-flex items-center gap-2 text-btn font-extrabold uppercase
+           text-neutral-700 underline-offset-4 transition-colors duration-200
+           ease-dl hover:text-brand hover:underline;
   }
 
-  .card {
-    @apply rounded-card border border-ink-line bg-ink-soft transition-colors duration-base ease-crisp;
+  .btn-ghost-dark {
+    @apply border-transparent bg-transparent px-0 text-ground underline-offset-4 hover:text-brand-onDark hover:underline;
   }
 
-  .card-interactive {
-    @apply card hover:border-ink-edge hover:bg-ink-high;
+  /* ------------------------------------------------------------- pieces */
+
+  /* Small label above a heading. Red shifts by ground: onLight on paper,
+     onDark on ink, because #d40000 on #201e1d fails contrast. */
+  .kicker {
+    @apply text-kicker font-semibold uppercase text-brand-onLight;
   }
 
-  /* 1px brand rule that fades at both ends. Used to separate major sections
-     without the heaviness of a full-width border. */
-  .rule-brand {
-    @apply h-px w-full bg-brand-hairline opacity-40;
+  .kicker-dark {
+    @apply text-kicker font-semibold uppercase text-brand-onDark;
   }
+
+  /* The 2px rule that separates a section header from its cells. */
+  .divider {
+    @apply border-t-2 border-rule;
+  }
+
+  .divider-dark {
+    @apply border-t-2 border-rule-dark;
+  }
+
+  /*
+    Equal-width cells separated by 2px vertical rules. Built with a gap over a
+    rule-coloured background rather than per-cell borders, so the last cell has
+    no trailing rule and nothing needs a :last-child override.
+  */
+  .cells {
+    @apply grid gap-[2px] bg-rule;
+  }
+
+  .cells-dark {
+    @apply grid gap-[2px] bg-rule-dark;
+  }
+
+  .cell {
+    @apply bg-ground p-6 transition-colors duration-200 ease-dl hover:bg-surface md:p-8;
+  }
+
+  .cell-dark {
+    @apply bg-ink p-6 transition-colors duration-200 ease-dl hover:bg-neutral-900 md:p-8;
+  }
+
+  /* ------------------------------------------------------------- forms */
 
   .field {
-    @apply w-full rounded-lg border border-ink-line bg-ink-raised px-4 py-3 text-sm text-chalk
-           placeholder:text-chalk-faint outline-none transition-colors duration-base ease-crisp
-           focus:border-brand;
+    @apply w-full border-2 border-ink bg-white px-4 py-3 text-body text-ink
+           outline-none transition-colors duration-200 ease-dl
+           placeholder:text-neutral-500 focus:border-brand;
   }
 
-  .field-error {
-    @apply border-live focus:border-live;
+  /* Underlined variant, used on the red poster CTA where a boxed input would
+     read as a hole punched in the field. */
+  .field-underline {
+    @apply w-full border-0 border-b-2 border-white bg-transparent px-0 py-3
+           text-body text-white outline-none placeholder:text-white/60
+           focus:border-white;
   }
 
   .label {
-    @apply mb-1.5 block text-xs font-medium uppercase tracking-wider text-chalk-muted;
+    @apply mb-2 block text-eyebrow font-semibold uppercase text-neutral-700;
+  }
+
+  .label-dark {
+    @apply mb-2 block text-eyebrow font-semibold uppercase text-ground/70;
   }
 
   .help {
-    @apply mt-1.5 text-xs text-chalk-faint;
+    @apply mt-2 text-[12px] leading-relaxed text-neutral-600;
   }
 
   .error-text {
-    @apply mt-1.5 text-xs font-medium text-live;
+    @apply mt-2 text-[12px] font-semibold text-brand-onLight;
   }
 
-  /* Live badge. The only place a pulsing animation is allowed. */
-  .badge-live {
-    @apply inline-flex items-center gap-2 rounded-full border border-live/40
-           bg-live/10 px-3 py-1 text-eyebrow font-semibold uppercase text-live;
+  /* Success state: grey panel with a 4px red left rule. Used by every form. */
+  .success-panel {
+    @apply border-l-4 border-brand bg-surface p-6;
   }
 
-  .badge {
-    @apply inline-flex items-center rounded-full border border-ink-edge bg-ink-high px-3 py-1
-           text-eyebrow font-semibold uppercase text-chalk-muted;
-  }
+  /* --------------------------------------------------------------- media */
 
-  /* Brand text needs a gradient too, for the same reason the button does. */
-  .text-metal {
-    @apply bg-brand-gloss bg-clip-text text-transparent;
+  /* Every photograph and every video. No colorized imagery anywhere. */
+  .grayscale-media {
+    filter: grayscale(1) contrast(1.08);
   }
 }

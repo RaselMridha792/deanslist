@@ -1,108 +1,153 @@
-import { ButtonLink } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Countdown } from "@/components/ui/Countdown";
-import { BackgroundVideo } from "@/components/media/BackgroundVideo";
-import type { Show } from "@/lib/queries";
-import { SITE } from "@/content/site";
+import { ButtonLink } from "@/components/dl/Button";
+import { Countdown } from "@/components/dl/Countdown";
+import { PlayIcon } from "@/components/dl/PlayIcon";
+import { HeroEntryForm } from "@/components/home/HeroEntryForm";
+import { mediaImage, mediaVideo } from "@/lib/media";
+import type { Show, Winner } from "@/lib/queries";
 
 /**
- * The one screen that has to work. One primary action — enter — and everything
- * else subordinate to it.
+ * The one screen the whole rebuild turns on: 7fr of copy, 5fr of lead capture,
+ * over a grayscale loop of the client's own footage.
  *
- * When the client has not confirmed a date, this renders the show's cadence
- * instead of a countdown. It never prints a guessed deadline: the old site's
- * "Show Starts August 11" contradicts its own winner story dated August 28, and
- * repeating that mistake in a redesign would be worse than making it once.
+ * Two things here are deliberate and easy to undo by accident.
+ *
+ * The background is hand-rolled rather than GrayscaleImage/GrayscaleClip. Those
+ * primitives own their own positioning (`relative`, a fixed aspect-ratio) and a
+ * full-bleed layer needs `absolute inset-0`, which a Tailwind `relative` in the
+ * primitive would win against. The `grayscale-media` class is the same filter
+ * they apply, so nothing about the look changes. It also sidesteps the AVIF
+ * source GrayscaleImage emits: /media/hero carries only .webp and .jpg, and a
+ * <picture> does not fall back when a listed source 404s.
+ *
+ * On mobile the card falls below the copy purely from source order, so nothing
+ * needs reordering at the breakpoint.
  */
-export function Hero({ show }: { show: Show | null }) {
-  const live = show?.status === "LIVE";
-  const hasDeadline = Boolean(show?.entryDeadline);
+
+const DEFAULT_CLIP = "/media/hero/mic";
+
+/**
+ * Dashboard-set media only counts if it points at the media tree. `heroVideo`
+ * maps to Show.trailerUrl, which a client could reasonably fill with a YouTube
+ * link; appending ".mp4" to that would produce a silently broken hero.
+ */
+function localMedia(path: string | null | undefined): string | null {
+  if (!path || !path.startsWith("/media/")) return null;
+  return path.replace(/\.[a-z0-9]+$/i, "");
+}
+
+export function Hero({
+  show,
+  winner,
+  statusLabel,
+}: {
+  show: Show | null;
+  winner: Winner | null;
+  statusLabel: string;
+}) {
+  const clip = localMedia(show?.heroVideo) ?? DEFAULT_CLIP;
+  const poster = localMedia(show?.heroPoster) ?? clip;
+  const posterBase = mediaImage(poster);
+  const clipBase = mediaVideo(clip);
 
   return (
-    <section className="relative isolate min-h-[86svh] overflow-hidden border-b border-ink-line">
-      <div className="absolute inset-0 -z-20">
-        {show?.heroVideo && show?.heroPoster ? (
-          <BackgroundVideo src={show.heroVideo} poster={show.heroPoster} />
-        ) : (
-          <div className="h-full w-full bg-ink-raised" />
-        )}
+    <section
+      id="show"
+      className="relative flex min-h-[calc(100svh-66px)] flex-col overflow-hidden bg-ink text-ground"
+    >
+      {/* Footage at .55, so type sits on it rather than fighting it. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[.55]">
+        <picture>
+          <source srcSet={`${posterBase}.webp`} type="image/webp" />
+          <img
+            src={`${posterBase}.jpg`}
+            alt=""
+            fetchPriority="high"
+            className="grayscale-media absolute inset-0 h-full w-full object-cover"
+          />
+        </picture>
+        <video
+          poster={`${posterBase}.jpg`}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          tabIndex={-1}
+          className="grayscale-media absolute inset-0 h-full w-full object-cover"
+        >
+          <source src={`${clipBase}.webm`} type="video/webm" />
+          <source src={`${clipBase}.mp4`} type="video/mp4" />
+        </video>
       </div>
 
-      {/*
-        Two scrims, not one.
+      {/* Horizontal scrim carries the copy column; vertical one lands the
+          section into the black ticker rule below it. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink/[.88] via-ink/[.55] via-55% to-ink/[.3]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-60% to-ink"
+      />
 
-        The vertical one keeps type legible over whatever frame the video is on.
-        The second is weighted to the right, because the hero footage carries the
-        Dean's List wordmark in its left half — the copy used to sit on top of it
-        and the two fought each other. The content is now right-aligned on
-        desktop, over its own darkened panel, and the mark is left visible.
-
-        On mobile there is no room for a side-by-side, so the layout falls back
-        to full width and only the vertical scrim matters.
-      */}
-      <div className="absolute inset-0 -z-10 bg-hero-scrim" />
-      <div className="absolute inset-0 -z-10 hidden bg-hero-scrim-right lg:block" />
-
-      <div className="shell flex min-h-[86svh] flex-col justify-end pb-20 pt-32 md:pb-28">
-        <div className="max-w-4xl lg:ml-auto lg:max-w-2xl lg:text-right">
-          <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-            {live ? (
-              <Badge live>Live now</Badge>
-            ) : show?.status === "OPEN" ? (
-              <Badge>Entries open</Badge>
-            ) : null}
-            {show?.cadence && <Badge>{show.cadence}</Badge>}
+      <div className="relative mx-auto grid w-full max-w-shell flex-1 items-center gap-[clamp(32px,4vw,64px)] px-gutter py-[clamp(40px,6vw,88px)] min-[901px]:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+        <div className="flex flex-col gap-7">
+          <div className="flex flex-wrap items-center gap-[14px] text-[12px] font-semibold uppercase tracking-[.16em] motion-safe:animate-dl-rise">
+            <span className="inline-flex items-center gap-2 bg-brand px-[10px] py-[6px] text-white">
+              <span
+                aria-hidden
+                className="inline-block h-[6px] w-[6px] bg-white motion-safe:animate-dl-pulse"
+              />
+              Live every Tuesday
+            </span>
+            <span className="opacity-75">YouTube and Facebook</span>
           </div>
 
-          <h1 className="mt-6 text-display-xl uppercase text-chalk animate-rise-in">
-            {show?.title ?? SITE.name}
+          <h1 className="m-0 max-w-[14ch] text-hero font-extrabold uppercase">
+            <span
+              className="block motion-safe:animate-dl-rise"
+              style={{ animationDelay: "100ms" }}
+            >
+              {show?.title ?? "Drop That Mike"}.
+            </span>
+            <span
+              className="block text-brand-onDark motion-safe:animate-dl-rise"
+              style={{ animationDelay: "250ms" }}
+            >
+              You control the cash.
+            </span>
           </h1>
 
-          <p className="mt-5 max-w-xl text-body-lg leading-relaxed text-chalk-body lg:ml-auto">
-            {show?.tagline ?? SITE.tagline}
+          <p
+            className="m-0 max-w-[44ch] text-lede opacity-85 motion-safe:animate-dl-rise"
+            style={{ animationDelay: "400ms" }}
+          >
+            Perform from home. The audience votes live and the $1,000 prize pool drains in real
+            time. Hit Freeze to lock the pot, or Pass and watch it fall.
           </p>
 
-          <div className="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center lg:justify-end">
-            <ButtonLink href="/enter" size="lg">
-              Enter the contest
+          <div
+            className="flex flex-wrap gap-3 motion-safe:animate-dl-rise"
+            style={{ animationDelay: "550ms" }}
+          >
+            <ButtonLink href="#watch" variant="outline-dark" size="lg">
+              <PlayIcon />
+              Watch the promo
             </ButtonLink>
-            <ButtonLink href="/watch" variant="ghost" size="lg">
-              Watch an episode
-            </ButtonLink>
+            {winner && (
+              <ButtonLink href="#winner" variant="ghost-dark" size="lg" className="px-6">
+                Latest winner: {winner.name}
+              </ButtonLink>
+            )}
           </div>
 
-          {hasDeadline ? (
-            <div className="mt-12 lg:flex lg:justify-end">
-              <Countdown
-                target={show!.entryDeadline!}
-                label="Entries close in"
-                expiredLabel="Entries closed for this round"
-              />
-            </div>
-          ) : (
-            <p className="mt-12 max-w-md text-sm text-chalk-faint lg:ml-auto">
-              Entry is open now. The next show date is announced on{" "}
-              <a
-                href={SITE.socials.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand underline-offset-4 hover:underline"
-              >
-                YouTube
-              </a>{" "}
-              and{" "}
-              <a
-                href={SITE.socials.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand underline-offset-4 hover:underline"
-              >
-                Facebook
-              </a>
-              .
-            </p>
-          )}
+          <div className="motion-safe:animate-dl-rise" style={{ animationDelay: "700ms" }}>
+            <Countdown target={show?.startsAt ?? null} onDark />
+          </div>
         </div>
+
+        <HeroEntryForm showSlug={show?.slug} statusLabel={statusLabel} />
       </div>
     </section>
   );

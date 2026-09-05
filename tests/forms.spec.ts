@@ -525,18 +525,21 @@ test.describe("crew application form — /join", () => {
 
     await page.goto("/join");
 
+    // The crew form follows the design: one "Full name", a required Role, and a
+    // required "Location" that the server splits back into city and country.
     const form = page.locator("#crew form");
-    await form.locator('input[name="firstName"]').fill(me.firstName);
-    await form.locator('input[name="lastName"]').fill(me.lastName);
+    await form.locator('input[name="fullName"]').fill(`${me.firstName} ${me.lastName}`);
     await form.locator('input[name="email"]').fill(me.email);
-    await form.locator('input[name="phone"]').fill("+1 555 0100");
     await form.locator('select[name="role"]').selectOption("Judge");
+    await form.locator('input[name="location"]').fill("Lagos, Nigeria");
     await form.locator('textarea[name="message"]').fill("Playwright crew application.");
 
     await form.getByRole("button", { name: /send application/i }).click();
 
-    await expect(page).toHaveURL(/\/thank-you\?from=crew/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/application received/i);
+    // The design confirms in place rather than redirecting, so the success
+    // panel is the assertion, not a URL change.
+    await expect(form.locator("..").getByText(/your application is with the production team/i))
+      .toBeVisible({ timeout: 15_000 });
 
     await expectStoredLead(baseURL!, me.email, { type: "CREW", firstName: me.firstName });
   });
@@ -551,8 +554,11 @@ test.describe("crew application form — /join", () => {
     await page.goto("/join");
 
     const form = page.locator("#crew form");
-    await form.locator('input[name="firstName"]').fill(bot.firstName);
+    await form.locator('input[name="fullName"]').fill(`${bot.firstName} ${bot.lastName}`);
     await form.locator('input[name="email"]').fill(bot.email);
+    await form.locator('select[name="role"]').selectOption("Judge");
+    await form.locator('input[name="location"]').fill("Lagos, Nigeria");
+    await form.locator('textarea[name="message"]').fill("Bot.");
     await poisonHoneypot(form);
 
     const response = await submitAndCaptureApiCall(
@@ -631,10 +637,13 @@ test.describe("contact form — /contact", () => {
     await page.goto("/contact");
 
     const form = page.locator("form").first();
-    await form.locator('input[name="firstName"]').fill(me.firstName);
-    await form.locator('input[name="lastName"]').fill(me.lastName);
+    // The redesign collapsed first/last into one "name" field and renamed the
+    // routed-inquiry select to "type". The server still splits it into
+    // firstName/lastName, which is what the export assertion below checks.
+    await form.locator('input[name="name"]').fill(`${me.firstName} ${me.lastName}`);
     await form.locator('input[name="email"]').fill(me.email);
-    await form.locator('select[name="inquiryType"]').selectOption({ label: "Press & media" });
+    await form.locator('input[name="subject"]').fill("Automated check");
+    await form.locator('select[name="type"]').selectOption({ index: 1 });
     await form.locator('textarea[name="message"]').fill("Playwright contact message.");
 
     await form.getByRole("button", { name: /send message/i }).click();
@@ -655,8 +664,10 @@ test.describe("contact form — /contact", () => {
     await page.goto("/contact");
 
     const form = page.locator("form").first();
-    await form.locator('input[name="firstName"]').fill(bot.firstName);
+    await form.locator('input[name="name"]').fill(`${bot.firstName} ${bot.lastName}`);
     await form.locator('input[name="email"]').fill(bot.email);
+    await form.locator('input[name="subject"]').fill("Bot");
+    await form.locator('textarea[name="message"]').fill("Bot.");
     await poisonHoneypot(form);
 
     const response = await submitAndCaptureApiCall(

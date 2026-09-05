@@ -258,7 +258,7 @@ export function CrudForm({
       )}
 
       <div className="flex items-center gap-4 sm:col-span-2">
-        <button type="submit" disabled={pending} className="btn-primary disabled:opacity-50">
+        <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50">
           {pending ? "Saving…" : submitLabel}
         </button>
         {saved && !pending && <span className="text-xs text-chalk-faint">Saved</span>}

@@ -105,7 +105,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
               const name = window.prompt("Tag name to apply to the selected entries");
               if (name?.trim()) runBulk({ tagName: name.trim() });
             }}
-            className="btn-ghost !px-4 !py-2 !text-xs"
+            className="btn btn-ghost !px-4 !py-2 !text-xs"
           >
             Add tag
           </button>

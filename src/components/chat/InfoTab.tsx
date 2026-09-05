@@ -102,9 +102,7 @@ export function InfoTab() {
                   <span className="block text-sm font-medium text-chalk">{r.label}</span>
                   <span className="block text-xs text-chalk-faint">{r.note}</span>
                 </span>
-                <span aria-hidden="true" className="text-brand">
-                  →
-                </span>
+                <span aria-hidden="true" className="text-brand"></span>
               </Link>
             </li>
           ))}
