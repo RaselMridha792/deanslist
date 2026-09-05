@@ -4,13 +4,16 @@ import { requireRole } from "@/lib/auth";
 import { getLead } from "@/lib/admin/leads";
 import { extractYouTubeId } from "@/lib/queries";
 import { LeadDetailPanel } from "@/components/admin/LeadDetailPanel";
+import { DeleteLeadButton } from "@/components/admin/DeleteLeadButton";
 
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function LeadDetailPage({ params }: Props) {
-  await requireRole("REVIEWER");
+  // REVIEWER to read the record. Deletion is OWNER only, so the control below
+  // is rendered from the session's own role and the action re-checks it.
+  const session = await requireRole("REVIEWER");
   const { id } = await params;
   const lead = await getLead(id);
   if (!lead) notFound();
@@ -159,14 +162,27 @@ export default async function LeadDetailPage({ params }: Props) {
           </details>
         </div>
 
-        <aside className="border border-admin-line-strong bg-admin-panel p-6">
-          <LeadDetailPanel
-            leadId={lead.id}
-            status={lead.status}
-            notes={lead.internalNotes ?? ""}
-            tags={lead.tags.map((t) => ({ id: t.tag.id, name: t.tag.name }))}
-          />
-        </aside>
+        <div className="space-y-6">
+          <aside className="border border-admin-line-strong bg-admin-panel p-6">
+            <LeadDetailPanel
+              leadId={lead.id}
+              status={lead.status}
+              notes={lead.internalNotes ?? ""}
+              tags={lead.tags.map((t) => ({ id: t.tag.id, name: t.tag.name }))}
+            />
+          </aside>
+
+          {/* Separated from the panel above rather than tucked into it: the
+              actions up there are reversible and this one is not. */}
+          {session.role === "OWNER" && (
+            <aside className="notice-strong p-6">
+              <p className="eyebrow">Erasure</p>
+              <div className="mt-3">
+                <DeleteLeadButton leadId={lead.id} email={lead.email} />
+              </div>
+            </aside>
+          )}
+        </div>
       </div>
     </>
   );

@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { bulkUpdate } from "@/app/admin/actions";
-import { LEAD_STATUSES } from "@/lib/admin/leads";
+import { bulkDeleteLeads, bulkUpdate, selectAllMatching } from "@/app/admin/actions";
+import { LEAD_STATUSES, type LeadFilter } from "@/lib/admin/leads";
 import { cn } from "@/lib/cn";
 
 type Row = {
@@ -42,13 +42,36 @@ const STATUS_STYLE: Record<string, string> = {
   CONTACTED: "border-admin-note/60 bg-admin-note-tint text-admin-note",
 };
 
-export function LeadTable({ rows }: { rows: Row[] }) {
+export function LeadTable({
+  rows,
+  filter,
+  total,
+  canDelete,
+}: {
+  rows: Row[];
+  /** The filter the page was rendered with, so "select all matching" can reach
+      rows that are not on this page. */
+  filter: LeadFilter;
+  /** How many rows match that filter in total, not just on this page. */
+  total: number;
+  /** OWNER only. Deletion is permanent and is the one action a reviewer or an
+      editor must not be able to take by accident. */
+  canDelete: boolean;
+}) {
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  /* Deleting is two deliberate steps, and the second one is typing the count.
+     A single "are you sure" is a reflex click; typing 213 is a decision, and
+     the number is different every time so the muscle memory never forms. */
+  const [confirming, setConfirming] = useState(false);
+  const [typed, setTyped] = useState("");
 
   const allChecked = rows.length > 0 && selected.size === rows.length;
+  const canSelectMore = total > rows.length && selected.size >= rows.length;
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -59,24 +82,91 @@ export function LeadTable({ rows }: { rows: Row[] }) {
     });
   }
 
+  function reset() {
+    setSelected(new Set());
+    setConfirming(false);
+    setTyped("");
+  }
+
   function runBulk(patch: { status?: string; tagName?: string }) {
     const ids = Array.from(selected);
     if (!ids.length) return;
     setError(null);
+    setNotice(null);
     startTransition(async () => {
       const res = await bulkUpdate({ ids, ...patch });
       if (!res.ok) setError(res.error);
       else {
-        setSelected(new Set());
+        reset();
         router.refresh();
       }
     });
   }
 
+  /** Pull in every id the current filter matches, across all pages. */
+  function selectEverything() {
+    setError(null);
+    setNotice(null);
+    startTransition(async () => {
+      const res = await selectAllMatching(filter);
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      setSelected(new Set(res.ids));
+      if (res.capped) {
+        setNotice(
+          `Selected the first ${res.ids.length}. Narrow the filter to reach the rest.`,
+        );
+      }
+    });
+  }
+
+  /**
+   * Delete runs in batches of 500 because the action caps a single call there,
+   * and it stops at the first failure rather than carrying on: if the server
+   * refuses batch two, batch three is not more likely to work, and continuing
+   * would leave a partial deletion nobody asked for.
+   */
+  function runDelete() {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    setError(null);
+    setNotice(null);
+    startTransition(async () => {
+      let deleted = 0;
+      for (let i = 0; i < ids.length; i += 500) {
+        const batch = ids.slice(i, i + 500);
+        const res = await bulkDeleteLeads({ ids: batch, confirm: batch.length });
+        if (!res.ok) {
+          setError(
+            deleted > 0
+              ? `${res.error} ${deleted} were already deleted.`
+              : res.error,
+          );
+          router.refresh();
+          return;
+        }
+        deleted += res.deleted;
+      }
+      reset();
+      setNotice(`${deleted} ${deleted === 1 ? "entry" : "entries"} deleted.`);
+      router.refresh();
+    });
+  }
+
   if (rows.length === 0) {
     return (
-      <div className="border border-admin-line-strong bg-admin-panel p-14 text-center">
-        <p className="text-admin-muted">No submissions match these filters.</p>
+      <div>
+        {/* The notice has to survive the empty state, because deleting the last
+            row on a page IS how you reach it. Returning early without it means
+            the one action that cannot be undone is also the one that gives no
+            confirmation. */}
+        {notice && <p className="notice mb-4 p-4 text-sm text-admin-text">{notice}</p>}
+        {error && <p className="error-text mb-4">{error}</p>}
+        <div className="border border-admin-line-strong bg-admin-panel p-14 text-center">
+          <p className="text-admin-muted">No submissions match these filters.</p>
+        </div>
       </div>
     );
   }
@@ -121,19 +211,105 @@ export function LeadTable({ rows }: { rows: Row[] }) {
             Add tag
           </button>
 
+          {canDelete && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => {
+                setConfirming(true);
+                setTyped("");
+                setError(null);
+              }}
+              className="btn btn-ghost !px-4 !py-2 !text-xs text-brand-onDark hover:underline"
+            >
+              Delete
+            </button>
+          )}
+
+          {canSelectMore && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={selectEverything}
+              className="btn btn-ghost !px-4 !py-2 !text-xs"
+            >
+              Select all {total} matching
+            </button>
+          )}
+
           <button
             type="button"
-            onClick={() => setSelected(new Set())}
+            onClick={reset}
             className="text-xs uppercase tracking-widest text-admin-faint hover:text-brand-onDark"
           >
             Clear
           </button>
 
-          {pending && (
-            <span className="text-xs text-admin-faint">Applying…</span>
-          )}
+          {pending && <span className="text-xs text-admin-faint">Working</span>}
           {error && <span className="error-text !mt-0">{error}</span>}
         </div>
+      )}
+
+      {/*
+        The confirm step. It is a panel rather than a window.confirm because it
+        has to state exactly what is about to happen, and because typing the
+        count is the point: a yes/no dialog is answered by reflex, a number is
+        answered by reading. The server checks the same number again, since
+        confirming in the browser only proves the browser agreed.
+      */}
+      {confirming && selected.size > 0 && (
+        <div className="notice-strong mb-4 p-5">
+          <p className="text-sm font-semibold text-admin-text">
+            Delete {selected.size} {selected.size === 1 ? "entry" : "entries"} permanently?
+          </p>
+          <p className="mt-2 max-w-[70ch] text-sm text-admin-muted">
+            This removes the submission, its tags and its campaign history from the
+            database. It cannot be undone, and it is not the same as marking an
+            entry Rejected. The deletion itself is recorded in the audit log with
+            the addresses, so an erasure request can still be evidenced.
+          </p>
+
+          <div className="mt-4 flex flex-wrap items-end gap-3">
+            <div>
+              <label className="label" htmlFor="delete-confirm">
+                Type {selected.size} to confirm
+              </label>
+              <input
+                id="delete-confirm"
+                value={typed}
+                onChange={(e) => setTyped(e.target.value)}
+                inputMode="numeric"
+                autoComplete="off"
+                className="field w-[10rem] !py-2 text-sm"
+              />
+            </div>
+
+            <button
+              type="button"
+              disabled={pending || typed.trim() !== String(selected.size)}
+              onClick={runDelete}
+              className="btn btn-primary !py-2 !text-xs disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {pending ? "Deleting" : `Delete ${selected.size}`}
+            </button>
+
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => {
+                setConfirming(false);
+                setTyped("");
+              }}
+              className="btn btn-ghost !px-4 !py-2 !text-xs"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {notice && !confirming && (
+        <p className="notice mb-4 p-4 text-sm text-admin-text">{notice}</p>
       )}
 
       {/* Same structure as AdminTable in crud.tsx: line-strong outline because

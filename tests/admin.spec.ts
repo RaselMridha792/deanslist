@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "playwright/test";
+import { test, expect, type Page, type APIRequestContext } from "playwright/test";
 import { SignJWT } from "jose";
 
 /**
@@ -34,9 +34,23 @@ const TARGET = process.env.BASE_URL ?? "http://localhost:3000";
 const IS_LOCAL_TARGET = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/i.test(TARGET);
 const AUTH_SECRET = process.env.AUTH_SECRET || (IS_LOCAL_TARGET ? DEV_SECRET_FALLBACK : "");
 
-/** Own rate-limit bucket per test: /api/auth/login allows 8 tries per 5 min per IP. */
+/**
+ * Own rate-limit bucket per test: /api/auth/login allows 8 tries per 5 min per
+ * IP.
+ *
+ * The worker index is in the third octet, and it has to be. Playwright runs
+ * spec files in separate processes, so a module-level counter restarts at zero
+ * in each one and every worker hands out the SAME sequence of addresses. The
+ * workers then share a bucket, and a test that signs in twice starts failing in
+ * a full run while passing on its own. tests/forms.spec.ts already carried this
+ * fix; this file did not, and that is exactly the flake it produced.
+ */
 let ipCounter = 0;
-const nextClientIp = () => `198.51.100.${(++ipCounter % 250) + 1}`;
+function nextClientIp(): string {
+  ipCounter += 1;
+  const worker = Number(process.env.TEST_WORKER_INDEX ?? 0);
+  return `198.51.${100 + (worker % 100)}.${(ipCounter % 250) + 1}`;
+}
 
 /** Sign a session cookie the way src/lib/auth.ts does. */
 async function mintSession(
@@ -50,12 +64,40 @@ async function mintSession(
     .sign(new TextEncoder().encode(secret));
 }
 
+/**
+ * Sign in and do not return until the session exists.
+ *
+ * It waits on the POST itself rather than on the URL. The suite runs against
+ * `next dev`, where the first hit on a cold route compiles it, and a login that
+ * takes longer than the 15s expect timeout used to surface as "still on
+ * /admin/login" with no indication of why. Reading the status turns a 401 or a
+ * 429 into a message that names the cause, and the wait is bounded by the
+ * 90s test timeout instead of the assertion default.
+ */
 async function signIn(page: Page, email = ADMIN_EMAIL, password = ADMIN_PASSWORD) {
   await page.setExtraHTTPHeaders({ "x-forwarded-for": nextClientIp() });
   await page.goto("/admin/login");
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(password);
-  await page.getByRole("button", { name: /sign in/i }).click();
+
+  const [res] = await Promise.all([
+    page.waitForResponse(
+      (r) => r.url().includes("/api/auth/login") && r.request().method() === "POST",
+      { timeout: 60_000 },
+    ),
+    page.getByRole("button", { name: /sign in/i }).click(),
+  ]);
+
+  expect(
+    res.status(),
+    `sign in as ${email} was refused with ${res.status()}. 401 means the account ` +
+      "or password is wrong; 429 means the login rate limit was hit, which points " +
+      "at nextClientIp handing out a repeated address.",
+  ).toBe(200);
+
+  // The handler pushes to /admin after the cookie is set. Callers that navigate
+  // immediately would otherwise race it and be bounced back to the login page.
+  await page.waitForURL(/\/admin$/, { timeout: 60_000 });
 }
 
 /**
@@ -308,5 +350,156 @@ test.describe("role-gated navigation", () => {
       "an OWNER cannot see Team & Roles, so the role ranking is not being applied",
     ).toContain("Team & Roles");
     expect(labels.length).toBeGreaterThan(2);
+  });
+});
+
+/**
+ * Deleting a lead.
+ *
+ * This is the only irreversible action in the dashboard, so it is tested from
+ * three directions: that the confirmation cannot be clicked through, that the
+ * row actually leaves the database, and that neither control is offered below
+ * OWNER. The server action carries requireRole("OWNER") on top of all three,
+ * because a hidden button is presentation and not an authorisation boundary.
+ *
+ * Every row these tests delete is one they created, through the real public
+ * endpoint, so they never touch a submission they did not author.
+ */
+test.describe("deleting a lead", () => {
+  async function seedLead(request: APIRequestContext, baseURL: string) {
+    const email = `e2e+del-${Date.now().toString(36)}${Math.random()
+      .toString(36)
+      .slice(2, 7)}@deanslist.test`;
+    const res = await request.post(`${baseURL}/api/leads`, {
+      data: {
+        type: "GENERAL",
+        firstName: "E2Edelete",
+        email,
+        message: "Created by the delete test.",
+        website: "",
+      },
+      headers: { "x-forwarded-for": nextClientIp() },
+    });
+    expect(res.status(), "could not seed a lead to delete").toBe(201);
+    return email;
+  }
+
+  /** Delete one lead through the table, as the signed-in user on `page`. */
+  async function deleteViaTable(page: Page, email: string) {
+    await page.goto(`/admin/leads?q=${encodeURIComponent(email)}`);
+    await page
+      .locator("tbody tr", { hasText: email })
+      .locator('input[type="checkbox"]')
+      .check();
+    await page.getByRole("button", { name: "Delete", exact: true }).click();
+    await page.fill("#delete-confirm", "1");
+    await page.getByRole("button", { name: /^Delete 1$/ }).click();
+
+    // Assert the outcome the action reported. Without this a refusal shows up
+    // only as "the row is still there" twenty seconds later, which points at
+    // the wrong thing entirely.
+    await expect(
+      page.getByText("1 entry deleted."),
+      "the delete did not report success",
+    ).toBeVisible({ timeout: 20_000 });
+
+    // Re-query rather than trusting the current render: the row has to be gone
+    // from the database, not merely from the DOM that just mutated.
+    await expect(async () => {
+      await page.goto(`/admin/leads?q=${encodeURIComponent(email)}`);
+      await expect(page.locator("tbody tr", { hasText: email })).toHaveCount(0);
+    }).toPass({ timeout: 20_000 });
+  }
+
+  test("an OWNER deletes a lead, and it leaves the database", async ({
+    page,
+    request,
+    baseURL,
+  }) => {
+    const email = await seedLead(request, baseURL!);
+
+    await signIn(page);
+    // signIn clicks and returns; the session lands on the redirect that
+    // follows. Navigating before it does races the cookie and bounces to login.
+    await expect(page).toHaveURL(/\/admin$/);
+
+    await page.goto(`/admin/leads?q=${encodeURIComponent(email)}`);
+    const row = page.locator("tbody tr", { hasText: email });
+    await expect(row, "the seeded lead is not in the inbox").toHaveCount(1);
+
+    await row.locator('input[type="checkbox"]').check();
+    await page.getByRole("button", { name: "Delete", exact: true }).click();
+
+    // The confirm button stays dead until the count is typed correctly. A
+    // dialog that can be dismissed by reflex is not a confirmation.
+    const confirm = page.getByRole("button", { name: /^Delete 1$/ });
+    await expect(confirm, "delete was clickable before confirming").toBeDisabled();
+
+    await page.fill("#delete-confirm", "2");
+    await expect(confirm, "the wrong count enabled the delete").toBeDisabled();
+
+    await page.fill("#delete-confirm", "1");
+    await expect(confirm).toBeEnabled();
+    await confirm.click();
+
+    // Deleting the last row on a page is how the empty state is reached, so the
+    // confirmation has to survive it. Without this the one action that cannot
+    // be undone is also the one that reports nothing.
+    await expect(page.getByText("1 entry deleted.")).toBeVisible();
+
+    await expect(async () => {
+      await page.goto(`/admin/leads?q=${encodeURIComponent(email)}`);
+      await expect(page.locator("tbody tr", { hasText: email })).toHaveCount(0);
+    }).toPass({ timeout: 20_000 });
+  });
+
+  test("a REVIEWER is never offered the delete control", async ({ page }) => {
+    await signIn(page, REVIEWER_EMAIL, REVIEWER_PASSWORD);
+    await expect(page).toHaveURL(/\/admin$/);
+    await page.goto("/admin/leads");
+
+    const first = page.locator("tbody tr input[type='checkbox']").first();
+    if ((await first.count()) === 0) test.skip(true, "no leads to select");
+    await first.check();
+
+    await expect(
+      page.getByRole("button", { name: "Delete", exact: true }),
+      "a REVIEWER was shown the bulk delete control",
+    ).toHaveCount(0);
+  });
+
+  test("a REVIEWER cannot reach the erasure control on a lead's own page", async ({
+    browser,
+    page,
+    request,
+    baseURL,
+  }) => {
+    const email = await seedLead(request, baseURL!);
+
+    await signIn(page, REVIEWER_EMAIL, REVIEWER_PASSWORD);
+    await expect(page).toHaveURL(/\/admin$/);
+
+    await page.goto(`/admin/leads?q=${encodeURIComponent(email)}`);
+    const row = page.locator("tbody tr", { hasText: email });
+    await expect(row).toHaveCount(1);
+    await row.getByRole("link").first().click();
+
+    await expect(
+      page.getByRole("button", { name: /delete this entry/i }),
+      "a REVIEWER was offered the erasure control on the lead detail page",
+    ).toHaveCount(0);
+    await expect(page.getByText("Erasure", { exact: true })).toHaveCount(0);
+
+    // Clean up in a FRESH context. Calling signIn again on this page would not
+    // change role: /admin/login redirects a signed-in visitor straight to
+    // /admin, so the fill and click never run and the session stays REVIEWER.
+    // The delete would then silently do nothing and the failure would point at
+    // the wrong thing.
+    const ownerCtx = await browser.newContext();
+    const owner = await ownerCtx.newPage();
+    await signIn(owner);
+    await expect(owner).toHaveURL(/\/admin$/);
+    await deleteViaTable(owner, email);
+    await ownerCtx.close();
   });
 });

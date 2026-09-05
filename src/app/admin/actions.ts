@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole, type SessionUser } from "@/lib/auth";
-import { LEAD_STATUSES } from "@/lib/admin/leads";
+import { LEAD_STATUSES, leadWhere, type LeadFilter } from "@/lib/admin/leads";
 
 /**
  * Mutations for the leads inbox.
@@ -227,4 +227,96 @@ export async function deleteLead(input: unknown): Promise<Result> {
 
   revalidatePath("/admin/leads");
   return { ok: true };
+}
+
+
+/* ----------------------------------------------------------- bulk delete */
+
+/**
+ * The ids of every lead matching a filter, so "select all N matching" can reach
+ * rows that are not on the page in front of you.
+ *
+ * It returns ids rather than deleting by filter directly, and that is the whole
+ * design. A "delete everything matching this query" endpoint is one missing
+ * WHERE clause away from emptying the table, and the mistake would look exactly
+ * like a successful request. Making the caller name the rows means a bug in the
+ * filter cannot silently widen the blast radius: the count the operator
+ * confirms is the count that gets deleted.
+ *
+ * Capped at CAP. Above that the honest answer is a script with a DBA watching,
+ * not a button.
+ */
+const SELECT_ALL_CAP = 1000;
+
+export async function selectAllMatching(
+  filter: LeadFilter,
+): Promise<{ ok: true; ids: string[]; capped: boolean } | { ok: false; error: string }> {
+  await requireRole("REVIEWER");
+  const rows = await prisma.lead.findMany({
+    where: leadWhere(filter),
+    select: { id: true },
+    orderBy: { createdAt: "desc" },
+    take: SELECT_ALL_CAP + 1,
+  });
+  return {
+    ok: true,
+    ids: rows.slice(0, SELECT_ALL_CAP).map((r) => r.id),
+    capped: rows.length > SELECT_ALL_CAP,
+  };
+}
+
+const bulkDeleteSchema = z.object({
+  ids: z.array(z.string().min(1)).min(1).max(500),
+  /**
+   * The number the operator typed to confirm, checked against ids.length on the
+   * SERVER. Confirming in the browser only proves the browser agreed; this is a
+   * public endpoint and the count is the only thing standing between a stray
+   * call and a permanent deletion.
+   */
+  confirm: z.number().int().nonnegative(),
+});
+
+/**
+ * OWNER only, hard delete, one audit row per call.
+ *
+ * Hard rather than soft for the same reason deleteLead is: this is what a UK
+ * GDPR erasure request actually requires, and a flagged row is still a row. The
+ * audit entry keeps the addresses so the deletion can be evidenced afterwards,
+ * which is the one record an erasure request does not ask you to destroy.
+ *
+ * TagOnLead, CampaignRecipient and ChatMessage cascade from the schema;
+ * Conversation and ChatEvent set null, so a visitor's transcript survives the
+ * removal of the lead it captured, without a dangling reference.
+ */
+export async function bulkDeleteLeads(
+  input: unknown,
+): Promise<{ ok: true; deleted: number } | { ok: false; error: string }> {
+  const user = await requireRole("OWNER");
+  const parsed = bulkDeleteSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid selection. Select up to 500 entries at a time." };
+  }
+  const { ids, confirm } = parsed.data;
+
+  if (confirm !== ids.length) {
+    return {
+      ok: false,
+      error: `Confirmation does not match the selection: ${confirm} typed, ${ids.length} selected.`,
+    };
+  }
+
+  // Read before deleting: the row is the only place the address exists once the
+  // delete lands, and the audit entry is what evidences the erasure.
+  const doomed = await prisma.lead.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, email: true, type: true, status: true },
+  });
+  if (doomed.length === 0) return { ok: false, error: "Those entries no longer exist." };
+
+  const res = await prisma.lead.deleteMany({ where: { id: { in: ids } } });
+  await audit(user, "lead.bulk_delete", ids.join(","), doomed, null);
+
+  revalidatePath("/admin/leads");
+  revalidatePath("/admin");
+  return { ok: true, deleted: res.count };
 }

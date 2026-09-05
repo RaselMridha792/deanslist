@@ -14,7 +14,10 @@ export const dynamic = "force-dynamic";
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export default async function LeadsPage({ searchParams }: Props) {
-  await requireRole("REVIEWER");
+  // REVIEWER to read the inbox; the session's own role decides whether the
+  // delete control is offered at all. The server action re-checks OWNER
+  // regardless, because a hidden button is not authorisation.
+  const session = await requireRole("REVIEWER");
 
   const filter = parseLeadFilter(await searchParams);
   const [{ rows, total, page, pages }, options] = await Promise.all([
@@ -44,6 +47,9 @@ export default async function LeadsPage({ searchParams }: Props) {
 
       <div className="mt-6">
         <LeadTable
+          filter={filter}
+          total={total}
+          canDelete={session.role === "OWNER"}
           rows={rows.map((r) => ({
             id: r.id,
             firstName: r.firstName,
