@@ -162,6 +162,56 @@ Carried forward from `docs/PROJECT-BRIEF.md` §8 and still open:
 
 ---
 
+## Decisions taken while implementing the design
+
+Recorded because each one is a judgement the client may want to reverse, and
+none of them is visible from the rendered page.
+
+**The 700,000 figure was removed from the /about paragraph.** The design's
+section 01 reads "an audience of over 700,000 subscribers votes live". The page
+now reads "an audience votes live". The words are held back rather than
+published because three sources disagree about that number and none is
+confirmed. Restore the clause the moment a figure is verified; a comment in
+`src/app/(site)/about/page.tsx` records the exact removed words.
+
+**No photograph is used for any winner.** The design captions a gallery frame as
+"PJ Galloway, Crown the Sound winner", and an earlier build fell back to the
+show key art. Both are photographs of identifiable people, and neither has been
+confirmed as the winner. A photograph beside a winner's name in a section headed
+"Latest winner" tells every sighted visitor that is who it is, so both the
+homepage spotlight and the winners page now use a typographic plate. A real
+portrait uploaded through the dashboard replaces it with no code change.
+
+**Both winner names are still published.** The homepage credits PJ Galloway with
+the latest challenge; the winners page credits Ekwelem Precious (Sophia) with
+"the most recent" one. Both are the client's own published copy. PJ Galloway
+leads, per instruction. The order needs confirming.
+
+**The /videos copy the client wrote is no longer on the site.** The rebuild had
+restored their "What you'll find on our YouTube channel" and "Why subscribe"
+sections; the new design's Watch page goes straight from the video library to
+the footer, so they were removed. The constants are still in
+`src/content/site.ts` with no consumer, so putting them back is a paste. Worth
+asking whether they want them.
+
+**The /rules page now publishes real terms.** The design contains 19 clauses the
+client wrote, so the "awaiting official wording" placeholder and the noindex are
+gone and the clauses are published verbatim. They still carry the design's own
+footnote: "Final wording to be confirmed by Dean's List LTD." Nothing was
+drafted, extended or paraphrased.
+
+**Four of the five thank-you states are written, not the client's.** The design
+supplies copy only for a contestant arrival. The talent pool, crew, sponsor and
+general states are marked "Written for review" in the file and claim no date,
+prize, name or figure.
+
+**The file upload on /enter is not wired.** The design offers "MP4/MOV up to
+500 MB" as an alternative to a performance link. Object storage is not connected
+(the `Asset` model exists, unused), so the control is not presented as working.
+See the headshot question below; both need the same decision.
+
+---
+
 ## Access still needed from the client
 
 - DNS control for `deanslist.live` (or the website manager's cooperation)
