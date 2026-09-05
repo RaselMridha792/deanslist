@@ -156,7 +156,14 @@ export const WINNERS: WinnerSeed[] = [
     // site logo. Substituting a gallery shot would publish an unidentified
     // person's likeness under this name. The UI renders an initial instead.
     photoUrl: null,
-    videoUrl: null,
+    // The winning performance, published by the client on their own Facebook
+    // page. It is the reel the old site links to, and it is the only footage
+    // of this winner that exists anywhere public.
+    //
+    // It lives here rather than in the page, so the homepage spotlight and
+    // /winners/pj-galloway play the same video, and so a dashboard upload
+    // replaces it in both places at once.
+    videoUrl: "https://www.facebook.com/reel/2271520033316942",
     announcedAt: null,
     // The old homepage names PJ Galloway; its own winners page names Ekwelem
     // Precious (Sophia) for the same challenge. Carried forward on the client's
@@ -172,7 +179,14 @@ export const WINNERS: WinnerSeed[] = [
     story:
       "Winner of a Crown the Sound contest and recipient of the $1,000 cash prize. Sophia's talent, passion, and voice truly set her apart. Her performance captured the hearts of the audience and the judges, showcasing exactly what the Dean's List stands for: excellence, artistry, and authenticity. Sophia's journey is a testament to what happens when preparation meets opportunity. Whether you've been performing for years or are just finding your voice, her story proves that this platform is open to all who are ready to be heard.",
     photoUrl: null,
-    videoUrl: null,
+    // The winning performance, published by the client on their own Facebook
+    // page. It is the reel the old site links to, and it is the only footage
+    // of this winner that exists anywhere public.
+    //
+    // It lives here rather than in the page, so the homepage spotlight and
+    // /winners/pj-galloway play the same video, and so a dashboard upload
+    // replaces it in both places at once.
+    videoUrl: "https://www.facebook.com/reel/2271520033316942",
     announcedAt: null,
     // Kept because it is the client's own published copy, on their own winners
     // page, about a named person. The conflict is which of the two is the most

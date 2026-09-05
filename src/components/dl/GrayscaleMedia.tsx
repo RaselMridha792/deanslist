@@ -2,9 +2,14 @@ import { mediaImage, mediaVideo } from "@/lib/media";
 import { cn } from "@/lib/cn";
 
 /**
- * Every photograph and every video on this site is grayscale. No exceptions,
- * which is why this exists rather than a utility class applied by hand — one
- * missed class is a colour image in a monochrome page and it looks like a bug.
+ * Photography on this site is grayscale, which is why it lives here rather
+ * than in a utility class applied by hand: one missed class is a colour image
+ * in a monochrome page and it reads as a bug.
+ *
+ * Moving footage is the exception, and a deliberate one. The homepage clip
+ * reel is nine performances, and the claim that strip makes is that these are
+ * real people on a real stage. Desaturated, it reads as archive. So
+ * GrayscaleClip takes `color`.
  *
  * `src` is an extensionless path ("/media/gallery/cts-01"); the media helpers
  * resolve it against Cloudinary or /public. The AVIF and WebP sources are
@@ -46,7 +51,8 @@ export function GrayscaleImage({
           fetchPriority={priority ? "high" : undefined}
           className={cn(
             "grayscale-media h-full w-full object-cover",
-            hover && "transition-transform duration-[1200ms] ease-dl group-hover:scale-[1.05]",
+            hover &&
+              "transition-transform duration-[1200ms] ease-dl group-hover:scale-[1.05]",
           )}
         />
       </picture>
@@ -65,11 +71,14 @@ export function GrayscaleClip({
   src,
   ratio = "9/16",
   label,
+  color = false,
   className,
 }: {
   src: string;
   ratio?: string;
   label?: string;
+  /** Render the footage in its own colour instead of the site's grayscale. */
+  color?: boolean;
   className?: string;
 }) {
   const v = mediaVideo(src);
@@ -88,7 +97,10 @@ export function GrayscaleClip({
         preload="none"
         aria-hidden
         tabIndex={-1}
-        className="grayscale-media h-full w-full object-cover"
+        className={cn(
+          "h-full w-full object-cover",
+          !color && "grayscale-media",
+        )}
       >
         <source src={`${v}.webm`} type="video/webm" />
         <source src={`${v}.mp4`} type="video/mp4" />

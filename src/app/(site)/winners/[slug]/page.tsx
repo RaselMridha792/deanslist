@@ -4,12 +4,17 @@ import { notFound } from "next/navigation";
 import { ButtonAnchor, ButtonLink } from "@/components/dl/Button";
 import { GrayscaleImage } from "@/components/dl/GrayscaleMedia";
 import { Kicker } from "@/components/dl/Kicker";
-import { PlaySquare } from "@/components/dl/PlayIcon";
 import { Reveal } from "@/components/dl/Reveal";
+import { VideoPlayer } from "@/components/dl/VideoPlayer";
 import { SITE } from "@/content/site";
 import { env } from "@/lib/env";
 import { getEpisodes, getShow, getWinner } from "@/lib/queries";
-import { breadcrumbJsonLd, jsonLdGraph, jsonLdScriptProps, winnerPersonJsonLd } from "@/lib/seo";
+import {
+  breadcrumbJsonLd,
+  jsonLdGraph,
+  jsonLdScriptProps,
+  winnerPersonJsonLd,
+} from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -28,19 +33,27 @@ type Params = { params: Promise<{ slug: string }> };
 */
 
 /**
- * Performance reels the client has published but has not yet attached to a
- * winner row. The URL is from the handoff's asset list, not invented; the
- * moment `videoUrl` is set in the dashboard it wins.
- */
-const PUBLISHED_REELS: Record<string, string> = {
-  "pj-galloway": "https://www.facebook.com/reel/2271520033316942",
-};
-
-/**
  * Two-column grids, collapsing to one at 900px per the handoff. The breakpoint
  * is 901px rather than a Tailwind default because the design names 900px, and
  * SiteHeader already uses the same arbitrary-variant form for its own 1100px.
  */
+/**
+ * Which player a winner's video needs. `videoUrl` is free text in the
+ * dashboard, so it can be a Facebook reel (what the client publishes today), a
+ * YouTube link, or a bare id. Guessing wrong renders an empty frame.
+ */
+function isFacebook(url: string): boolean {
+  return /(^|\.)facebook\.com\//i.test(url) || /(^|\.)fb\.watch\//i.test(url);
+}
+
+/** The id out of any of YouTube's URL shapes, or null if it is not one. */
+function youTubeId(url: string): string | null {
+  const m = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/i,
+  );
+  return m ? m[1] : null;
+}
+
 const COL_5_7 =
   "grid gap-[clamp(32px,5vw,96px)] min-[901px]:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]";
 const COL_7_5 =
@@ -69,7 +82,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const winner = await getWinner(slug);
   if (!winner) return { title: "Winner not found" };
 
-  const title = winner.showTitle ? `${winner.name}, ${winner.showTitle} winner` : winner.name;
+  const title = winner.showTitle
+    ? `${winner.name}, ${winner.showTitle} winner`
+    : winner.name;
 
   return {
     title: winner.name,
@@ -95,7 +110,8 @@ export default async function WinnerPage({ params }: Params) {
   ]);
 
   const announced = formatDate(winner.announcedAt);
-  const prize = winner.prizeAwarded !== null ? money(winner.prizeAwarded) : null;
+  const prize =
+    winner.prizeAwarded !== null ? money(winner.prizeAwarded) : null;
 
   /**
    * The hero image is texture, not a portrait: it sits at 35% behind a gradient
@@ -104,7 +120,7 @@ export default async function WinnerPage({ params }: Params) {
    */
   const heroImage = winner.photoUrl ?? show?.keyArt ?? "/media/gallery/cts-02";
 
-  const performanceUrl = winner.videoUrl ?? PUBLISHED_REELS[winner.slug] ?? null;
+  const performanceUrl = winner.videoUrl;
 
   const facts: { label: string; value: string }[] = [];
   if (winner.showTitle) facts.push({ label: "Show", value: winner.showTitle });
@@ -149,10 +165,14 @@ export default async function WinnerPage({ params }: Params) {
         </div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink from-20% to-ink/40" />
 
-        <div className={`shell relative pb-[clamp(40px,5vw,72px)] pt-section ${COL_7_5}`}>
+        <div
+          className={`shell relative pb-[clamp(40px,5vw,72px)] pt-section ${COL_7_5}`}
+        >
           <div className="animate-dl-rise">
             <Kicker onDark>
-              {winner.showTitle ? `Principal's Roll / ${winner.showTitle}` : "Principal's Roll"}
+              {winner.showTitle
+                ? `Principal's Roll / ${winner.showTitle}`
+                : "Principal's Roll"}
             </Kicker>
             <h1 className="mt-5 text-balance text-display-lg font-extrabold uppercase">
               {winner.name}.
@@ -191,22 +211,63 @@ export default async function WinnerPage({ params }: Params) {
 
           <div className="flex flex-wrap gap-3 bg-ground pt-5">
             {performanceUrl && (
-              /* Linked, never embedded. The reel is a Facebook URL and an
-                 inline iframe would set third-party cookies on page load. */
+              /* Opens on the platform that hosts it. The performance also plays
+                 on this page, in the block below; this is for anyone who wants
+                 the comments, the share sheet, or the client's own page. */
               <ButtonAnchor
                 href={performanceUrl}
-                variant="primary"
+                variant="outline"
                 size="lg"
                 className="min-h-[44px]"
               >
-                Watch the winning performance
+                Open on Facebook
               </ButtonAnchor>
             )}
-            <ButtonLink href="/winners" variant="outline" size="lg" className="min-h-[44px]">
+            <ButtonLink
+              href="/winners"
+              variant="outline"
+              size="lg"
+              className="min-h-[44px]"
+            >
               All winners
             </ButtonLink>
           </div>
         </div>
+
+        {performanceUrl && (
+          <Reveal className="mb-[clamp(32px,4vw,64px)]">
+            <Kicker>The winning performance</Kicker>
+            {/*
+              A reel is shot vertically, so it is capped rather than stretched:
+              a 9:16 frame forced across this column would be a wall of video
+              with the performer cropped out of the middle of it.
+
+              Nothing from Facebook loads until the play control is pressed. The
+              button IS the consent: an inline iframe here would set third-party
+              cookies on page load, for every visitor, including the ones who
+              only came to read the story.
+            */}
+            <div className="mt-5 max-w-[min(340px,100%)]">
+              <VideoPlayer
+                provider={isFacebook(performanceUrl) ? "facebook" : "youtube"}
+                id={
+                  isFacebook(performanceUrl)
+                    ? performanceUrl
+                    : (youTubeId(performanceUrl) ?? performanceUrl)
+                }
+                title={`${winner.name}, the winning performance`}
+                ratio="9/16"
+                poster={
+                  <div className="flex h-full w-full items-center justify-center bg-ink">
+                    <span className="text-kicker font-semibold uppercase text-ground/40">
+                      Press play
+                    </span>
+                  </div>
+                }
+              />
+            </div>
+          </Reveal>
+        )}
 
         <Reveal>
           <Kicker>The story</Kicker>
@@ -241,33 +302,18 @@ export default async function WinnerPage({ params }: Params) {
           <div className="grid gap-[2px] bg-rule min-[901px]:grid-cols-2">
             {related.map((episode, i) => (
               <Reveal key={episode.videoId} index={i} className="bg-ground">
-                {/* A thumbnail that links out rather than an iframe: six
-                    hundred kilobytes of player and a tracking cookie should
-                    not load before anyone has asked to watch anything. The
-                    thumbnail is an external URL, so it cannot go through
-                    GrayscaleImage, which builds an avif/webp/jpg set from a
-                    media path. The grayscale filter is the same one. */}
-                <a
-                  href={`https://www.youtube.com/watch?v=${episode.videoId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative block aspect-[16/9] overflow-hidden bg-ink"
+                {/* Plays here. The iframe is not loaded until the click that
+                    starts it, so no player script and no tracking cookie
+                    arrive before anyone has asked to watch. */}
+                <VideoPlayer
+                  id={episode.videoId}
+                  title={episode.title}
+                  ratio="16/9"
                 >
-                  <img
-                    src={`https://i.ytimg.com/vi/${episode.videoId}/hqdefault.jpg`}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    className="grayscale-media h-full w-full object-cover transition-transform duration-[1200ms] ease-dl group-hover:scale-[1.05]"
-                  />
-                  <span className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent" />
-                  <span className="absolute inset-0 grid place-items-center text-ground">
-                    <PlaySquare />
-                  </span>
                   <span className="absolute bottom-4 left-4 right-4 text-eyebrow font-semibold uppercase text-ground">
                     {episode.title}
                   </span>
-                </a>
+                </VideoPlayer>
               </Reveal>
             ))}
           </div>
@@ -279,14 +325,16 @@ export default async function WinnerPage({ params }: Params) {
       <section className="mt-section-lg bg-brand text-ground">
         <div className={`shell py-section ${COL_7_5}`}>
           <Reveal>
-            <h2 className="text-display-xl font-extrabold uppercase">Your stage awaits.</h2>
+            <h2 className="text-display-xl font-extrabold uppercase">
+              Your stage awaits.
+            </h2>
           </Reveal>
 
           <Reveal index={1}>
             <div className="flex flex-col gap-6 border-t-2 border-ground pt-6">
               <p className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] opacity-90">
-                Entries are open. Four fields and one minute stand between you and the Principal's
-                Roll.
+                Entries are open. Four fields and one minute stand between you
+                and the Principal's Roll.
               </p>
               {/* Black on red. No variant carries this pairing, so the fill is
                   set here from tokens rather than a new one-off in the CSS. */}

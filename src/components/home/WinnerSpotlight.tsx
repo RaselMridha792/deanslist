@@ -2,6 +2,7 @@ import { ButtonLink } from "@/components/dl/Button";
 import { GrayscaleImage } from "@/components/dl/GrayscaleMedia";
 import { Kicker } from "@/components/dl/Kicker";
 import { Reveal } from "@/components/dl/Reveal";
+import { VideoPlayer } from "@/components/dl/VideoPlayer";
 import { cn } from "@/lib/cn";
 import type { Winner } from "@/lib/queries";
 
@@ -30,7 +31,40 @@ import type { Winner } from "@/lib/queries";
  * initials set large on ink, and a line saying the portrait is to come. It
  * holds the design's cell geometry, reads as deliberate, and cannot misidentify
  * anyone. A real portrait uploaded in the dashboard replaces it.
+ *
+ * The cell has three states, in this order:
+ *
+ *   videoUrl   the winning performance, playing in place. This is the best
+ *              answer to the same problem the plate solves: the person is
+ *              shown by their own published footage, identified by the client,
+ *              rather than by a photograph nobody has confirmed
+ *   photoUrl   a portrait uploaded in the dashboard
+ *   neither    the initials plate
+ *
+ * The video does not autoplay and loads nothing third-party until it is
+ * pressed; the plate is what it shows until then, so the fallback is not
+ * wasted work.
  */
+
+/**
+ * Which player a winner's video needs.
+ *
+ * `videoUrl` is a free-text field in the dashboard, so it can be a Facebook
+ * reel (what the client publishes today), a YouTube link, or a bare YouTube id.
+ * Guessing wrong renders an empty frame, so the check is on the host rather
+ * than on anything looser.
+ */
+function isFacebook(url: string): boolean {
+  return /(^|\.)facebook\.com\//i.test(url) || /(^|\.)fb\.watch\//i.test(url);
+}
+
+/** The id out of any of YouTube's URL shapes, or null if it is not one. */
+function youTubeId(url: string): string | null {
+  const m = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/i,
+  );
+  return m ? m[1] : null;
+}
 
 function WinnerPhoto({ src, alt }: { src: string; alt: string }) {
   // A dashboard upload arrives as an absolute URL. GrayscaleImage derives .avif
@@ -49,6 +83,33 @@ function WinnerPhoto({ src, alt }: { src: string; alt: string }) {
   return <GrayscaleImage src={src} alt={alt} className="h-full w-full" />;
 }
 
+/**
+ * The initials plate. Used as the empty state, and as the poster behind the
+ * performance video, which is why it is a component and not inline JSX.
+ */
+function WinnerPlate({
+  initials,
+  caption,
+}: {
+  initials: string;
+  caption: string;
+}) {
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-6 bg-ink">
+      <span
+        aria-hidden
+        className="font-extrabold leading-none tracking-[-.05em] text-ground/[.08]"
+        style={{ fontSize: "clamp(120px,18vw,260px)" }}
+      >
+        {initials}
+      </span>
+      <span className="text-kicker font-semibold uppercase text-ground/40">
+        {caption}
+      </span>
+    </div>
+  );
+}
+
 export function WinnerSpotlight({ winner }: { winner: Winner | null }) {
   if (!winner) return null;
 
@@ -59,7 +120,9 @@ export function WinnerSpotlight({ winner }: { winner: Winner | null }) {
     .map((w) => w[0].toUpperCase())
     .join("");
 
-  const year = winner.announcedAt ? new Date(winner.announcedAt).getUTCFullYear() : null;
+  const year = winner.announcedAt
+    ? new Date(winner.announcedAt).getUTCFullYear()
+    : null;
   const nameLines = winner.name.split(/\s+/);
 
   const facts = [
@@ -76,26 +139,44 @@ export function WinnerSpotlight({ winner }: { winner: Winner | null }) {
       <div className="mx-auto grid max-w-shell min-[901px]:grid-cols-2">
         <Reveal className="group relative min-h-[420px] overflow-hidden border-rule-dark min-[901px]:min-h-[560px] min-[901px]:border-r-2">
           <div className="absolute inset-0">
-            {winner.photoUrl ? (
+            {winner.videoUrl ? (
+              /* The performance itself. A reel is shot vertically, so it is
+                 centred at its own ratio inside the cell rather than stretched
+                 to fill it: cropping a 9:16 frame to this column would cut the
+                 performer out of their own footage. */
+              <div className="flex h-full w-full items-center justify-center bg-ink p-4">
+                <VideoPlayer
+                  provider={
+                    isFacebook(winner.videoUrl) ? "facebook" : "youtube"
+                  }
+                  id={
+                    isFacebook(winner.videoUrl)
+                      ? winner.videoUrl
+                      : (youTubeId(winner.videoUrl) ?? winner.videoUrl)
+                  }
+                  title={`${winner.name}, the winning performance`}
+                  ratio="9/16"
+                  className="h-full w-auto max-w-full"
+                  poster={
+                    <WinnerPlate
+                      initials={initials}
+                      caption="The winning performance"
+                    />
+                  }
+                />
+              </div>
+            ) : winner.photoUrl ? (
               <WinnerPhoto src={winner.photoUrl} alt={winner.name} />
             ) : (
               /* No photograph exists. See the note at the top of this file:
                  anything figurative here would be read as the winner. */
-              <div className="flex h-full w-full flex-col items-center justify-center gap-6 bg-ink">
-                <span
-                  aria-hidden
-                  className="font-extrabold leading-none tracking-[-.05em] text-ground/[.08]"
-                  style={{ fontSize: "clamp(120px,18vw,260px)" }}
-                >
-                  {initials}
-                </span>
-                <span className="text-kicker font-semibold uppercase text-ground/40">
-                  Portrait to come
-                </span>
-              </div>
+              <WinnerPlate initials={initials} caption="Portrait to come" />
             )}
           </div>
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-b from-transparent to-ink/[.85] p-[clamp(20px,3vw,40px)]">
+          {/* pointer-events-none: this scrim lies over the play control, and
+              without it the badge would swallow the click that starts the
+              video. The badge itself is not interactive. */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-b from-transparent to-ink/[.85] p-[clamp(20px,3vw,40px)]">
             <span className="inline-flex items-center bg-brand px-[14px] py-2 text-kicker font-semibold uppercase text-white">
               Principal&apos;s Roll{year ? ` ${year}` : ""}
             </span>
@@ -105,7 +186,9 @@ export function WinnerSpotlight({ winner }: { winner: Winner | null }) {
         <div className="flex flex-col justify-between gap-12 px-[clamp(20px,4vw,72px)] py-[clamp(40px,6vw,96px)]">
           <Reveal index={1}>
             <Kicker onDark className="mb-5">
-              {winner.showTitle ? `02 / Latest winner, ${winner.showTitle}` : "02 / Latest winner"}
+              {winner.showTitle
+                ? `02 / Latest winner, ${winner.showTitle}`
+                : "02 / Latest winner"}
             </Kicker>
             <h2 className="m-0 mb-7 text-display-lg font-extrabold">
               {nameLines.map((line) => (
@@ -121,7 +204,10 @@ export function WinnerSpotlight({ winner }: { winner: Winner | null }) {
             )}
           </Reveal>
 
-          <Reveal index={2} className="grid grid-cols-2 border-t-2 border-rule-dark">
+          <Reveal
+            index={2}
+            className="grid grid-cols-2 border-t-2 border-rule-dark"
+          >
             {facts.map((f, i) => (
               <div
                 key={f.label}
@@ -131,7 +217,9 @@ export function WinnerSpotlight({ winner }: { winner: Winner | null }) {
                   i < facts.length - 1 && "border-r-2 border-rule-dark",
                 )}
               >
-                <p className="m-0 text-[10px] uppercase tracking-[.16em] opacity-60">{f.label}</p>
+                <p className="m-0 text-[10px] uppercase tracking-[.16em] opacity-60">
+                  {f.label}
+                </p>
                 <p
                   className={cn(
                     "m-0 font-extrabold",
@@ -146,10 +234,17 @@ export function WinnerSpotlight({ winner }: { winner: Winner | null }) {
             ))}
 
             <div className="col-span-2 flex flex-wrap gap-3 pt-2">
-              <ButtonLink href={`/winners/${winner.slug}`} className="px-5 py-[14px]">
+              <ButtonLink
+                href={`/winners/${winner.slug}`}
+                className="px-5 py-[14px]"
+              >
                 Read the story
               </ButtonLink>
-              <ButtonLink href="/winners" variant="outline-dark" className="px-5 py-[14px]">
+              <ButtonLink
+                href="/winners"
+                variant="outline-dark"
+                className="px-5 py-[14px]"
+              >
                 All past winners
               </ButtonLink>
             </div>
