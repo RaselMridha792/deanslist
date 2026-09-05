@@ -38,7 +38,7 @@ export default async function AdminLayout({
             <img
               src={`${mediaImage("/media/brand/logo")}.png`}
               alt="Dean's List"
-              className="h-8 w-auto"
+              className="h-11 w-auto"
             />
             <span className="text-kicker font-semibold uppercase text-brand-onDark">
               Dashboard

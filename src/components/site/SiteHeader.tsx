@@ -38,13 +38,15 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b-2 border-rule-dark bg-ink text-ground">
-        <div className="mx-auto grid max-w-shell grid-cols-[auto_1fr_auto] items-center gap-8 px-gutter py-[14px]">
+      <header className="sticky top-0 z-50 h-header border-b-2 border-rule-dark bg-ink text-ground">
+        {/* Height comes from the token, not from whatever the tallest child
+            happens to be, so the offsets that depend on it cannot drift. */}
+        <div className="mx-auto grid h-full max-w-shell grid-cols-[auto_1fr_auto] items-center gap-8 px-gutter">
           <Link href="/" className="flex items-center gap-3" aria-label="The Dean's List, home">
             <img
               src={`${mediaImage("/media/brand/logo")}.png`}
               alt="Dean's List"
-              className="h-[34px] w-auto"
+              className="h-[46px] w-auto"
             />
           </Link>
 
@@ -104,7 +106,7 @@ export function SiteHeader() {
       <div
         id="dl-menu"
         hidden={!open}
-        className="sticky top-[66px] z-[49] border-b-2 border-rule-dark bg-ink text-ground min-[1100px]:hidden"
+        className="sticky top-header z-[49] border-b-2 border-rule-dark bg-ink text-ground min-[1100px]:hidden"
       >
         <nav
           className="mx-auto grid max-w-shell grid-cols-[repeat(auto-fit,minmax(200px,1fr))] px-gutter pb-4 pt-2 text-[13px] font-semibold uppercase tracking-[.12em]"

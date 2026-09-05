@@ -167,6 +167,19 @@ export default {
       },
 
       spacing: {
+        /*
+         * The sticky header's height, as a token rather than as the number 66
+         * written into four files.
+         *
+         * Three things have to agree with it or the page breaks in ways nobody
+         * connects back to the header: scroll-padding-top (or an in-page anchor
+         * lands underneath it), the mobile menu bar that sticks below it, and
+         * the two full-height heroes that subtract it from the viewport. They
+         * all read this now, so growing the logo cannot leave a stale offset
+         * behind, which is exactly what it would have done before.
+         */
+        header: "72px",
+
         // The design's own scale, plus the two fluid values it uses everywhere.
         section: "clamp(56px,7vw,112px)",
         "section-lg": "clamp(64px,8vw,128px)",

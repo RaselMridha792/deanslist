@@ -45,8 +45,8 @@
 
   html {
     scroll-behavior: smooth;
-    /* The header is sticky at 66px; without this an in-page anchor lands under it. */
-    scroll-padding-top: 66px;
+    /* The header is sticky; without this an in-page anchor lands under it. */
+    scroll-padding-top: theme("spacing.header");
   }
 
   /* The dashboard is dark and the page behind it must be too, or the overscroll

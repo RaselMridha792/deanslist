@@ -125,7 +125,7 @@ export default async function ThankYouPage({
     confirmation is not the place to open a second ask.
   */
   return (
-    <section className="relative isolate flex min-h-[calc(100svh-66px)] items-center overflow-hidden bg-ink text-ground">
+    <section className="relative isolate flex min-h-[calc(100svh-theme(spacing.header))] items-center overflow-hidden bg-ink text-ground">
       {backdrop && (
         <div className="absolute inset-0 -z-20 opacity-30">
           <GrayscaleImage

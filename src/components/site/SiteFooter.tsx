@@ -47,7 +47,7 @@ export function SiteFooter() {
               <img
                 src={`${mediaImage("/media/brand/logo")}.png`}
                 alt="Dean's List"
-                className="h-10 w-auto"
+                className="h-14 w-auto"
               />
             </Link>
 

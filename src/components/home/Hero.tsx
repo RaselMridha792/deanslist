@@ -52,7 +52,7 @@ export function Hero({
   return (
     <section
       id="show"
-      className="relative flex min-h-[calc(100svh-66px)] flex-col overflow-hidden bg-ink text-ground"
+      className="relative flex min-h-[calc(100svh-theme(spacing.header))] flex-col overflow-hidden bg-ink text-ground"
     >
       {/* Footage at .55, so type sits on it rather than fighting it. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[.55]">
