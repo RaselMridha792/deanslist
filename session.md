@@ -3,7 +3,7 @@
 Facts supplied by the client. Anything here overrides what was scraped from the old
 site; anything NOT here is still an open question and must not be invented.
 
-Last updated: 4 September 2026
+Last updated: 5 September 2026
 
 ---
 
@@ -128,25 +128,18 @@ Carried forward from `docs/PROJECT-BRIEF.md` §8 and still open:
 3. **Next show date and entry deadline.** The old homepage says "Show Starts August
    11" while its own winner story is dated August 28. Both are unpublished; the
    countdown appears the moment a real date is entered in the dashboard.
-4. **Audience figures — three different numbers now.** The signed proposal says
-   700,000+. The new design also shows "700K+ YouTube subscribers". But the
-   client's own live site, once its counter finishes animating, reads
-   **1.7Mil+ YouTube and 208K Facebook** — two and a half times the proposal's
-   figure. An earlier capture read that counter as broken (".7Mil+") because a
-   static fetch catches it mid-count; it is not broken, it was mis-measured.
+4. **"30+ countries" only.** The design's countries cell is flagged as a
+   placeholder in the handoff itself and has no source at all, so it is stored
+   `verified: false` and stays off the public site.
 
-   All of them are stored with `verified: false` and **withheld from the public
-   site** until someone confirms the real number against the channel. Shown to a
-   sponsor this is an advertising claim, and three sources disagreeing is exactly
-   the case for not guessing.
-
-   The design's "30+ countries" cell is flagged as a placeholder in the handoff
-   itself and has no source at all.
-
-   Original note: the proposal claims 700,000+ subscribers. The old site's own
-   counter renders `.7Mil+` and a bare `K`, so it corroborates nothing. Stored with
-   `verified: false` and **withheld from the public site** until someone confirms it.
-   This is an advertising claim shown to sponsors — it needs to be right.
+   Resolved: the audience figures. Three sources disagreed — the signed proposal
+   and the design file both said 700,000+, while the client's own live site reads
+   1.7Mil+ YouTube and 208K Facebook once its counter finishes animating. (An
+   earlier capture read that counter as broken, ".7Mil+"; a static fetch catches
+   it mid-count. It was mis-measured, not broken.) The client confirmed the live
+   figures on 4 September 2026, so **1,700,000 YouTube subscribers and 208,000
+   Facebook followers are now stored `verified: true` and published**. The
+   proposal and the design file are both stale on this number.
 5. **Official contest rules, eligibility and prize terms.** `/rules` ships as an
    honest outline saying the wording is pending, and is `noindex` until it lands.
    Contest rules are a legal document for a public prize competition; drafting them
@@ -164,15 +157,34 @@ Carried forward from `docs/PROJECT-BRIEF.md` §8 and still open:
 
 ## Decisions taken while implementing the design
 
+**The dashboard was moved onto the public site's design system.** Same paper
+ground, same ink, same red, radius 0, 2px rules. What differs is density, not
+language: the sidebar is ink so the working area reads as the page, and panels
+sit on white so a table separates from the ground without a shadow. Status
+colours were re-picked for the light ground — the previous sky/emerald/violet
+300 steps were chosen for near-black and land around 1.7:1 on white.
+
+**The palette rewrite left dead class names behind, and they have been swept.**
+`chalk`, `metal`, `live`, `ink-soft`, `ink-line`, `rounded-card`, `hero-scrim`,
+`duration-base`, `ease-crisp` and the `.badge` / `.eyebrow` component classes
+were all still in the markup after the tokens were deleted from the config.
+Tailwind emits nothing for an unknown class, so each one rendered as no styling
+at all rather than as an error: panels with no background, labels at body size.
+Every occurrence is now mapped onto the new system, and six components that
+nothing imported (`ui/Button`, `ui/Card`, `ui/Countdown`, `ui/SectionHeading`,
+`media/VideoEmbed`, `media/BackgroundVideo`) were deleted rather than migrated.
+`/privacy`, `/terms` and `/unsubscribe` were the public pages affected; they had
+never been moved off the old dark system and are now on the new one.
+
 Recorded because each one is a judgement the client may want to reverse, and
 none of them is visible from the rendered page.
 
-**The 700,000 figure was removed from the /about paragraph.** The design's
-section 01 reads "an audience of over 700,000 subscribers votes live". The page
-now reads "an audience votes live". The words are held back rather than
-published because three sources disagree about that number and none is
-confirmed. Restore the clause the moment a figure is verified; a comment in
-`src/app/(site)/about/page.tsx` records the exact removed words.
+**The /about paragraph carries 1.7 million, not the design's 700,000.** The
+design's section 01 reads "an audience of over 700,000 subscribers votes live",
+which is the proposal's figure. The client confirmed the live site's 1.7 million
+is the one to use, so the clause was restored with the corrected number. Both
+the design file and the signed proposal are stale here, and a comment in
+`src/app/(site)/about/page.tsx` says so at the line.
 
 **No photograph is used for any winner.** The design captions a gallery frame as
 "PJ Galloway, Crown the Sound winner", and an earlier build fell back to the

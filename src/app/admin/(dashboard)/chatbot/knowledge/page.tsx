@@ -122,15 +122,15 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
 
       {/* Brand, not red. Red is reserved for live urgency; this is a standing rule
           that has to be read once and remembered, not an alarm. */}
-      <div className="mt-8 rounded-card border border-brand/40 bg-brand/5 p-6">
+      <div className="mt-8 border border-brand/40 bg-brand/5 p-6">
         <p className="eyebrow">Read this before you edit</p>
-        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-chalk-body">
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink">
           Whatever you write here is what a visitor is told, word for word. The assistant answers
           from these rows and nothing else, so a wrong prize amount or a wrong deadline in this
           list becomes a wrong answer given to a contestant about a public prize competition —
           and that is a promise the client has to keep.
         </p>
-        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-chalk-body">
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink">
           Only publish a date, an amount, a deadline, or a rule about who may enter if you can
           point at a client-confirmed source for it. If it is not confirmed, say the bot does not
           have it and send them to the team. An honest &ldquo;I do not have that yet&rdquo; costs
@@ -147,11 +147,11 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
           note={filtered ? "in this filtered list" : "date, amount, deadline or entry rule"}
         />
         <Link href="/admin/chatbot?state=handedoff" className="card-interactive block p-5">
-          <p className="text-[10px] uppercase tracking-widest text-chalk-faint">
+          <p className="text-[10px] uppercase tracking-widest text-neutral-600">
             Handed off (30 days)
           </p>
-          <p className="mt-2 font-display text-3xl text-chalk">{handoffs.toLocaleString("en-US")}</p>
-          <p className="mt-1 text-xs text-chalk-faint">questions this list could not answer</p>
+          <p className="mt-2 font-display text-3xl text-ink">{handoffs.toLocaleString("en-US")}</p>
+          <p className="mt-1 text-xs text-neutral-600">questions this list could not answer</p>
         </Link>
       </div>
 
@@ -201,7 +201,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
           {filtered && (
             <Link
               href="/admin/chatbot/knowledge"
-              className="pb-3 text-xs uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
+              className="pb-3 text-xs uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
             >
               Clear
             </Link>
@@ -216,7 +216,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
       </div>
 
       {creating && (
-        <div className="mt-6 rounded-card border border-brand/30 bg-ink-soft p-6">
+        <div className="mt-6 border border-brand/30 bg-white p-6">
           <p className="label">New answer</p>
           <CrudForm action={saveKnowledgeItem} submitLabel="Publish answer" redirectTo={baseHref}>
             <KnowledgeFields categoryHelp={categoryHelp} />
@@ -256,13 +256,13 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
             return (
               <article
                 key={item.id}
-                className={`rounded-card border bg-ink-soft p-6 ${
-                  editing ? "border-brand/30" : "border-ink-line"
+                className={` border bg-white p-6 ${
+                  editing ? "border-brand/30" : "border-rule"
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h2 className="font-display text-lg tracking-wide text-chalk">
+                    <h2 className="font-display text-lg tracking-wide text-ink">
                       {item.question}
                     </h2>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -270,14 +270,14 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
                       <span
                         className={
                           item.active
-                            ? "badge border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
+                            ? "badge border-emerald-700 bg-emerald-50 text-emerald-800"
                             : "badge"
                         }
                       >
                         {item.active ? "Live" : "Offline"}
                       </span>
                       {itemFlags.map((f) => (
-                        <span key={f} className="badge border-brand/40 bg-brand/10 text-brand">
+                        <span key={f} className="badge border-brand bg-brand text-white">
                           States {f}
                         </span>
                       ))}
@@ -304,7 +304,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
                 </div>
 
                 {editing ? (
-                  <div className="mt-6 border-t border-ink-line pt-6">
+                  <div className="mt-6 border-t border-rule pt-6">
                     <CrudForm
                       action={saveKnowledgeItem}
                       submitLabel="Save answer"
@@ -320,7 +320,7 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
                       />
                     </CrudForm>
 
-                    <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-ink-line pt-5">
+                    <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-rule pt-5">
                       <Link href={baseHref} className="btn-quiet !text-xs">
                         Cancel
                       </Link>
@@ -334,10 +334,10 @@ export default async function KnowledgeBasePage({ searchParams }: Props) {
                   </div>
                 ) : (
                   <>
-                    <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-chalk-body">
+                    <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-ink">
                       {item.answer}
                     </p>
-                    <p className="mt-4 text-[10px] uppercase tracking-widest text-chalk-ghost">
+                    <p className="mt-4 text-[10px] uppercase tracking-widest text-neutral-400">
                       Updated{" "}
                       {item.updatedAt.toLocaleDateString("en-GB", {
                         day: "2-digit",
@@ -418,9 +418,9 @@ function KnowledgeFields({
 function Stat({ label, value, note }: { label: string; value: number; note?: string }) {
   return (
     <div className="card p-5">
-      <p className="text-[10px] uppercase tracking-widest text-chalk-faint">{label}</p>
-      <p className="mt-2 font-display text-3xl text-chalk">{value.toLocaleString("en-US")}</p>
-      {note && <p className="mt-1 text-xs text-chalk-faint">{note}</p>}
+      <p className="text-[10px] uppercase tracking-widest text-neutral-600">{label}</p>
+      <p className="mt-2 font-display text-3xl text-ink">{value.toLocaleString("en-US")}</p>
+      {note && <p className="mt-1 text-xs text-neutral-600">{note}</p>}
     </div>
   );
 }

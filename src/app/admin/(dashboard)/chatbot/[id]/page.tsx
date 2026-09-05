@@ -59,7 +59,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
           <h1 className="font-display text-3xl tracking-wide">
             {convo.intent ? titleCase(convo.intent) : "Conversation"}
           </h1>
-          <p className="mt-2 text-sm text-chalk-muted">
+          <p className="mt-2 text-sm text-neutral-700">
             {started} · {convo.messages.length}{" "}
             {convo.messages.length === 1 ? "message" : "messages"}
           </p>
@@ -85,7 +85,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
         <section>
           <p className="label">Transcript</p>
           {convo.messages.length === 0 ? (
-            <div className="rounded-card border border-dashed border-ink-edge bg-ink-soft p-8 text-center text-sm text-chalk-muted">
+            <div className="border border-dashed border-rule bg-white p-8 text-center text-sm text-neutral-700">
               This conversation was opened but nothing was ever said.
             </div>
           ) : (
@@ -98,10 +98,10 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                   <li
                     key={m.id}
                     className={[
-                      "rounded-card border p-4",
-                      isAssistant && "border-brand/25 bg-ink-raised",
-                      isSystem && "border-dashed border-ink-line bg-transparent",
-                      !isAssistant && !isSystem && "border-ink-line bg-ink-soft",
+                      " border p-4",
+                      isAssistant && "border-brand/25 bg-surface",
+                      isSystem && "border-dashed border-rule bg-transparent",
+                      !isAssistant && !isSystem && "border-rule bg-white",
                     ]
                       .filter(Boolean)
                       .join(" ")}
@@ -110,14 +110,14 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                       <span
                         className={[
                           "text-[10px] font-semibold uppercase tracking-widest",
-                          isAssistant ? "text-brand" : "text-chalk-faint",
+                          isAssistant ? "text-brand" : "text-neutral-600",
                         ].join(" ")}
                       >
                         {isAssistant ? "Assistant" : isSystem ? "System" : "Visitor"}
                       </span>
                       <time
                         dateTime={m.createdAt.toISOString()}
-                        className="text-[10px] text-chalk-ghost"
+                        className="text-[10px] text-neutral-400"
                       >
                         {m.createdAt.toLocaleTimeString("en-GB", {
                           hour: "2-digit",
@@ -128,7 +128,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                     <p
                       className={[
                         "mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed",
-                        isSystem ? "text-chalk-faint" : "text-chalk-body",
+                        isSystem ? "text-neutral-600" : "text-ink",
                       ].join(" ")}
                     >
                       {m.content}
@@ -141,13 +141,13 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
         </section>
 
         <aside className="space-y-6">
-          <div className="rounded-card border border-ink-line bg-ink-soft p-6">
+          <div className="border border-rule bg-white p-6">
             <p className="label">Captured contact</p>
             {convo.lead ? (
               <>
                 <Link
                   href={`/admin/leads/${convo.lead.id}`}
-                  className="font-display text-xl tracking-wide text-chalk transition-colors hover:text-brand"
+                  className="font-display text-xl tracking-wide text-ink transition-colors hover:text-brand"
                 >
                   {[convo.lead.firstName, convo.lead.lastName].filter(Boolean).join(" ") ||
                     convo.lead.email}
@@ -170,7 +170,7 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
                   Open the full lead</Link>
               </>
             ) : (
-              <p className="text-sm leading-relaxed text-chalk-muted">
+              <p className="text-sm leading-relaxed text-neutral-700">
                 No contact details were captured. The widget creates a lead the moment it has an
                 email address, so a chat with nothing attached means the visitor left before
                 giving one.
@@ -178,9 +178,9 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
             )}
           </div>
 
-          <div className="rounded-card border border-ink-line bg-ink-soft p-6">
+          <div className="border border-rule bg-white p-6">
             <p className="label">Review</p>
-            <p className="mb-4 text-xs leading-relaxed text-chalk-faint">
+            <p className="mb-4 text-xs leading-relaxed text-neutral-600">
               {reviewedOn
                 ? `Read on ${reviewedOn}${
                     convo.reviewedBy ? ` by ${convo.reviewedBy}` : ""
@@ -200,8 +200,8 @@ export default async function ChatbotTranscriptPage({ params }: Props) {
             </CrudForm>
           </div>
 
-          <details className="rounded-card border border-ink-line bg-ink-soft p-6">
-            <summary className="cursor-pointer text-xs uppercase tracking-widest text-chalk-faint">
+          <details className="border border-rule bg-white p-6">
+            <summary className="cursor-pointer text-xs uppercase tracking-widest text-neutral-600">
               Technical detail
             </summary>
             <dl className="mt-4 space-y-2 text-xs">
@@ -229,8 +229,8 @@ function Line({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
-      <dt className="shrink-0 text-[10px] uppercase tracking-widest text-chalk-faint">{label}</dt>
-      <dd className="break-all text-right text-chalk-body">
+      <dt className="shrink-0 text-[10px] uppercase tracking-widest text-neutral-600">{label}</dt>
+      <dd className="break-all text-right text-ink">
         {value ? (
           href ? (
             <a href={href} className="text-brand hover:underline">
@@ -240,7 +240,7 @@ function Line({
             value
           )
         ) : (
-          <span className="text-chalk-ghost">—</span>
+          <span className="text-neutral-400">—</span>
         )}
       </dd>
     </div>

@@ -66,8 +66,8 @@ export default async function CampaignsPage() {
       />
 
       {!mailEnabled && (
-        <p className="mt-6 rounded-card border border-live/40 bg-live/10 p-4 text-sm text-chalk-body">
-          <span className="font-semibold text-live">
+        <p className="mt-6 border border-brand/40 bg-brand/10 p-4 text-sm text-ink">
+          <span className="font-semibold text-brand-onLight">
             No email provider is connected.
           </span>{" "}
           Campaigns can be composed and previewed, but a send will be refused rather than
@@ -76,7 +76,7 @@ export default async function CampaignsPage() {
       )}
 
       {!env.CRON_SECRET && (
-        <p className="mt-4 rounded-card border border-brand/30 bg-brand/5 p-4 text-sm text-chalk-body">
+        <p className="mt-4 border border-brand/30 bg-brand/5 p-4 text-sm text-ink">
           <span className="font-semibold text-brand">The scheduler is not configured.</span>{" "}
           Set <code>CRON_SECRET</code> and point a timer at{" "}
           <code>GET /api/cron/tick</code>, or a scheduled campaign will never fire.
@@ -84,7 +84,7 @@ export default async function CampaignsPage() {
       )}
 
       {env.CRON_SECRET && schedulerSilent && (
-        <p className="mt-4 rounded-card border border-brand/30 bg-brand/5 p-4 text-sm text-chalk-body">
+        <p className="mt-4 border border-brand/30 bg-brand/5 p-4 text-sm text-ink">
           <span className="font-semibold text-brand">
             The scheduler has not run in the last 24 hours.
           </span>{" "}
@@ -129,7 +129,7 @@ export default async function CampaignsPage() {
               <Row key={c.id}>
                 <Cell>
                   <RowLink href={`/admin/campaigns/${c.id}`}>{c.name}</RowLink>
-                  <span className="mt-1 block truncate text-xs text-chalk-faint">
+                  <span className="mt-1 block truncate text-xs text-neutral-600">
                     {c.subject}
                   </span>
                 </Cell>
@@ -137,7 +137,7 @@ export default async function CampaignsPage() {
                 <Cell muted>
                   {c.segment?.name ?? "One-off filter"}
                   {c.show && (
-                    <span className="mt-1 block text-[11px] text-chalk-ghost">
+                    <span className="mt-1 block text-[11px] text-neutral-400">
                       {c.show.title}
                     </span>
                   )}
@@ -149,7 +149,7 @@ export default async function CampaignsPage() {
 
                 <Cell muted className="tabular-nums">
                   {c.totalSent.toLocaleString("en-US")}
-                  <span className="block text-[11px] text-chalk-ghost">
+                  <span className="block text-[11px] text-neutral-400">
                     of {c.totalRecipients.toLocaleString("en-US")}
                   </span>
                 </Cell>
@@ -187,10 +187,10 @@ function Stat({
 }) {
   return (
     <div className="card p-5">
-      <dt className="text-xs uppercase tracking-widest text-chalk-faint">{label}</dt>
+      <dt className="text-xs uppercase tracking-widest text-neutral-600">{label}</dt>
       <dd
         className={`mt-2 font-display text-2xl ${
-          accent ? "text-live" : "text-chalk"
+          accent ? "text-brand-onLight" : "text-ink"
         }`}
       >
         {text ?? (value ?? 0).toLocaleString("en-US")}
@@ -201,11 +201,11 @@ function Stat({
 
 /** Never divide by zero, and never print a rate for a campaign that never sent. */
 function rate(part: number, whole: number) {
-  if (!whole) return <span className="text-chalk-ghost">—</span>;
+  if (!whole) return <span className="text-neutral-400">—</span>;
   return (
     <>
       {part.toLocaleString("en-US")}
-      <span className="block text-[11px] text-chalk-ghost">
+      <span className="block text-[11px] text-neutral-400">
         {Math.round((part / whole) * 100)}%
       </span>
     </>

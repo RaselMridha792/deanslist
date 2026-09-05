@@ -64,7 +64,7 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
           {tags.map((t) => (
             <span
               key={t.id}
-              className="inline-flex items-center gap-2 rounded-full border border-ink-edge bg-ink-high px-3 py-1 text-xs text-chalk-muted"
+              className="inline-flex items-center gap-2 border border-rule bg-surface px-3 py-1 text-xs text-neutral-700"
             >
               {t.name}
               <button
@@ -72,7 +72,7 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
                 disabled={pending}
                 onClick={() => run(() => removeTag({ leadId, tagId: t.id }))}
                 aria-label={`Remove tag ${t.name}`}
-                className="text-chalk-faint transition-colors hover:text-live"
+                className="text-neutral-600 transition-colors hover:text-brand-onLight"
               >
                 ×
               </button>
@@ -86,7 +86,7 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
               const name = window.prompt("Tag name");
               if (name?.trim()) run(() => addTag({ leadId, name: name.trim() }));
             }}
-            className="rounded-full border border-dashed border-ink-edge px-3 py-1 text-xs text-chalk-faint transition-colors hover:border-brand hover:text-brand"
+            className="border border-dashed border-rule px-3 py-1 text-xs text-neutral-600 transition-colors hover:border-brand hover:text-brand"
           >
             + Add tag
           </button>
@@ -124,7 +124,7 @@ export function LeadDetailPanel({ leadId, status, notes, tags }: Props) {
           >
             {pending ? "Saving…" : "Save note"}
           </button>
-          {noteSaved && !dirty && <span className="text-xs text-chalk-faint">Saved</span>}
+          {noteSaved && !dirty && <span className="text-xs text-neutral-600">Saved</span>}
         </div>
       </div>
 

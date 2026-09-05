@@ -113,15 +113,15 @@ export default async function StatsAdminPage({ searchParams }: Props) {
       />
 
       {/* The rule, stated once, in the place where it is acted on. */}
-      <div className="mt-6 rounded-card border border-ink-line bg-ink-soft p-6">
+      <div className="mt-6 border border-rule bg-white p-6">
         <p className="eyebrow">How the gate works</p>
-        <p className="mt-3 max-w-prose text-sm leading-relaxed text-chalk-body">
+        <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink">
           A figure reaches the public site only when it is both{" "}
-          <span className="text-chalk">verified</span> and{" "}
-          <span className="text-chalk">active</span>. Everything else is stored here and never
+          <span className="text-ink">verified</span> and{" "}
+          <span className="text-ink">active</span>. Everything else is stored here and never
           sent to a visitor.
         </p>
-        <p className="mt-3 max-w-prose text-sm leading-relaxed text-chalk-muted">
+        <p className="mt-3 max-w-prose text-sm leading-relaxed text-neutral-700">
           This exists because the old site published two numbers it could not stand behind: the
           subscriber count rendered as &ldquo;.7Mil+&rdquo; and the Facebook figure as a bare
           &ldquo;K&rdquo;, both because the counter animated up from an empty value. A number
@@ -161,10 +161,10 @@ export default async function StatsAdminPage({ searchParams }: Props) {
           {/* ------------------------------------------------------- live */}
           <section className="mt-8">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <h2 className="font-display text-xl uppercase tracking-wide text-chalk">
+              <h2 className="font-display text-xl uppercase tracking-wide text-ink">
                 Live on the public site
               </h2>
-              <p className="text-xs text-chalk-faint">
+              <p className="text-xs text-neutral-600">
                 {live.length === 0
                   ? "The stats band is currently rendering nothing."
                   : `${live.length} figure${live.length > 1 ? "s" : ""} visible to every visitor`}
@@ -172,7 +172,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
             </div>
 
             {live.length === 0 ? (
-              <p className="mt-4 rounded-card border border-dashed border-ink-edge bg-ink-soft px-6 py-8 text-sm text-chalk-muted">
+              <p className="mt-4 border border-dashed border-rule bg-white px-6 py-8 text-sm text-neutral-700">
                 Nothing is published. The band hides itself rather than showing an empty row,
                 so the public pages simply skip it.
               </p>
@@ -182,14 +182,14 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                   {live.map((s) => (
                     <Row key={s.id}>
                       <Cell>
-                        <span className="font-display text-2xl leading-none text-metal">
+                        <span className="font-display text-2xl leading-none text-brand">
                           {s.preview}
                         </span>
                       </Cell>
                       <Cell>
                         <Link
                           href={`${LIST}?edit=${s.id}`}
-                          className="font-medium text-chalk transition-colors hover:text-brand"
+                          className="font-medium text-ink transition-colors hover:text-brand"
                         >
                           {s.label}
                         </Link>
@@ -204,7 +204,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                         <div className="flex items-center justify-end gap-4">
                           <Link
                             href={`${LIST}?edit=${s.id}`}
-                            className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
+                            className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
                           >
                             Edit
                           </Link>
@@ -221,10 +221,10 @@ export default async function StatsAdminPage({ searchParams }: Props) {
           {/* ----------------------------------------------------- hidden */}
           <section className="mt-10">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <h2 className="font-display text-xl uppercase tracking-wide text-chalk">
+              <h2 className="font-display text-xl uppercase tracking-wide text-ink">
                 Held back
               </h2>
-              <p className="text-xs text-chalk-faint">
+              <p className="text-xs text-neutral-600">
                 {hidden.length === 0
                   ? "Nothing is being withheld."
                   : `${hidden.length} figure${hidden.length > 1 ? "s" : ""} no visitor can see`}
@@ -232,7 +232,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
             </div>
 
             {hidden.length === 0 ? (
-              <p className="mt-4 rounded-card border border-dashed border-ink-edge bg-ink-soft px-6 py-8 text-sm text-chalk-muted">
+              <p className="mt-4 border border-dashed border-rule bg-white px-6 py-8 text-sm text-neutral-700">
                 Every statistic on record has been confirmed and is published.
               </p>
             ) : (
@@ -241,18 +241,18 @@ export default async function StatsAdminPage({ searchParams }: Props) {
                   {hidden.map((s) => (
                     <Row key={s.id}>
                       <Cell>
-                        <span className="font-display text-2xl leading-none text-chalk-ghost">
+                        <span className="font-display text-2xl leading-none text-neutral-400">
                           {s.preview}
                         </span>
                       </Cell>
                       <Cell>
                         <Link
                           href={`${LIST}?edit=${s.id}`}
-                          className="font-medium text-chalk transition-colors hover:text-brand"
+                          className="font-medium text-ink transition-colors hover:text-brand"
                         >
                           {s.label}
                         </Link>
-                        <span className="block font-mono text-xs text-chalk-faint">{s.key}</span>
+                        <span className="block font-mono text-xs text-neutral-600">{s.key}</span>
                       </Cell>
                       <Cell muted>{hiddenReason(s)}</Cell>
                       <Cell>
@@ -283,7 +283,7 @@ export default async function StatsAdminPage({ searchParams }: Props) {
         </>
       )}
 
-      <p className="mt-8 max-w-prose text-xs leading-relaxed text-chalk-faint">
+      <p className="mt-8 max-w-prose text-xs leading-relaxed text-neutral-600">
         Open question for the client: the 700,000 subscriber figure comes from the proposal, not
         from a counted source, and the old site&apos;s own display of it is broken. It stays
         unconfirmed until someone reads the real number off YouTube and Facebook.

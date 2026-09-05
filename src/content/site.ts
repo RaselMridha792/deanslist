@@ -221,21 +221,19 @@ export const STATS: StatSeed[] = [
     label: "YouTube subscribers",
     value: 1_700_000,
     suffix: "+",
-    verified: false,
-    note:
-      "The old site's counter animates to 1.7Mil+ — a static fetch catches it mid-count, " +
-      "which is why an earlier pass read it as a broken '.7Mil+'. It is the client's own " +
-      "published figure, and it is 2.4x what the proposal claims (700K+). Shown to sponsors " +
-      "it becomes an advertising claim, so it stays hidden until someone confirms it against " +
-      "the channel.",
+    // Confirmed by the client: publish what their own live site publishes.
+    // Note it is 2.4x the figure in the signed proposal (700K+) and in the
+    // design file, so those two are the stale ones, not this.
+    verified: true,
+    note: "The figure the client's own live site publishes. Confirmed for use.",
   },
   {
     key: "facebook_followers",
     label: "Facebook followers",
     value: 208_000,
     suffix: "+",
-    verified: false,
-    note: "Old site's counter animates to 208K. Client's own figure, unconfirmed.",
+    verified: true,
+    note: "The figure the client's own live site publishes. Confirmed for use.",
   },
   {
     key: "prize_awarded",

@@ -8,8 +8,10 @@ import { cn } from "@/lib/cn";
  * The fixed "Enter / Ask" block, bottom right.
  *
  * This is the mount point for the engagement centre described in the signed
- * scope — entry form, guided chat, direct info. The panel itself is
- * ChatWidget; this owns only where and when the launcher appears.
+ * scope: entry form, guided chat, direct info. The panel and its trigger are
+ * both ChatWidget, which positions itself; this wrapper owns only WHEN the
+ * launcher is allowed to be seen. Opacity and pointer-events apply to the whole
+ * subtree, fixed descendants included, so wrapping is enough to hide it.
  *
  * Three visibility rules from the handoff, each with a reason:
  *
@@ -56,29 +58,5 @@ export function Launcher({ children }: { children: React.ReactNode }) {
     >
       {children}
     </div>
-  );
-}
-
-/** The closed state: black block, pulsing red square, red on hover. */
-export function LauncherButton({
-  onClick,
-  open,
-}: {
-  onClick: () => void;
-  open: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-expanded={open}
-      className="group flex items-center gap-3 border-2 border-ink bg-ink px-5 py-4 text-btn font-extrabold uppercase text-ground shadow-lg transition-colors duration-200 ease-dl hover:border-brand hover:bg-brand"
-    >
-      <span
-        aria-hidden
-        className="inline-block h-2 w-2 animate-dl-pulse bg-brand group-hover:bg-white"
-      />
-      {open ? "Close" : "Enter / Ask"}
-    </button>
   );
 }

@@ -91,26 +91,26 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
         }
       />
 
-      <div className="mt-6 rounded-card border border-ink-line bg-ink-soft p-6">
+      <div className="mt-6 border border-rule bg-white p-6">
         <p className="eyebrow">Before you write</p>
-        <ul className="mt-4 max-w-prose space-y-3 text-sm leading-relaxed text-chalk-muted">
+        <ul className="mt-4 max-w-prose space-y-3 text-sm leading-relaxed text-neutral-700">
           <li>
-            <span className="text-chalk">Draft is the default.</span> A section is invisible to
+            <span className="text-ink">Draft is the default.</span> A section is invisible to
             visitors until <em>Published</em> is ticked, so half-written copy is safe to save.
           </li>
           <li>
-            <span className="text-chalk">One section per key, per page.</span> Reusing a key on
+            <span className="text-ink">One section per key, per page.</span> Reusing a key on
             the same page is rejected — edit the existing section instead.
           </li>
           <li>
-            <span className="text-chalk">/rules is not in Google yet.</span> It carries a
+            <span className="text-ink">/rules is not in Google yet.</span> It carries a
             noindex tag and ships an honest outline of what the rules will cover, because
             contest rules are a legal document and nothing there is drafted on the
             client&apos;s behalf. The tag comes off once the official wording is published
             here.
           </li>
           <li>
-            <span className="text-chalk">Not yet wired to the public pages.</span> /about and
+            <span className="text-ink">Not yet wired to the public pages.</span> /about and
             /rules still render their built-in copy, so a section saved today is stored and
             ready rather than live. Writing it now is what unblocks the switch-over.
           </li>
@@ -203,7 +203,7 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
           {grouped.map((g) => (
             <section key={g.value}>
               <div className="flex flex-wrap items-baseline justify-between gap-3">
-                <h2 className="font-display text-xl uppercase tracking-wide text-chalk">
+                <h2 className="font-display text-xl uppercase tracking-wide text-ink">
                   {g.label}
                 </h2>
                 <div className="flex items-center gap-4">
@@ -211,13 +211,13 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                     href={g.path}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
+                    className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
                   >
                     View {g.path}
                   </Link>
                   <Link
                     href={`${LIST}?new=1&page=${g.value}`}
-                    className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
+                    className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
                   >
                     Add here
                   </Link>
@@ -231,15 +231,15 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                       <Cell>
                         <Link
                           href={`${LIST}?edit=${s.id}`}
-                          className="block font-medium text-chalk transition-colors hover:text-brand"
+                          className="block font-medium text-ink transition-colors hover:text-brand"
                         >
-                          {s.heading || <span className="text-chalk-muted">No heading</span>}
+                          {s.heading || <span className="text-neutral-700">No heading</span>}
                         </Link>
-                        <span className="block font-mono text-xs text-chalk-faint">{s.key}</span>
+                        <span className="block font-mono text-xs text-neutral-600">{s.key}</span>
                       </Cell>
                       <Cell muted className="max-w-md">
                         <span className="block truncate">{excerpt(s.body)}</span>
-                        <span className="mt-1 block text-[11px] text-chalk-ghost">
+                        <span className="mt-1 block text-[11px] text-neutral-400">
                           {s.body.length.toLocaleString("en-US")} characters · updated{" "}
                           {s.updatedAt.toLocaleDateString("en-GB", {
                             day: "2-digit",
@@ -261,7 +261,7 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                         <div className="flex items-center justify-end gap-4">
                           <Link
                             href={`${LIST}?edit=${s.id}`}
-                            className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
+                            className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
                           >
                             Edit
                           </Link>
@@ -282,10 +282,10 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
 
           {orphans.length > 0 && (
             <section>
-              <h2 className="font-display text-xl uppercase tracking-wide text-chalk">
+              <h2 className="font-display text-xl uppercase tracking-wide text-ink">
                 Unassigned
               </h2>
-              <p className="mt-2 max-w-prose text-sm text-chalk-muted">
+              <p className="mt-2 max-w-prose text-sm text-neutral-700">
                 These are stored against a page that is not in the list above, so nothing on the
                 site will ever render them. Move each one to a real page or delete it.
               </p>
@@ -299,7 +299,7 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                       <Cell>
                         <Link
                           href={`${LIST}?edit=${s.id}`}
-                          className="font-medium text-chalk transition-colors hover:text-brand"
+                          className="font-medium text-ink transition-colors hover:text-brand"
                         >
                           {s.heading || s.key}
                         </Link>
@@ -311,7 +311,7 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                         <div className="flex items-center justify-end gap-4">
                           <Link
                             href={`${LIST}?edit=${s.id}`}
-                            className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
+                            className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
                           >
                             Edit
                           </Link>
@@ -333,7 +333,7 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
       )}
 
       {session.role !== "OWNER" && (
-        <p className="mt-8 text-xs text-chalk-faint">
+        <p className="mt-8 text-xs text-neutral-600">
           Deleting a section is restricted to the account owner. Untick <em>Published</em> to
           take one off the site.
         </p>

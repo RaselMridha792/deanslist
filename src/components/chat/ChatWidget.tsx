@@ -127,27 +127,27 @@ export function ChatWidget({ showSlug }: { showSlug?: string }) {
         // while its children stay mounted, so a half-typed entry is not lost.
         inert={!open}
         className={cn(
-          "fixed z-[61] flex flex-col overflow-hidden border border-ink-line bg-ink-soft shadow-lift",
-          "inset-x-0 bottom-0 max-h-[86dvh] rounded-t-2xl",
-          "md:inset-x-auto md:bottom-24 md:right-5 md:h-[38rem] md:max-h-[calc(100dvh-9rem)] md:w-[24.5rem] md:rounded-card",
-          "transition-[opacity,transform] duration-base ease-crisp",
+          "fixed z-[61] flex flex-col overflow-hidden border border-rule bg-white shadow-md",
+          "inset-x-0 bottom-0 max-h-[86dvh]",
+          "md:inset-x-auto md:bottom-24 md:right-5 md:h-[38rem] md:max-h-[calc(100dvh-9rem)] md:w-[24.5rem]",
+          "transition-[opacity,transform] duration-200 ease-dl",
           open
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0",
         )}
       >
-        <header className="shrink-0 border-b border-ink-line bg-ink-raised px-5 pt-4">
+        <header className="shrink-0 border-b border-rule bg-surface px-5 pt-4">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="eyebrow">The Dean&apos;s List</p>
-              <p className="mt-1 text-sm text-chalk-muted">
+              <p className="mt-1 text-sm text-neutral-700">
                 Enter, ask, or find the team.
               </p>
             </div>
             <button
               type="button"
               onClick={close}
-              className="-mr-1 -mt-1 rounded-full p-2 text-chalk-faint transition-colors duration-base ease-crisp hover:text-brand"
+              className="-mr-1 -mt-1 p-2 text-neutral-600 transition-colors duration-200 ease-dl hover:text-brand"
               aria-label="Close"
             >
               <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true" fill="none">
@@ -170,8 +170,8 @@ export function ChatWidget({ showSlug }: { showSlug?: string }) {
                   title={t.title}
                   onClick={() => setTab(t.key)}
                   className={cn(
-                    "relative pb-3 text-xs font-semibold uppercase tracking-widest transition-colors duration-base ease-crisp",
-                    active ? "text-brand" : "text-chalk-faint hover:text-chalk",
+                    "relative pb-3 text-xs font-semibold uppercase tracking-widest transition-colors duration-200 ease-dl",
+                    active ? "text-brand" : "text-neutral-600 hover:text-ink",
                   )}
                 >
                   {t.label}
@@ -179,7 +179,7 @@ export function ChatWidget({ showSlug }: { showSlug?: string }) {
                     aria-hidden="true"
                     className={cn(
                       "absolute inset-x-0 -bottom-px h-px",
-                      active ? "bg-brand-gloss" : "bg-transparent",
+                      active ? "bg-brand" : "bg-transparent",
                     )}
                   />
                 </button>
@@ -228,7 +228,7 @@ export function ChatWidget({ showSlug }: { showSlug?: string }) {
         aria-expanded={open}
         aria-label={open ? "Close the help panel" : "Enter the contest or ask a question"}
         className={cn(
-          "btn-primary fixed bottom-5 right-5 z-[62] gap-2 !px-5 !py-3 shadow-lift",
+          "btn btn-primary fixed bottom-5 right-5 z-[62] gap-2 !px-5 !py-3 shadow-md",
           open && "md:!px-4",
         )}
       >

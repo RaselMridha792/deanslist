@@ -1,4 +1,5 @@
-import { Picture } from "@/components/media/Picture";
+import { GrayscaleImage } from "@/components/dl/GrayscaleMedia";
+import { Kicker } from "@/components/dl/Kicker";
 import { cn } from "@/lib/cn";
 
 type Props = {
@@ -12,28 +13,53 @@ type Props = {
 };
 
 /**
- * The opener every non-home page shares. One component so eleven pages cannot
- * drift into eleven slightly different heading treatments.
+ * The opener the utility pages share: privacy, terms, unsubscribe.
+ *
+ * These are not designed pages in the handoff, but they are public and a
+ * visitor lands on them straight from an email footer, so they use the same
+ * ink band as the /about hero rather than a system of their own. The editorial
+ * pages build their heroes inline because each one carries a different layout.
  */
-export function PageHero({ eyebrow, title, lede, image, children, className }: Props) {
+export function PageHero({
+  eyebrow,
+  title,
+  lede,
+  image,
+  children,
+  className,
+}: Props) {
   return (
     <section
-      className={cn("relative isolate overflow-hidden border-b border-ink-line", className)}
+      className={cn(
+        "relative isolate overflow-hidden bg-ink text-ground",
+        className,
+      )}
     >
       {image && (
         <>
-          <div className="absolute inset-0 -z-20 opacity-25">
-            <Picture src={image} alt="" priority sizes="100vw" />
+          <div className="absolute inset-0 -z-20 opacity-[.35]">
+            <GrayscaleImage
+              src={image}
+              alt=""
+              priority
+              hover={false}
+              sizes="100vw"
+              className="h-full w-full"
+            />
           </div>
-          <div className="absolute inset-0 -z-10 bg-hero-scrim" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink from-20% to-ink/40" />
         </>
       )}
 
-      <div className="shell pb-16 pt-32 md:pb-20 md:pt-40">
-        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-        <h1 className="mt-4 max-w-4xl text-display-lg uppercase">{title}</h1>
+      <div className="shell pb-[clamp(40px,5vw,72px)] pt-[clamp(56px,7vw,120px)]">
+        {eyebrow && <Kicker onDark>{eyebrow}</Kicker>}
+        <h1 className="mt-5 max-w-[18ch] text-balance text-hero font-extrabold uppercase">
+          {title}
+        </h1>
         {lede && (
-          <p className="mt-5 max-w-prose text-body-lg leading-relaxed text-chalk-body">{lede}</p>
+          <p className="mt-5 max-w-[52ch] text-pretty text-lede text-ground/85">
+            {lede}
+          </p>
         )}
         {children && <div className="mt-9">{children}</div>}
       </div>

@@ -55,11 +55,11 @@ export function AdminNav({ role }: { role: Role }) {
   })).filter((g) => g.items.length > 0);
 
   return (
-    <nav className="mt-8 space-y-6">
+    <nav className="mt-9 space-y-6">
       {groups.map((group, gi) => (
         <div key={group.title ?? `g${gi}`}>
           {group.title && (
-            <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-chalk-ghost">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.2em] text-ground/35">
               {group.title}
             </p>
           )}
@@ -76,10 +76,10 @@ export function AdminNav({ role }: { role: Role }) {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "block rounded-lg px-3 py-2 text-sm transition-colors duration-base ease-crisp",
+                    "block px-3 py-2 text-sm transition-colors duration-200 ease-dl",
                     active
                       ? "bg-brand/10 text-brand"
-                      : "text-chalk-muted hover:bg-white/5 hover:text-chalk",
+                      : "text-neutral-700 hover:bg-white/5 hover:text-ink",
                   )}
                 >
                   {item.label}

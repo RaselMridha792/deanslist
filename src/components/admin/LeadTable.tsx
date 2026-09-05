@@ -22,13 +22,23 @@ type Row = {
   tags: { tag: { id: string; name: string } }[];
 };
 
+/**
+ * Status colours for the light ground.
+ *
+ * The previous set was tuned for the dark dashboard: sky-300, emerald-300 and
+ * violet-300 land around 1.7:1 on white, which is a label you cannot read. The
+ * 700 steps carry the same hue at a contrast that works on paper.
+ *
+ * NEW is the only one in brand red, because it is the only one that means
+ * "somebody has to look at this".
+ */
 const STATUS_STYLE: Record<string, string> = {
-  NEW: "border-brand/40 bg-brand/10 text-brand",
-  REVIEWED: "border-ink-edge bg-ink-high text-chalk-muted",
-  SHORTLISTED: "border-sky-400/40 bg-sky-400/10 text-sky-300",
-  FINALIST: "border-emerald-400/40 bg-emerald-400/10 text-emerald-300",
-  REJECTED: "border-ink-edge bg-ink-high text-chalk-faint",
-  CONTACTED: "border-violet-400/40 bg-violet-400/10 text-violet-300",
+  NEW: "border-brand bg-brand text-white",
+  REVIEWED: "border-rule bg-white text-neutral-700",
+  SHORTLISTED: "border-sky-700 bg-sky-50 text-sky-800",
+  FINALIST: "border-emerald-700 bg-emerald-50 text-emerald-800",
+  REJECTED: "border-neutral-300 bg-surface text-neutral-600",
+  CONTACTED: "border-violet-700 bg-violet-50 text-violet-800",
 };
 
 export function LeadTable({ rows }: { rows: Row[] }) {
@@ -64,8 +74,8 @@ export function LeadTable({ rows }: { rows: Row[] }) {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-card border border-ink-line bg-ink-soft p-14 text-center">
-        <p className="text-chalk-muted">No submissions match these filters.</p>
+      <div className="border border-rule bg-white p-14 text-center">
+        <p className="text-neutral-700">No submissions match these filters.</p>
       </div>
     );
   }
@@ -75,10 +85,8 @@ export function LeadTable({ rows }: { rows: Row[] }) {
       {/* Bulk bar only appears with a selection, so it never competes with the
           table for attention when it has nothing to do. */}
       {selected.size > 0 && (
-        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-card border border-brand/30 bg-brand/5 px-5 py-3">
-          <span className="text-sm text-chalk">
-            {selected.size} selected
-          </span>
+        <div className="mb-4 flex flex-wrap items-center gap-3 border border-brand/30 bg-brand/5 px-5 py-3">
+          <span className="text-sm text-ink">{selected.size} selected</span>
 
           <select
             defaultValue=""
@@ -102,7 +110,9 @@ export function LeadTable({ rows }: { rows: Row[] }) {
             type="button"
             disabled={pending}
             onClick={() => {
-              const name = window.prompt("Tag name to apply to the selected entries");
+              const name = window.prompt(
+                "Tag name to apply to the selected entries",
+              );
               if (name?.trim()) runBulk({ tagName: name.trim() });
             }}
             className="btn btn-ghost !px-4 !py-2 !text-xs"
@@ -113,26 +123,30 @@ export function LeadTable({ rows }: { rows: Row[] }) {
           <button
             type="button"
             onClick={() => setSelected(new Set())}
-            className="text-xs uppercase tracking-widest text-chalk-faint hover:text-brand"
+            className="text-xs uppercase tracking-widest text-neutral-600 hover:text-brand"
           >
             Clear
           </button>
 
-          {pending && <span className="text-xs text-chalk-faint">Applying…</span>}
+          {pending && (
+            <span className="text-xs text-neutral-600">Applying…</span>
+          )}
           {error && <span className="error-text !mt-0">{error}</span>}
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-card border border-ink-line">
+      <div className="overflow-x-auto border border-rule">
         <table className="w-full min-w-[62rem] text-left text-sm">
-          <thead className="bg-ink-soft text-xs uppercase tracking-widest text-chalk-faint">
+          <thead className="bg-white text-xs uppercase tracking-widest text-neutral-600">
             <tr>
               <th className="w-10 px-4 py-3">
                 <input
                   type="checkbox"
                   checked={allChecked}
                   onChange={() =>
-                    setSelected(allChecked ? new Set() : new Set(rows.map((r) => r.id)))
+                    setSelected(
+                      allChecked ? new Set() : new Set(rows.map((r) => r.id)),
+                    )
                   }
                   aria-label="Select all on this page"
                   className="h-4 w-4 accent-brand"
@@ -153,7 +167,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
               <tr
                 key={r.id}
                 className={cn(
-                  "border-t border-ink-line transition-colors hover:bg-ink-soft",
+                  "border-t border-rule transition-colors hover:bg-white",
                   selected.has(r.id) && "bg-brand/5",
                 )}
               >
@@ -170,7 +184,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/leads/${r.id}`}
-                    className="font-medium text-chalk transition-colors hover:text-brand"
+                    className="font-medium text-ink transition-colors hover:text-brand"
                   >
                     {r.firstName} {r.lastName ?? ""}
                   </Link>
@@ -179,7 +193,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                       {r.tags.map((t) => (
                         <span
                           key={t.tag.id}
-                          className="rounded-full border border-ink-edge px-2 py-0.5 text-[10px] uppercase tracking-wider text-chalk-faint"
+                          className="border border-rule px-2 py-0.5 text-[10px] uppercase tracking-wider text-neutral-600"
                         >
                           {t.tag.name}
                         </span>
@@ -188,7 +202,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                   )}
                 </td>
 
-                <td className="px-4 py-3 text-chalk-muted">
+                <td className="px-4 py-3 text-neutral-700">
                   {r.email}
                   {r.marketingOptIn && (
                     <span className="ml-2 text-[10px] uppercase tracking-wider text-brand">
@@ -197,20 +211,26 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                   )}
                 </td>
 
-                <td className="px-4 py-3 text-chalk-muted">
+                <td className="px-4 py-3 text-neutral-700">
                   {r.type.charAt(0) + r.type.slice(1).toLowerCase()}
                   {r.show && (
-                    <span className="block text-[11px] text-chalk-faint">{r.show.title}</span>
+                    <span className="block text-[11px] text-neutral-600">
+                      {r.show.title}
+                    </span>
                   )}
                 </td>
 
-                <td className="px-4 py-3 text-chalk-muted">{r.talentCategory ?? "—"}</td>
-                <td className="px-4 py-3 text-chalk-muted">{r.country ?? "—"}</td>
+                <td className="px-4 py-3 text-neutral-700">
+                  {r.talentCategory ?? "—"}
+                </td>
+                <td className="px-4 py-3 text-neutral-700">
+                  {r.country ?? "—"}
+                </td>
 
                 <td className="px-4 py-3">
                   <span
                     className={cn(
-                      "inline-block rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
+                      "inline-block  border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
                       STATUS_STYLE[r.status] ?? STATUS_STYLE.REVIEWED,
                     )}
                   >
@@ -218,7 +238,7 @@ export function LeadTable({ rows }: { rows: Row[] }) {
                   </span>
                 </td>
 
-                <td className="px-4 py-3 text-chalk-faint">
+                <td className="px-4 py-3 text-neutral-600">
                   {new Date(r.createdAt).toLocaleDateString("en-GB", {
                     day: "2-digit",
                     month: "short",

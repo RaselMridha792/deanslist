@@ -193,7 +193,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
           urgent: true,
           body: (
             <>
-              <span className="font-semibold text-live">
+              <span className="font-semibold text-brand-onLight">
                 Another show is LIVE at the same time.
               </span>{" "}
               The homepage hero features exactly one, and which of the two it picks is not
@@ -231,7 +231,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
                 urgent: true,
                 body: (
                   <>
-                    <span className="font-semibold text-live">
+                    <span className="font-semibold text-brand-onLight">
                       More than one show is OPEN and none is LIVE.
                     </span>{" "}
                     The homepage features one of them and it may not be this one. Mark the
@@ -283,7 +283,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
             <div className="flex items-center gap-4">
               <StatusPill value={show.status} tone={STATUS_TONE[show.status]} />
               {show.status === "DRAFT" ? (
-                <span className="text-xs text-chalk-faint">Not on the public site yet</span>
+                <span className="text-xs text-neutral-600">Not on the public site yet</span>
               ) : (
                 <a
                   href={`/shows/${show.slug}`}
@@ -301,24 +301,24 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
 
       {heroNote && (
         <div
-          className={`mt-8 rounded-card border p-5 ${
+          className={`mt-8  border p-5 ${
             heroNote.urgent
-              ? "border-live/40 bg-live/5"
+              ? "border-brand/40 bg-brand/5"
               : "border-brand/30 bg-brand/5"
           }`}
         >
-          <p className="text-sm text-chalk-body">{heroNote.body}</p>
+          <p className="text-sm text-ink">{heroNote.body}</p>
         </div>
       )}
 
       {/* ------------------------------------------------------------ zone */}
 
-      <div className="mt-8 rounded-card border border-ink-line bg-ink-soft p-5">
+      <div className="mt-8 border border-rule bg-white p-5">
         <p className="label">Timezone</p>
-        <p className="text-sm text-chalk-body">
+        <p className="text-sm text-ink">
           Every date on this page is written and read in{" "}
-          <span className="font-semibold text-chalk">{activeTz.replace(/_/g, " ")}</span>{" "}
-          <span className="text-chalk-faint">({zoneLabel(activeTz, now)})</span>. It is stored
+          <span className="font-semibold text-ink">{activeTz.replace(/_/g, " ")}</span>{" "}
+          <span className="text-neutral-600">({zoneLabel(activeTz, now)})</span>. It is stored
           as a precise moment, so visitors in every country see it in their own zone.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -326,7 +326,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
             tz === activeTz ? (
               <span
                 key={tz}
-                className="rounded-full border border-brand/40 bg-brand/10 px-3 py-1 text-xs text-brand"
+                className="border border-brand/40 bg-brand/10 px-3 py-1 text-xs text-brand"
               >
                 {shortZone(tz)}
               </span>
@@ -334,7 +334,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
               <Link
                 key={tz}
                 href={href({ tz })}
-                className="rounded-full border border-ink-edge px-3 py-1 text-xs text-chalk-muted transition-colors hover:border-brand hover:text-brand"
+                className="border border-rule px-3 py-1 text-xs text-neutral-700 transition-colors hover:border-brand hover:text-brand"
                 title={tz}
               >
                 {shortZone(tz)}
@@ -442,13 +442,13 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="font-display text-2xl tracking-wide">Episodes</h2>
-            <p className="mt-2 max-w-2xl text-sm text-chalk-muted">
+            <p className="mt-2 max-w-2xl text-sm text-neutral-700">
               These are the videos on /watch and in the homepage highlights. Paste the
               YouTube link — the thumbnail is taken from the video id, so there is nothing
               to upload and nothing to get wrong.
             </p>
           </div>
-          <p className="text-xs text-chalk-faint">
+          <p className="text-xs text-neutral-600">
             {show.episodes.length} episode{show.episodes.length === 1 ? "" : "s"}
           </p>
         </div>
@@ -474,17 +474,17 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
                           src={ep.thumbnail}
                           alt=""
                           loading="lazy"
-                          className="h-10 w-16 rounded object-cover"
+                          className="h-10 w-16 object-cover"
                         />
                       ) : (
-                        <span className="block h-10 w-16 rounded bg-ink-high" />
+                        <span className="block h-10 w-16 bg-surface" />
                       )}
                     </Cell>
                     <Cell muted>{ep.episodeNo ?? "—"}</Cell>
                     <Cell>
                       <Link
                         href={href({ edit: ep.id, hash: "#episode-form" })}
-                        className="font-medium text-chalk transition-colors hover:text-brand"
+                        className="font-medium text-ink transition-colors hover:text-brand"
                       >
                         {ep.title}
                       </Link>
@@ -512,14 +512,14 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
                           {videoId}
                         </a>
                       ) : (
-                        <span className="text-live">No video id</span>
+                        <span className="text-brand-onLight">No video id</span>
                       )}
                     </Cell>
                     <Cell>
                       <div className="flex items-center justify-end gap-4">
                         <Link
                           href={href({ edit: ep.id, hash: "#episode-form" })}
-                          className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
+                          className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
                         >
                           Edit
                         </Link>
@@ -541,7 +541,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
         {/* One episode form at a time — add, or edit the row picked in the URL.
             Rendering a form per row would put a dozen inputs with the same id on
             the page, which quietly breaks every label. */}
-        <div id="episode-form" className="mt-8 max-w-3xl rounded-card border border-ink-line bg-ink-soft p-6">
+        <div id="episode-form" className="mt-8 max-w-3xl border border-rule bg-white p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="font-display text-lg tracking-wide">
               {editing ? `Edit: ${editing.title}` : "Add an episode"}
@@ -632,10 +632,10 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
 
       {/* ----------------------------------------------------------- danger */}
 
-      <section className="mt-16 max-w-3xl rounded-card border border-live/30 bg-live/5 p-6">
-        <h2 className="font-display text-lg tracking-wide text-chalk">Delete this show</h2>
+      <section className="mt-16 max-w-3xl border border-brand/30 bg-brand/5 p-6">
+        <h2 className="font-display text-lg tracking-wide text-ink">Delete this show</h2>
 
-        <ul className="mt-4 space-y-2 text-sm text-chalk-body">
+        <ul className="mt-4 space-y-2 text-sm text-ink">
           <li>
             <Count n={show.episodes.length} one="episode" many="episodes" />{" "}
             {show.episodes.length === 1 ? "is" : "are"} deleted with it. Episodes cascade —
@@ -654,11 +654,11 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
           </li>
         </ul>
 
-        <p className="mt-4 text-sm text-chalk-muted">
+        <p className="mt-4 text-sm text-neutral-700">
           There is almost always a better option.{" "}
-          <span className="text-chalk">Closed</span> or{" "}
-          <span className="text-chalk">Archived</span> keeps a finished season on the site as
-          a past season; <span className="text-chalk">Draft</span> removes it from the public
+          <span className="text-ink">Closed</span> or{" "}
+          <span className="text-ink">Archived</span> keeps a finished season on the site as
+          a past season; <span className="text-ink">Draft</span> removes it from the public
           site entirely. Both keep the episodes.
         </p>
 
@@ -671,7 +671,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
               redirectTo="/admin/shows"
             />
           ) : (
-            <p className="text-xs uppercase tracking-widest text-chalk-ghost">
+            <p className="text-xs uppercase tracking-widest text-neutral-400">
               Owner only
             </p>
           )}
@@ -685,7 +685,7 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
 function Count({ n, one, many }: { n: number; one: string; many: string }) {
   return (
     <>
-      <span className="text-chalk">{n}</span> {n === 1 ? one : many}
+      <span className="text-ink">{n}</span> {n === 1 ? one : many}
     </>
   );
 }

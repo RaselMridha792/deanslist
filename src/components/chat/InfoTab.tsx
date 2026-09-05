@@ -27,7 +27,7 @@ export function InfoTab() {
     <div className="space-y-8">
       <section>
         <p className="eyebrow">Where it happens</p>
-        <p className="mt-2 text-sm text-chalk-muted">
+        <p className="mt-2 text-sm text-neutral-700">
           Shows are broadcast live on both channels. Dates are announced there first, and to
           the email list.
         </p>
@@ -36,7 +36,7 @@ export function InfoTab() {
             href={SITE.socials.youtube}
             target="_blank"
             rel="noopener noreferrer"
-            className="card-interactive px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-chalk"
+            className="card-interactive px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-ink"
           >
             YouTube
           </a>
@@ -44,7 +44,7 @@ export function InfoTab() {
             href={SITE.socials.facebook}
             target="_blank"
             rel="noopener noreferrer"
-            className="card-interactive px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-chalk"
+            className="card-interactive px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-ink"
           >
             Facebook
           </a>
@@ -59,13 +59,13 @@ export function InfoTab() {
               <div className="flex items-start justify-between gap-3">
                 <Link
                   href={`/shows/${show.slug}`}
-                  className="font-display text-lg uppercase tracking-wide text-chalk transition-colors duration-base ease-crisp hover:text-brand"
+                  className="font-display text-lg uppercase tracking-wide text-ink transition-colors duration-200 ease-dl hover:text-brand"
                 >
                   {show.title}
                 </Link>
                 <span className="badge shrink-0">{show.status.toLowerCase()}</span>
               </div>
-              <p className="mt-2 text-sm text-chalk-muted">{show.tagline}</p>
+              <p className="mt-2 text-sm text-neutral-700">{show.tagline}</p>
               {show.cadence && (
                 <p className="mt-2 text-xs uppercase tracking-widest text-brand">{show.cadence}</p>
               )}
@@ -86,21 +86,21 @@ export function InfoTab() {
         >
           {SITE.email}
         </a>
-        <p className="mt-1 text-xs text-chalk-faint">{SITE.location}</p>
+        <p className="mt-1 text-xs text-neutral-600">{SITE.location}</p>
       </section>
 
       <section>
         <p className="eyebrow">Everything else</p>
-        <ul className="mt-3 divide-y divide-ink-line overflow-hidden rounded-card border border-ink-line">
+        <ul className="mt-3 divide-y divide-rule overflow-hidden border border-rule">
           {ROUTES.map((r) => (
             <li key={r.href}>
               <Link
                 href={r.href}
-                className="flex items-center justify-between gap-4 bg-ink-soft px-4 py-3 transition-colors duration-base ease-crisp hover:bg-ink-high"
+                className="flex items-center justify-between gap-4 bg-white px-4 py-3 transition-colors duration-200 ease-dl hover:bg-surface"
               >
                 <span>
-                  <span className="block text-sm font-medium text-chalk">{r.label}</span>
-                  <span className="block text-xs text-chalk-faint">{r.note}</span>
+                  <span className="block text-sm font-medium text-ink">{r.label}</span>
+                  <span className="block text-xs text-neutral-600">{r.note}</span>
                 </span>
                 <span aria-hidden="true" className="text-brand"></span>
               </Link>

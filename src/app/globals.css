@@ -193,6 +193,45 @@
     @apply border-l-4 border-brand bg-surface p-6;
   }
 
+  /* ---------------------------------------------------------- dashboard */
+
+  /*
+    The admin shares the public site's system: same paper ground, same ink, same
+    red, radius 0, 2px rules. It is the same product and it should not feel like
+    a different one.
+    Where it differs is density. A leads table is read for minutes at a time, so
+    the type steps down and the panels sit on white rather than paper, which
+    gives a table enough separation from the page without a shadow.
+  */
+
+  .card {
+    @apply border-2 border-rule bg-white;
+  }
+
+  .card-interactive {
+    @apply card transition-colors duration-200 ease-dl hover:bg-surface;
+  }
+
+  /* Small caps label above a value or a field group. The dashboard's .kicker. */
+  .eyebrow {
+    @apply text-eyebrow font-semibold uppercase text-neutral-600;
+  }
+
+  /*
+    Neutral chip. Category labels, role markers, "You" beside your own row.
+    Callers override the colour by appending border/bg/text classes, which is
+    why the colour lives here and not in a variant.
+  */
+  .badge {
+    @apply inline-block border-2 border-rule bg-surface px-2.5 py-1 text-[10px]
+           font-extrabold uppercase tracking-[.08em] text-neutral-700;
+  }
+
+  /* Small chip used for status and role. Colour comes from the caller. */
+  .pill {
+    @apply inline-block border-2 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[.08em];
+  }
+
   /* --------------------------------------------------------------- media */
 
   /* Every photograph and every video. No colorized imagery anywhere. */

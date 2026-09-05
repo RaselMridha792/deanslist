@@ -19,9 +19,9 @@ export function LogoutButton() {
       type="button"
       onClick={signOut}
       disabled={busy}
-      className="mt-3 text-xs uppercase tracking-widest text-white/40 transition hover:text-brand disabled:opacity-50"
+      className="mt-3 text-[10px] font-semibold uppercase tracking-[.14em] text-ground/50 transition-colors duration-200 ease-dl hover:text-brand-onDark disabled:opacity-50"
     >
-      {busy ? "Signing out…" : "Sign out"}
+      {busy ? "Signing out" : "Sign out"}
     </button>
   );
 }

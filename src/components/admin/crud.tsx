@@ -14,7 +14,8 @@ import { cn } from "@/lib/cn";
  * product. These are the pieces they all use.
  */
 
-export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
+export type ActionResult =
+  { ok: true; id?: string } | { ok: false; error: string };
 
 /* ------------------------------------------------------------------ shell */
 
@@ -31,7 +32,11 @@ export function AdminPageHeader({
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 className="font-display text-3xl tracking-wide">{title}</h1>
-        {description && <p className="mt-2 max-w-2xl text-sm text-chalk-muted">{description}</p>}
+        {description && (
+          <p className="mt-2 max-w-2xl text-sm text-neutral-700">
+            {description}
+          </p>
+        )}
       </div>
       {action}
     </div>
@@ -48,9 +53,13 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-card border border-dashed border-ink-edge bg-ink-soft p-14 text-center">
-      <p className="font-display text-2xl uppercase tracking-wide text-chalk">{title}</p>
-      <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-chalk-muted">{body}</p>
+    <div className="border border-dashed border-rule bg-white p-14 text-center">
+      <p className="font-display text-2xl uppercase tracking-wide text-ink">
+        {title}
+      </p>
+      <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-neutral-700">
+        {body}
+      </p>
       {action && <div className="mt-7">{action}</div>}
     </div>
   );
@@ -188,7 +197,7 @@ export function Checkbox({
   help?: string;
 }) {
   return (
-    <label className="flex items-start gap-3 text-sm text-chalk-muted sm:col-span-2">
+    <label className="flex items-start gap-3 text-sm text-neutral-700 sm:col-span-2">
       <input
         type="checkbox"
         name={name}
@@ -197,7 +206,9 @@ export function Checkbox({
       />
       <span>
         {label}
-        {help && <span className="mt-0.5 block text-xs text-chalk-faint">{help}</span>}
+        {help && (
+          <span className="mt-0.5 block text-xs text-neutral-600">{help}</span>
+        )}
       </span>
     </label>
   );
@@ -258,10 +269,16 @@ export function CrudForm({
       )}
 
       <div className="flex items-center gap-4 sm:col-span-2">
-        <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={pending}
+          className="btn btn-primary disabled:opacity-50"
+        >
           {pending ? "Saving…" : submitLabel}
         </button>
-        {saved && !pending && <span className="text-xs text-chalk-faint">Saved</span>}
+        {saved && !pending && (
+          <span className="text-xs text-neutral-600">Saved</span>
+        )}
       </div>
     </form>
   );
@@ -306,7 +323,7 @@ export function DeleteButton({
             else router.refresh();
           });
         }}
-        className="text-xs font-semibold uppercase tracking-widest text-chalk-faint transition-colors hover:text-live disabled:opacity-50"
+        className="text-xs font-semibold uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand-onLight disabled:opacity-50"
       >
         {pending ? "Deleting…" : label}
       </button>
@@ -325,9 +342,9 @@ export function AdminTable({
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-x-auto rounded-card border border-ink-line">
+    <div className="overflow-x-auto border border-rule">
       <table className="w-full min-w-[44rem] text-left text-sm">
-        <thead className="bg-ink-soft text-xs uppercase tracking-widest text-chalk-faint">
+        <thead className="bg-white text-xs uppercase tracking-widest text-neutral-600">
           <tr>
             {head.map((h) => (
               <th key={h} className="px-4 py-3">
@@ -344,7 +361,9 @@ export function AdminTable({
 
 export function Row({ children }: { children: React.ReactNode }) {
   return (
-    <tr className="border-t border-ink-line transition-colors hover:bg-ink-soft">{children}</tr>
+    <tr className="border-t border-rule transition-colors hover:bg-white">
+      {children}
+    </tr>
   );
 }
 
@@ -358,26 +377,43 @@ export function Cell({
   className?: string;
 }) {
   return (
-    <td className={cn("px-4 py-3", muted && "text-chalk-muted", className)}>{children}</td>
+    <td className={cn("px-4 py-3", muted && "text-neutral-700", className)}>
+      {children}
+    </td>
   );
 }
 
-export function RowLink({ href, children }: { href: string; children: React.ReactNode }) {
+export function RowLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
   return (
-    <Link href={href} className="font-medium text-chalk transition-colors hover:text-brand">
+    <Link
+      href={href}
+      className="font-medium text-ink transition-colors hover:text-brand"
+    >
       {children}
     </Link>
   );
 }
 
-export function StatusPill({ value, tone }: { value: string; tone?: "good" | "warn" | "mute" }) {
+export function StatusPill({
+  value,
+  tone,
+}: {
+  value: string;
+  tone?: "good" | "warn" | "mute";
+}) {
   return (
     <span
       className={cn(
-        "inline-block rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
-        tone === "good" && "border-emerald-400/40 bg-emerald-400/10 text-emerald-300",
-        tone === "warn" && "border-brand/40 bg-brand/10 text-brand",
-        (!tone || tone === "mute") && "border-ink-edge bg-ink-high text-chalk-muted",
+        "pill",
+        tone === "good" && "border-emerald-700 bg-emerald-50 text-emerald-800",
+        tone === "warn" && "border-brand bg-brand text-white",
+        (!tone || tone === "mute") && "border-rule bg-surface text-neutral-700",
       )}
     >
       {value}

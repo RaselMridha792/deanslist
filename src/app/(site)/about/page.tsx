@@ -50,16 +50,16 @@ export default async function AboutPage() {
   /* ------------------------------------------------ 01 / The platform */
 
   /*
-   * The design's paragraph, verbatim except for one excision. It reads
-   * "an audience of over 700,000 subscribers votes live"; that subscriber
-   * figure is stored verified:false and withheld from the public site, and the
-   * client's live site publishes 1.7 million for the same metric. Three
-   * sources, three answers, so the words "of over 700,000 subscribers" are
-   * held back and the rest of the sentence stands. Put them back the moment
-   * the client confirms a figure.
+   * The design's paragraph, with one figure corrected rather than excised.
+   *
+   * The design writes "an audience of over 700,000 subscribers", which is the
+   * number in the signed proposal. The client's own live site publishes 1.7
+   * million for the same metric, and the client has confirmed the live figure
+   * is the one to use. So both the proposal and the design file are stale here,
+   * and this sentence carries the confirmed number.
    */
   const platformBody =
-    "Dean's List LTD produces global music and talent contests such as Crown the Sound and Drop That Mike. Contestants submit performances from wherever they are, an audience votes live, and winners are rewarded with cash prizes and a place on the Principal's Roll.";
+    "Dean's List LTD produces global music and talent contests such as Crown the Sound and Drop That Mike. Contestants submit performances from wherever they are, an audience of over 1.7 million subscribers votes live, and winners are rewarded with cash prizes and a place on the Principal's Roll.";
 
   const prizeBody = [
     "Cash prizes, awarded per challenge.",

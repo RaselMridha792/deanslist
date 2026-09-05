@@ -85,18 +85,18 @@ export default async function ContentHub() {
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         {cards.map((c) => (
           <Link key={c.href} href={c.href} className="card-interactive block p-6">
-            <p className="text-xs uppercase tracking-widest text-chalk-faint">{c.title}</p>
+            <p className="text-xs uppercase tracking-widest text-neutral-600">{c.title}</p>
             <p
               className={`mt-3 font-display text-4xl ${
-                c.warn ? "text-brand" : "text-metal"
+                c.warn ? "text-brand" : "text-brand"
               }`}
             >
               {c.metric}
             </p>
-            <p className="mt-1 text-[11px] uppercase tracking-wider text-chalk-ghost">
+            <p className="mt-1 text-[11px] uppercase tracking-wider text-neutral-400">
               {c.sub}
             </p>
-            <p className="mt-4 text-sm leading-relaxed text-chalk-muted">{c.blurb}</p>
+            <p className="mt-4 text-sm leading-relaxed text-neutral-700">{c.blurb}</p>
           </Link>
         ))}
       </div>
@@ -107,8 +107,8 @@ export default async function ContentHub() {
         them broken (".7Mil+" for subscribers, a bare "K" for Facebook).
       */}
       {statsUnverified > 0 && (
-        <div className="mt-4 rounded-card border border-brand/30 bg-brand/5 p-5">
-          <p className="text-sm leading-relaxed text-chalk-body">
+        <div className="mt-4 border border-brand/30 bg-brand/5 p-5">
+          <p className="text-sm leading-relaxed text-ink">
             <span className="font-semibold text-brand">
               {statsUnverified} statistic{statsUnverified > 1 ? "s" : ""}
             </span>{" "}
@@ -122,32 +122,32 @@ export default async function ContentHub() {
         </div>
       )}
 
-      <div className="mt-4 rounded-card border border-ink-line bg-ink-soft p-6">
+      <div className="mt-4 border border-rule bg-white p-6">
         <p className="eyebrow">How this reaches the site</p>
-        <ul className="mt-4 space-y-3 text-sm leading-relaxed text-chalk-muted">
+        <ul className="mt-4 space-y-3 text-sm leading-relaxed text-neutral-700">
           <li>
-            <span className="text-chalk">Saving publishes immediately.</span> There is no
+            <span className="text-ink">Saving publishes immediately.</span> There is no
             second approval step, so the public pages are rebuilt the moment a change is
             saved.
           </li>
           <li>
-            <span className="text-chalk">Three switches decide what visitors see:</span>{" "}
+            <span className="text-ink">Three switches decide what visitors see:</span>{" "}
             a sponsor&apos;s <em>Active</em>, a statistic&apos;s <em>Verified</em>, and a
             section&apos;s <em>Published</em>. Anything switched off is stored but never
             rendered.
           </li>
           <li>
-            <span className="text-chalk">Every change is recorded</span> against the account
+            <span className="text-ink">Every change is recorded</span> against the account
             that made it, including who marked a statistic verified.
           </li>
           <li>
-            <span className="text-chalk">Deleting is owner-only.</span> Editors can switch
+            <span className="text-ink">Deleting is owner-only.</span> Editors can switch
             anything off, which is reversible; removing the row is not.
           </li>
         </ul>
-        <p className="mt-5 text-xs text-chalk-faint">
+        <p className="mt-5 text-xs text-neutral-600">
           Shows, episodes and winners are managed under{" "}
-          <Link href="/admin/shows" className="text-chalk-muted underline underline-offset-4 hover:text-brand">
+          <Link href="/admin/shows" className="text-neutral-700 underline underline-offset-4 hover:text-brand">
             Shows &amp; Events
           </Link>
           , not here.

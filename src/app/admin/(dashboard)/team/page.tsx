@@ -160,9 +160,9 @@ export default async function TeamPage({ searchParams }: Props) {
       {/* Red is urgency only, and a live admin account on a password published
           in the seed script is the definition of it. */}
       {atRisk.length > 0 && (
-        <div className="mt-8 rounded-card border border-live/40 bg-live/5 p-5">
-          <p className="text-sm leading-relaxed text-chalk-body">
-            <span className="font-semibold text-live">
+        <div className="mt-8 border border-brand/40 bg-brand/5 p-5">
+          <p className="text-sm leading-relaxed text-ink">
+            <span className="font-semibold text-brand-onLight">
               {atRisk.length} account{atRisk.length > 1 ? "s" : ""} still using the seeded
               password
             </span>{" "}
@@ -176,7 +176,7 @@ export default async function TeamPage({ searchParams }: Props) {
       {inviting && (
         <section className="card mt-8 p-6">
           <h2 className="font-display text-xl tracking-wide">Add a teammate</h2>
-          <p className="mt-1 max-w-2xl text-sm text-chalk-muted">
+          <p className="mt-1 max-w-2xl text-sm text-neutral-700">
             The account works immediately. Send the password through something other than
             email, and have them replace it from this screen once they are in.
           </p>
@@ -236,7 +236,7 @@ export default async function TeamPage({ searchParams }: Props) {
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-display text-lg tracking-wide text-chalk">
+                      <p className="font-display text-lg tracking-wide text-ink">
                         {account.name}
                       </p>
                       <StatusPill
@@ -246,9 +246,9 @@ export default async function TeamPage({ searchParams }: Props) {
                       {isSelf && <span className="badge">You</span>}
                     </div>
 
-                    <p className="mt-1 truncate text-sm text-chalk-muted">{account.email}</p>
+                    <p className="mt-1 truncate text-sm text-neutral-700">{account.email}</p>
 
-                    <p className="mt-1 text-xs text-chalk-faint">
+                    <p className="mt-1 text-xs text-neutral-600">
                       Added {formatDate(account.createdAt)}
                     </p>
 
@@ -266,7 +266,7 @@ export default async function TeamPage({ searchParams }: Props) {
                 </div>
 
                 {editing && (
-                  <div className="mt-6 space-y-8 border-t border-ink-line pt-6">
+                  <div className="mt-6 space-y-8 border-t border-rule pt-6">
                     {manageable ? (
                       <CrudForm
                         action={setUserRole}
@@ -305,7 +305,7 @@ export default async function TeamPage({ searchParams }: Props) {
                     </CrudForm>
 
                     {manageable && (
-                      <div className="border-t border-ink-line pt-5">
+                      <div className="border-t border-rule pt-5">
                         <DeleteButton
                           action={deleteUser.bind(null, { id: account.id })}
                           name={account.name}
@@ -328,7 +328,7 @@ export default async function TeamPage({ searchParams }: Props) {
 
       <section className="mt-10">
         <h2 className="font-display text-xl tracking-wide">What each role can do</h2>
-        <p className="mt-1 max-w-2xl text-sm text-chalk-muted">
+        <p className="mt-1 max-w-2xl text-sm text-neutral-700">
           Checked in code on every action and every admin route, not merely hidden from the
           sidebar. A role that is never enforced is decoration.
         </p>
@@ -339,10 +339,10 @@ export default async function TeamPage({ searchParams }: Props) {
             return (
               <div key={role} className="card p-5">
                 <p className="eyebrow">{ROLE_COPY[role].label}</p>
-                <p className="mt-3 text-sm leading-relaxed text-chalk-muted">
+                <p className="mt-3 text-sm leading-relaxed text-neutral-700">
                   {ROLE_COPY[role].blurb}
                 </p>
-                <p className="mt-4 text-xs text-chalk-faint">
+                <p className="mt-4 text-xs text-neutral-600">
                   {count} account{count === 1 ? "" : "s"}
                 </p>
               </div>

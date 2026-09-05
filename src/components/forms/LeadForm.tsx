@@ -473,7 +473,7 @@ export function LeadForm({
         </div>
       )}
 
-      <label className="flex items-start gap-3 text-sm text-chalk-muted sm:col-span-2">
+      <label className="flex items-start gap-3 text-sm text-neutral-700 sm:col-span-2">
         <input type="checkbox" name="marketingOptIn" className="mt-1 h-4 w-4 accent-brand" />
         <span>{consentLabel}</span>
       </label>

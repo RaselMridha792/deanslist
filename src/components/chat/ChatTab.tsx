@@ -186,14 +186,14 @@ export function ChatTab({
       {showFlow && (
         <div className="shrink-0 px-5 pt-4">
           <div className="flex items-center justify-between">
-            <p className="text-eyebrow font-semibold uppercase tracking-widest text-chalk-faint">
+            <p className="text-eyebrow font-semibold uppercase tracking-widest text-neutral-600">
               Step {view.index + 1} of {view.total}
             </p>
             {!flowDone && (
               <button
                 type="button"
                 onClick={() => setMode("ask")}
-                className="text-eyebrow font-semibold uppercase tracking-widest text-chalk-faint transition-colors duration-base ease-crisp hover:text-brand"
+                className="text-eyebrow font-semibold uppercase tracking-widest text-neutral-600 transition-colors duration-200 ease-dl hover:text-brand"
               >
                 Ask instead
               </button>
@@ -204,8 +204,8 @@ export function ChatTab({
               <span
                 key={i}
                 className={cn(
-                  "h-0.5 flex-1 rounded-full transition-colors duration-base ease-crisp",
-                  i <= view.index ? "bg-brand-gloss" : "bg-ink-line",
+                  "h-0.5 flex-1 transition-colors duration-200 ease-dl",
+                  i <= view.index ? "bg-brand" : "bg-rule",
                 )}
               />
             ))}
@@ -214,16 +214,16 @@ export function ChatTab({
       )}
 
       {mode === "ask" && (
-        <div className="shrink-0 border-b border-ink-line px-5 py-3">
+        <div className="shrink-0 border-b border-rule px-5 py-3">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs text-chalk-faint">
+            <p className="text-xs text-neutral-600">
               Answers come from what the team has published.
             </p>
             {!flowDone && view && (
               <button
                 type="button"
                 onClick={() => setMode("flow")}
-                className="shrink-0 text-eyebrow font-semibold uppercase tracking-widest text-chalk-faint transition-colors duration-base ease-crisp hover:text-brand"
+                className="shrink-0 text-eyebrow font-semibold uppercase tracking-widest text-neutral-600 transition-colors duration-200 ease-dl hover:text-brand"
               >
                 Back to form
               </button>
@@ -237,10 +237,10 @@ export function ChatTab({
           <p
             key={b.id}
             className={cn(
-              "max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm",
+              "max-w-[85%] whitespace-pre-wrap  px-4 py-2.5 text-sm",
               b.role === "assistant"
-                ? "border border-ink-line bg-ink-raised text-chalk-body"
-                : "ml-auto border border-brand/30 bg-brand/10 text-chalk",
+                ? "border border-rule bg-surface text-ink"
+                : "ml-auto border border-brand/30 bg-brand/10 text-ink",
             )}
           >
             {b.text}
@@ -248,7 +248,7 @@ export function ChatTab({
         ))}
 
         {busy && (
-          <p className="max-w-[85%] rounded-2xl border border-ink-line bg-ink-raised px-4 py-2.5 text-sm text-chalk-faint">
+          <p className="max-w-[85%] border border-rule bg-surface px-4 py-2.5 text-sm text-neutral-600">
             <span className="sr-only">Working on it</span>
             <span aria-hidden="true">…</span>
           </p>
@@ -267,7 +267,7 @@ export function ChatTab({
                 key={s}
                 type="button"
                 onClick={() => void ask(s)}
-                className="rounded-full border border-ink-edge bg-ink-high px-3 py-1.5 text-xs text-chalk-muted transition-colors duration-base ease-crisp hover:border-brand hover:text-brand"
+                className="border border-rule bg-surface px-3 py-1.5 text-xs text-neutral-700 transition-colors duration-200 ease-dl hover:border-brand hover:text-brand"
               >
                 {s}
               </button>
@@ -278,7 +278,7 @@ export function ChatTab({
         <div ref={endRef} />
       </div>
 
-      <div className="shrink-0 border-t border-ink-line bg-ink-raised px-5 py-4">
+      <div className="shrink-0 border-t border-rule bg-surface px-5 py-4">
         <input
           ref={honeypotRef}
           type="text"
@@ -299,8 +299,8 @@ export function ChatTab({
                 onClick={() => void choose(c.value, c.label)}
                 className="card-interactive px-4 py-3 text-left disabled:opacity-50"
               >
-                <span className="block text-sm font-medium text-chalk">{c.label}</span>
-                {c.hint && <span className="block text-xs text-chalk-faint">{c.hint}</span>}
+                <span className="block text-sm font-medium text-ink">{c.label}</span>
+                {c.hint && <span className="block text-xs text-neutral-600">{c.hint}</span>}
               </button>
             ))}
           </div>
@@ -358,7 +358,7 @@ export function ChatTab({
 
         {showFlow && view.input === "confirm" && (
           <div className="grid gap-3">
-            <label className="flex items-start gap-3 text-xs text-chalk-muted">
+            <label className="flex items-start gap-3 text-xs text-neutral-700">
               <input
                 type="checkbox"
                 checked={optIn}

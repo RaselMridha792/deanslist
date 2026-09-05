@@ -32,7 +32,7 @@ export default async function LeadDetailPage({ params }: Props) {
           <h1 className="font-display text-3xl tracking-wide">
             {lead.firstName} {lead.lastName ?? ""}
           </h1>
-          <p className="mt-2 text-sm text-chalk-muted">
+          <p className="mt-2 text-sm text-neutral-700">
             {lead.type.charAt(0) + lead.type.slice(1).toLowerCase()} ·{" "}
             {lead.source.replace(/_/g, " ").toLowerCase()} ·{" "}
             {lead.createdAt.toLocaleString("en-GB", {
@@ -54,7 +54,7 @@ export default async function LeadDetailPage({ params }: Props) {
             <section>
               <p className="label">Performance</p>
               {youTubeId ? (
-                <div className="aspect-video overflow-hidden rounded-card border border-ink-line">
+                <div className="aspect-video overflow-hidden border border-rule">
                   <iframe
                     src={`https://www.youtube-nocookie.com/embed/${youTubeId}`}
                     title="Submitted performance"
@@ -63,8 +63,8 @@ export default async function LeadDetailPage({ params }: Props) {
                   />
                 </div>
               ) : (
-                <div className="rounded-card border border-ink-line bg-ink-soft p-5">
-                  <p className="text-sm text-chalk-muted">
+                <div className="border border-rule bg-white p-5">
+                  <p className="text-sm text-neutral-700">
                     {facebookVideo
                       ? "Facebook video — open in a new tab to watch."
                       : "Link submitted. Open it to review."}
@@ -84,7 +84,7 @@ export default async function LeadDetailPage({ params }: Props) {
 
           <section>
             <p className="label">Submitted details</p>
-            <dl className="grid gap-px overflow-hidden rounded-card border border-ink-line bg-ink-line sm:grid-cols-2">
+            <dl className="grid gap-px overflow-hidden border border-rule bg-rule sm:grid-cols-2">
               <Field label="Email" value={lead.email} href={`mailto:${lead.email}`} />
               <Field label="Phone" value={lead.phone} href={lead.phone ? `tel:${lead.phone}` : undefined} />
               <Field label="Address" value={lead.addressLine1} />
@@ -112,7 +112,7 @@ export default async function LeadDetailPage({ params }: Props) {
           {lead.message && (
             <section>
               <p className="label">Their message</p>
-              <div className="whitespace-pre-wrap rounded-card border border-ink-line bg-ink-soft p-5 text-sm leading-relaxed text-chalk-body">
+              <div className="whitespace-pre-wrap border border-rule bg-white p-5 text-sm leading-relaxed text-ink">
                 {lead.message}
               </div>
             </section>
@@ -121,15 +121,15 @@ export default async function LeadDetailPage({ params }: Props) {
           {lead.conversations.length > 0 && (
             <section>
               <p className="label">Chatbot transcript</p>
-              <div className="space-y-3 rounded-card border border-ink-line bg-ink-soft p-5">
+              <div className="space-y-3 border border-rule bg-white p-5">
                 {lead.conversations.flatMap((c) =>
                   c.messages.map((m) => (
                     <p key={m.id} className="text-sm">
-                      <span className="text-xs uppercase tracking-widest text-chalk-faint">
+                      <span className="text-xs uppercase tracking-widest text-neutral-600">
                         {m.role}
                       </span>
                       <br />
-                      <span className="text-chalk-body">{m.content}</span>
+                      <span className="text-ink">{m.content}</span>
                     </p>
                   )),
                 )}
@@ -139,8 +139,8 @@ export default async function LeadDetailPage({ params }: Props) {
 
           {/* Kept in a collapsed block: useful when investigating spam, noise
               the rest of the time. */}
-          <details className="rounded-card border border-ink-line bg-ink-soft p-5">
-            <summary className="cursor-pointer text-xs uppercase tracking-widest text-chalk-faint">
+          <details className="border border-rule bg-white p-5">
+            <summary className="cursor-pointer text-xs uppercase tracking-widest text-neutral-600">
               Technical detail
             </summary>
             <dl className="mt-4 grid gap-3 text-xs sm:grid-cols-2">
@@ -154,7 +154,7 @@ export default async function LeadDetailPage({ params }: Props) {
           </details>
         </div>
 
-        <aside className="rounded-card border border-ink-line bg-ink-soft p-6">
+        <aside className="border border-rule bg-white p-6">
           <LeadDetailPanel
             leadId={lead.id}
             status={lead.status}
@@ -177,9 +177,9 @@ function Field({
   href?: string;
 }) {
   return (
-    <div className="bg-ink-soft px-5 py-4">
-      <dt className="text-[10px] uppercase tracking-widest text-chalk-faint">{label}</dt>
-      <dd className="mt-1 break-words text-sm text-chalk-body">
+    <div className="bg-white px-5 py-4">
+      <dt className="text-[10px] uppercase tracking-widest text-neutral-600">{label}</dt>
+      <dd className="mt-1 break-words text-sm text-ink">
         {value ? (
           href ? (
             <a href={href} className="text-brand hover:underline">
@@ -189,7 +189,7 @@ function Field({
             value
           )
         ) : (
-          <span className="text-chalk-ghost">—</span>
+          <span className="text-neutral-400">—</span>
         )}
       </dd>
     </div>
@@ -199,8 +199,8 @@ function Field({
 function Raw({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
-      <dt className="text-chalk-faint">{label}</dt>
-      <dd className="mt-0.5 break-all text-chalk-muted">{value ?? "—"}</dd>
+      <dt className="text-neutral-600">{label}</dt>
+      <dd className="mt-0.5 break-all text-neutral-700">{value ?? "—"}</dd>
     </div>
   );
 }

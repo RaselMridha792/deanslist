@@ -66,9 +66,9 @@ export function EntryTab({
 
   if (status === "success") {
     return (
-      <div className="rounded-card border border-brand/40 bg-brand/5 p-5">
+      <div className="border border-brand/40 bg-brand/5 p-5">
         <p className="eyebrow">Entry received</p>
-        <p className="mt-3 text-sm text-chalk-body">
+        <p className="mt-3 text-sm text-ink">
           The team reviews every submission and replies by email. Nothing else is needed from
           you right now.
         </p>
@@ -82,7 +82,7 @@ export function EntryTab({
     <form onSubmit={onSubmit} className="grid gap-4" noValidate>
       <div>
         <p className="eyebrow">Enter the contest</p>
-        <p className="mt-2 text-sm text-chalk-muted">
+        <p className="mt-2 text-sm text-neutral-700">
           Four fields. You can send your performance link later.
         </p>
       </div>
@@ -161,7 +161,7 @@ export function EntryTab({
         <p className="help">Optional here. Make sure it is public or the judges cannot open it.</p>
       </div>
 
-      <label className="flex items-start gap-3 text-sm text-chalk-muted">
+      <label className="flex items-start gap-3 text-sm text-neutral-700">
         <input type="checkbox" name="marketingOptIn" className="mt-1 h-4 w-4 accent-brand" />
         <span>Email me show announcements and reminders. One click to unsubscribe.</span>
       </label>
@@ -186,7 +186,7 @@ export function EntryTab({
             Got a question first?
           </button>
         )}
-        <Link href="/enter" className="text-xs uppercase tracking-widest text-chalk-faint hover:text-brand">
+        <Link href="/enter" className="text-xs uppercase tracking-widest text-neutral-600 hover:text-brand">
           Full form
         </Link>
       </div>

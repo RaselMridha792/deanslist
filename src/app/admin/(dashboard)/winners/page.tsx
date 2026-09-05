@@ -66,7 +66,7 @@ export default async function WinnersPage() {
               <Row key={w.id}>
                 <Cell>
                   <RowLink href={`/admin/winners/${w.id}`}>{w.name}</RowLink>
-                  <span className="mt-0.5 block text-xs text-chalk-faint">/winners/{w.slug}</span>
+                  <span className="mt-0.5 block text-xs text-neutral-600">/winners/{w.slug}</span>
                 </Cell>
                 <Cell muted>{w.show?.title ?? "—"}</Cell>
                 <Cell muted>
@@ -95,7 +95,7 @@ export default async function WinnersPage() {
                     href={`/winners/${w.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-semibold uppercase tracking-widest text-chalk-muted transition-colors hover:text-brand"
+                    className="text-xs font-semibold uppercase tracking-widest text-neutral-700 transition-colors hover:text-brand"
                   >
                     View
                   </a>

@@ -40,7 +40,7 @@ export function LeadFilters({ shows, countries, tags, total }: Props) {
   const active = Array.from(sp.keys()).filter((k) => k !== "page").length > 0;
 
   return (
-    <div className="rounded-card border border-ink-line bg-ink-soft p-5">
+    <div className="border border-rule bg-white p-5">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -153,8 +153,8 @@ export function LeadFilters({ shows, countries, tags, total }: Props) {
         </button>
       </form>
 
-      <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-ink-line pt-4 text-xs">
-        <span className="text-chalk-muted">
+      <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-rule pt-4 text-xs">
+        <span className="text-neutral-700">
           {pending ? "Loading…" : `${total.toLocaleString("en-US")} matching`}
         </span>
 
@@ -165,7 +165,7 @@ export function LeadFilters({ shows, countries, tags, total }: Props) {
               setQ("");
               startTransition(() => router.push("/admin/leads"));
             }}
-            className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
+            className="uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
           >
             Clear filters
           </button>
@@ -173,13 +173,13 @@ export function LeadFilters({ shows, countries, tags, total }: Props) {
 
         <a
           href={`/api/admin/leads/export?${sp.toString()}&format=csv`}
-          className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
+          className="uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
         >
           Export CSV
         </a>
         <a
           href={`/api/admin/leads/export?${sp.toString()}&format=xlsx`}
-          className="uppercase tracking-widest text-chalk-faint transition-colors hover:text-brand"
+          className="uppercase tracking-widest text-neutral-600 transition-colors hover:text-brand"
         >
           Export Excel
         </a>

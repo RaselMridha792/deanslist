@@ -4,7 +4,8 @@ import { SITE } from "@/content/site";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "What data the Dean's List website collects, why, and how to have it removed.",
+  description:
+    "What data the Dean's List website collects, why, and how to have it removed.",
 };
 
 /**
@@ -84,41 +85,47 @@ export default function PrivacyPage() {
       />
 
       <section className="section">
-        <div className="shell max-w-3xl">
-          <div className="rounded-card border border-brand/30 bg-brand/5 p-7">
-            <p className="text-sm font-semibold uppercase tracking-widest text-brand">
-              Pending legal review
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-chalk-body">
-              This describes exactly what the website does with your data today. The formal
-              wording, registered company details, the legal basis relied on, retention
-              periods and the supervisory authority to complain to, is being confirmed with
-              Dean&apos;s List LTD before launch.
-            </p>
-          </div>
-
-          <div className="mt-14 space-y-12">
-            {SECTIONS.map((s) => (
-              <section key={s.heading}>
-                <h2 className="text-2xl uppercase tracking-wide text-brand">{s.heading}</h2>
-                <div className="mt-4 space-y-4 leading-relaxed text-chalk-muted">
-                  {s.body.map((p) => (
-                    <p key={p}>{p}</p>
-                  ))}
-                </div>
-              </section>
-            ))}
-
-            <section>
-              <h2 className="text-2xl uppercase tracking-wide text-brand">Contact</h2>
-              <p className="mt-4 leading-relaxed text-chalk-muted">
-                For anything on this page, email{" "}
-                <a href={`mailto:${SITE.email}`} className="text-brand hover:underline">
-                  {SITE.email}
-                </a>
-                . {SITE.legalName}, {SITE.location}.
+        <div className="shell">
+          <div className="max-w-[68ch]">
+            <div className="border-l-4 border-brand bg-brand-tint p-6">
+              <p className="kicker">Pending legal review</p>
+              <p className="mt-3 text-body text-neutral-800">
+                This describes exactly what the website does with your data
+                today. The formal wording, registered company details, the legal
+                basis relied on, retention periods and the supervisory authority
+                to complain to, is being confirmed with Dean&apos;s List LTD
+                before launch.
               </p>
-            </section>
+            </div>
+
+            <div className="divider mt-14 space-y-12 pt-12">
+              {SECTIONS.map((s) => (
+                <section key={s.heading}>
+                  <h2 className="text-display-sm font-extrabold">
+                    {s.heading}
+                  </h2>
+                  <div className="mt-4 space-y-4 text-pretty text-body text-neutral-700">
+                    {s.body.map((p) => (
+                      <p key={p}>{p}</p>
+                    ))}
+                  </div>
+                </section>
+              ))}
+
+              <section>
+                <h2 className="text-display-sm font-extrabold">Contact</h2>
+                <p className="mt-4 text-pretty text-body text-neutral-700">
+                  For anything on this page, email{" "}
+                  <a
+                    href={`mailto:${SITE.email}`}
+                    className="text-brand-onLight underline underline-offset-4"
+                  >
+                    {SITE.email}
+                  </a>
+                  . {SITE.legalName}, {SITE.location}.
+                </p>
+              </section>
+            </div>
           </div>
         </div>
       </section>

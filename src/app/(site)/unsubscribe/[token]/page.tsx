@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/site/PageHero";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/dl/Button";
 import { SITE } from "@/content/site";
 import { readUnsubscribeState } from "@/lib/unsubscribe";
 
@@ -43,14 +43,17 @@ export default async function UnsubscribePage({ params, searchParams }: Props) {
   if (state.status === "invalid") {
     return (
       <Shell eyebrow="Unsubscribe" title="This link is not valid">
-        <p className="text-chalk-body">
-          The link has been altered, truncated by a mail client, or belongs to an older mailing.
-          Nothing has changed on your subscription.
+        <p className="text-neutral-800">
+          The link has been altered, truncated by a mail client, or belongs to
+          an older mailing. Nothing has changed on your subscription.
         </p>
-        <p className="mt-4 text-chalk-muted">
-          Open the most recent email from us and use the unsubscribe link at the bottom of it, or
-          write to{" "}
-          <a href={`mailto:${SITE.email}`} className="text-brand underline underline-offset-4">
+        <p className="mt-4 text-neutral-700">
+          Open the most recent email from us and use the unsubscribe link at the
+          bottom of it, or write to{" "}
+          <a
+            href={`mailto:${SITE.email}`}
+            className="text-brand-onLight underline underline-offset-4"
+          >
             {SITE.email}
           </a>{" "}
           and we will take you off the list by hand.
@@ -63,9 +66,9 @@ export default async function UnsubscribePage({ params, searchParams }: Props) {
   if (state.status === "unknown") {
     return (
       <Shell eyebrow="Unsubscribe" title="Not on the list">
-        <p className="text-chalk-body">
-          This address is not on our mailing list, so there is nothing to remove. You will not
-          receive show announcements from us.
+        <p className="text-neutral-800">
+          This address is not on our mailing list, so there is nothing to
+          remove. You will not receive show announcements from us.
         </p>
         <Actions />
       </Shell>
@@ -78,13 +81,15 @@ export default async function UnsubscribePage({ params, searchParams }: Props) {
   if (flash === "done") {
     return (
       <Shell eyebrow="Unsubscribed" title="You are off the list">
-        <p className="text-chalk-body">
-          <span className="text-chalk">{state.maskedEmail}</span> has been removed from show
-          announcements. You will not be added back by any future import.
+        <p className="text-neutral-800">
+          <span className="text-ink">{state.maskedEmail}</span> has been removed
+          from show announcements. You will not be added back by any future
+          import.
         </p>
-        <p className="mt-4 text-chalk-muted">
-          Anything you already sent us — an entry, an application, an enquiry — is untouched, and
-          we can still reply to it directly. This only stops the marketing emails.
+        <p className="mt-4 text-neutral-700">
+          Anything you already sent us — an entry, an application, an enquiry —
+          is untouched, and we can still reply to it directly. This only stops
+          the marketing emails.
         </p>
         <Actions />
       </Shell>
@@ -94,9 +99,10 @@ export default async function UnsubscribePage({ params, searchParams }: Props) {
   if (state.status === "already") {
     return (
       <Shell eyebrow="Unsubscribe" title="Already unsubscribed">
-        <p className="text-chalk-body">
-          <span className="text-chalk">{state.maskedEmail}</span> is already off the list. No
-          further action is needed, and nothing you do on this page will put you back on it.
+        <p className="text-neutral-800">
+          <span className="text-ink">{state.maskedEmail}</span> is already off
+          the list. No further action is needed, and nothing you do on this page
+          will put you back on it.
         </p>
         <Actions />
       </Shell>
@@ -105,13 +111,13 @@ export default async function UnsubscribePage({ params, searchParams }: Props) {
 
   return (
     <Shell eyebrow="Unsubscribe" title="Stop these emails?">
-      <p className="text-chalk-body">
+      <p className="text-neutral-800">
         We will stop sending show announcements, reminders and results to{" "}
-        <span className="text-chalk">{state.maskedEmail}</span>.
+        <span className="text-ink">{state.maskedEmail}</span>.
       </p>
-      <p className="mt-4 text-chalk-muted">
-        This is where the show dates go out first. Social platforms decide who sees a post; email
-        does not.
+      <p className="mt-4 text-neutral-700">
+        This is where the show dates go out first. Social platforms decide who
+        sees a post; email does not.
       </p>
 
       <form method="post" action="/api/unsubscribe" className="mt-8">
@@ -163,9 +169,9 @@ function Shell({
     <>
       <PageHero eyebrow={eyebrow} title={title} />
       <section className="section">
-        <div className="shell max-w-2xl">
-          <div className="rounded-card border border-ink-line bg-ink-soft p-8 sm:p-10">
-            {children}
+        <div className="shell">
+          <div className="max-w-[60ch]">
+            <div className="card p-8 sm:p-10">{children}</div>
           </div>
         </div>
       </section>
@@ -176,10 +182,10 @@ function Shell({
 function Actions() {
   return (
     <div className="mt-8 flex flex-wrap gap-4">
-      <ButtonLink href="/" variant="ghost">
+      <ButtonLink href="/" variant="outline">
         Back to the site
       </ButtonLink>
-      <ButtonLink href="/privacy" variant="quiet">
+      <ButtonLink href="/privacy" variant="ghost">
         How we handle your data
       </ButtonLink>
     </div>

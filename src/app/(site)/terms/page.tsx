@@ -44,37 +44,54 @@ const SECTIONS = [
 export default function TermsPage() {
   return (
     <>
-      <PageHero eyebrow="Legal" title="Terms of use" lede="The terms that apply to using this website." />
+      <PageHero
+        eyebrow="Legal"
+        title="Terms of use"
+        lede="The terms that apply to using this website."
+      />
 
       <section className="section">
-        <div className="shell max-w-3xl">
-          <div className="rounded-card border border-brand/30 bg-brand/5 p-7">
-            <p className="text-sm font-semibold uppercase tracking-widest text-brand">Pending legal review</p>
-            <p className="mt-3 text-sm leading-relaxed text-chalk-body">
-              An outline pending sign-off by {SITE.legalName}. Liability, governing law and jurisdiction are
-              deliberately not stated here until confirmed.
-            </p>
-          </div>
-
-          <div className="mt-14 space-y-12">
-            {SECTIONS.map((s) => (
-              <section key={s.heading}>
-                <h2 className="text-2xl uppercase tracking-wide text-brand">{s.heading}</h2>
-                <p className="mt-4 leading-relaxed text-chalk-muted">{s.body}</p>
-                {s.link && (
-                  <Link href={s.link.href} className="btn-quiet mt-4">
-                    {s.link.label}</Link>
-                )}
-              </section>
-            ))}
-
-            <section>
-              <h2 className="text-2xl uppercase tracking-wide text-brand">Contact</h2>
-              <p className="mt-4 leading-relaxed text-chalk-muted">
-                {SITE.legalName}, {SITE.location}.{" "}
-                <a href={`mailto:${SITE.email}`} className="text-brand hover:underline">{SITE.email}</a>
+        <div className="shell">
+          <div className="max-w-[68ch]">
+            <div className="border-l-4 border-brand bg-brand-tint p-6">
+              <p className="kicker">Pending legal review</p>
+              <p className="mt-3 text-body text-neutral-800">
+                An outline pending sign-off by {SITE.legalName}. Liability,
+                governing law and jurisdiction are deliberately not stated here
+                until confirmed.
               </p>
-            </section>
+            </div>
+
+            <div className="divider mt-14 space-y-12 pt-12">
+              {SECTIONS.map((s) => (
+                <section key={s.heading}>
+                  <h2 className="text-display-sm font-extrabold">
+                    {s.heading}
+                  </h2>
+                  <p className="mt-4 text-pretty text-body text-neutral-700">
+                    {s.body}
+                  </p>
+                  {s.link && (
+                    <Link href={s.link.href} className="btn-quiet mt-4">
+                      {s.link.label}
+                    </Link>
+                  )}
+                </section>
+              ))}
+
+              <section>
+                <h2 className="text-display-sm font-extrabold">Contact</h2>
+                <p className="mt-4 text-pretty text-body text-neutral-700">
+                  {SITE.legalName}, {SITE.location}.{" "}
+                  <a
+                    href={`mailto:${SITE.email}`}
+                    className="text-brand-onLight underline underline-offset-4"
+                  >
+                    {SITE.email}
+                  </a>
+                </p>
+              </section>
+            </div>
           </div>
         </div>
       </section>
