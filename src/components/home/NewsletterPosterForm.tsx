@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/dl/Button";
+import { readAttribution } from "@/lib/attribution";
 
 type Status = "idle" | "loading" | "error" | "success";
 
@@ -31,6 +32,7 @@ export function NewsletterPosterForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...readAttribution(),
           firstName: String(fd.get("firstName") || "Friend"),
           email: String(fd.get("email") ?? "").trim(),
           // Honeypot. The route answers 200 and writes nothing when it is filled.

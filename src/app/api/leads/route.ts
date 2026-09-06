@@ -71,6 +71,16 @@ export async function POST(req: NextRequest) {
       ipAddress: ip,
       userAgent: req.headers.get("user-agent") ?? undefined,
       referrer: req.headers.get("referer") ?? undefined,
+
+      // Campaign markers, captured by the browser on the landing page. They
+      // cannot be read from this request: by the time a visitor submits, the
+      // URL is /enter and the utm_* that paid for them is two pages behind.
+      utmSource: data.utmSource,
+      utmMedium: data.utmMedium,
+      utmCampaign: data.utmCampaign,
+      utmContent: data.utmContent,
+      utmTerm: data.utmTerm,
+      clickId: data.clickId,
     },
   });
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { TALENT_CATEGORIES } from "@/content/site";
+import { readAttribution } from "@/lib/attribution";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -40,6 +41,7 @@ export function EntryTab({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...readAttribution(),
           type: "CONTESTANT",
           firstName: String(fd.get("firstName") ?? "").trim(),
           email: String(fd.get("email") ?? "").trim(),

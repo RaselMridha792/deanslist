@@ -184,9 +184,27 @@ model Lead {
   ipAddress   String?
   userAgent   String?
   referrer    String?
+
+  /// Where the entry came from.
+  ///
+  /// The first three existed and nothing ever wrote to them, so every lead
+  /// carried blank attribution while the dashboard rendered the columns. For a
+  /// site whose traffic is about to be bought, that is the difference between
+  /// knowing which ad works and guessing.
+  ///
+  /// utmContent is the one that names the CREATIVE rather than the campaign,
+  /// which is what you actually compare when deciding where the budget goes.
   utmSource   String?
   utmMedium   String?
   utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+
+  /// The advertising platform's click id: fbclid from Meta, gclid from Google.
+  /// Kept because a server-side conversion event needs it to match a lead back
+  /// to the click that produced it, which is what recovers the conversions an
+  /// ad blocker or iOS eats before the browser pixel can fire.
+  clickId     String?
 
   internalNotes String?
 

@@ -1,5 +1,23 @@
 import { z } from "zod";
 
+/**
+ * Campaign markers, spread into a lead body by the forms.
+ *
+ * Every one is optional and length-capped. They are attacker-controlled — a
+ * `utm_campaign` is whatever was in the URL — so they are treated as labels,
+ * never as anything that decides behaviour, and the cap keeps a crafted URL
+ * from writing a novel into the database.
+ */
+const attributionShape = {
+  utmSource: z.string().max(200).optional(),
+  utmMedium: z.string().max(200).optional(),
+  utmCampaign: z.string().max(200).optional(),
+  utmContent: z.string().max(200).optional(),
+  utmTerm: z.string().max(200).optional(),
+  clickId: z.string().max(500).optional(),
+  landingPath: z.string().max(300).optional(),
+};
+
 export const leadSchema = z.object({
   type: z
     .enum(["CONTESTANT", "FAN", "SPONSOR", "CREW", "GENERAL", "PRESS"])
@@ -16,7 +34,11 @@ export const leadSchema = z.object({
   postalCode: z.string().max(20).optional(),
   country: z.string().max(80).optional(),
   talentCategory: z.string().max(80).optional(),
-  performanceUrl: z.string().url("Enter a valid link").optional().or(z.literal("")),
+  performanceUrl: z
+    .string()
+    .url("Enter a valid link")
+    .optional()
+    .or(z.literal("")),
   stageName: z.string().max(80).optional(),
   ageRange: z.string().max(20).optional(),
   message: z.string().max(2000).optional(),
@@ -40,6 +62,8 @@ export const leadSchema = z.object({
    * tests that claimed to prove the honeypot works pass for the wrong reason.
    */
   website: z.string().max(200).optional(),
+
+  ...attributionShape,
 });
 
 export type LeadInput = z.infer<typeof leadSchema>;
@@ -51,4 +75,6 @@ export const subscribeSchema = z.object({
   // Honeypot. See the note in leadSchema — the route answers 200 and writes
   // nothing rather than telling a bot which field caught it.
   website: z.string().max(200).optional(),
+
+  ...attributionShape,
 });

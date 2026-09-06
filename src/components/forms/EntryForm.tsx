@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/dl/Button";
 import { TALENT_CATEGORIES } from "@/content/site";
 import { cn } from "@/lib/cn";
+import { readAttribution } from "@/lib/attribution";
 
 export type EntryShowOption = { slug: string; label: string };
 
@@ -130,6 +131,7 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...readAttribution(),
           type: "CONTESTANT",
           firstName: values.firstName,
           lastName: values.lastName,

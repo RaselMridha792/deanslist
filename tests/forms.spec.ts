@@ -1066,3 +1066,134 @@ test("the public lead endpoint rate limits a flood from one address", async ({
       `honeypot, so not one of them should have been written as a lead`,
   ).toHaveLength(0);
 });
+
+/**
+ * The paid-traffic landing page.
+ *
+ * This is the page an ad click lands on, so it carries two jobs no other form
+ * has: it must convert without the site's navigation around it, and it must
+ * record which ad paid for the lead. The second one is the part that fails
+ * silently — attribution that quietly does not arrive looks exactly like a
+ * campaign that quietly does not work, and the fix would be to spend more on it.
+ */
+test.describe("registration landing page — /register", () => {
+  /** The shape of a real Meta click: campaign, creative, and the click id. */
+  const AD_QUERY =
+    "utm_source=meta&utm_medium=paid_social&utm_campaign=weekly-show" +
+    "&utm_content=reel-variant-a&fbclid=IwAR_test_click_id";
+
+  async function fillRegistration(page: Page, email: string, name: string) {
+    await page.fill("#reg-name", name);
+    await page.fill("#reg-email", email);
+    await page.fill("#reg-address", "12 Test Street, South Charleston, WV 25309");
+    await page.selectOption("#reg-talent", "Rapper");
+    await page.check('input[name="consent"]');
+  }
+
+  test("a registration is stored, with the campaign that produced it", async ({
+    page,
+    baseURL,
+  }) => {
+    await isolate(page);
+    const { email, firstName } = identity("register");
+
+    await page.goto(`/register?${AD_QUERY}`);
+    await fillRegistration(page, email, `${firstName} Adclick`);
+    await page.getByRole("button", { name: /register to perform/i }).click();
+
+    await expect(
+      page.getByText("You are registered"),
+      "the form did not confirm the registration",
+    ).toBeVisible({ timeout: 20_000 });
+
+    await expectStoredLead(baseURL!, email, {
+      type: "CONTESTANT",
+      firstName,
+      source: "WEBSITE_FORM",
+    });
+
+    // The point of the page. A lead that arrives without its campaign is a lead
+    // the client cannot attribute, and an ad account cannot be optimised on
+    // conversions it cannot see.
+    const [row] = await exportRowsFor(baseURL!, email);
+    for (const marker of [
+      "meta",
+      "paid_social",
+      "weekly-show",
+      "reel-variant-a",
+      "IwAR_test_click_id",
+    ]) {
+      expect(row, `the stored lead lost the campaign marker "${marker}"`).toContain(marker);
+    }
+  });
+
+  test("the campaign survives a visitor who lands elsewhere first", async ({
+    page,
+    baseURL,
+  }) => {
+    // The real journey, and the one that breaks a naive implementation: the ad
+    // lands on the homepage, the visitor reads, then clicks through and
+    // registers on a URL that carries none of the campaign parameters.
+    await isolate(page);
+    const { email, firstName } = identity("regjourney");
+
+    await page.goto(`/?${AD_QUERY}`);
+    await page.waitForLoadState("networkidle");
+
+    await page.goto("/register");
+    await fillRegistration(page, email, `${firstName} Journey`);
+    await page.getByRole("button", { name: /register to perform/i }).click();
+    await expect(page.getByText("You are registered")).toBeVisible({ timeout: 20_000 });
+
+    const [row] = await exportRowsFor(baseURL!, email);
+    expect(
+      row,
+      "the campaign was lost between the landing page and the form — attribution " +
+        "is being read from the submitting URL rather than from where the visitor arrived",
+    ).toContain("weekly-show");
+  });
+
+  test("the page offers no way to wander off", async ({ page }) => {
+    // A landing page paid for by the click has one action. The site header and
+    // footer are deliberately absent here, and a regression that reintroduces
+    // them costs real money rather than looking untidy.
+    await page.goto("/register");
+
+    await expect(page.locator("header nav")).toHaveCount(0);
+    await expect(page.locator("footer")).toHaveCount(0);
+
+    // The only links allowed are the privacy policy and whatever the form needs.
+    const hrefs = await page.locator("a[href]").evaluateAll((els) =>
+      els.map((e) => e.getAttribute("href")).filter((h): h is string => Boolean(h)),
+    );
+    const wanderable = hrefs.filter((h) => !h.startsWith("#") && h !== "/privacy");
+    expect(
+      wanderable,
+      `the landing page links away to ${wanderable.join(", ")}`,
+    ).toHaveLength(0);
+  });
+
+  test("the free-to-enter promise is on the page", async ({ page }) => {
+    // The client asked for this explicitly, and it is the objection the ad has
+    // to answer: people assume a talent contest charges an entry fee.
+    await page.goto("/register");
+    await expect(page.getByText(/no entry fee/i)).toBeVisible();
+    await expect(page.getByText(/no card details/i).first()).toBeVisible();
+  });
+
+  test("a honeypot-filled registration never becomes a lead", async ({ page, baseURL }) => {
+    await isolate(page);
+    const { email, firstName } = identity("regbot");
+
+    await page.goto("/register");
+    const form = page.locator("form");
+    await fillRegistration(page, email, `${firstName} Bot`);
+    await poisonHoneypot(form);
+
+    await page.getByRole("button", { name: /register to perform/i }).click();
+    // The route answers a cheerful 200 so the bot records a success and stops.
+    await expect(page.getByText("You are registered")).toBeVisible({ timeout: 20_000 });
+
+    await expectNoStoredLead(baseURL!, email);
+  });
+});

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/dl/Button";
 import { SuccessPanel } from "@/components/dl/SuccessPanel";
 import { TALENT_CATEGORIES } from "@/content/site";
+import { readAttribution } from "@/lib/attribution";
 
 type Status = "idle" | "loading" | "error" | "success";
 
@@ -57,6 +58,7 @@ export function HeroEntryForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...readAttribution(),
           type: "CONTESTANT",
           firstName: String(fd.get("firstName") ?? "").trim(),
           email: String(fd.get("email") ?? "").trim(),

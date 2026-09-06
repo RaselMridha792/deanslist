@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/dl/Button";
 import { SuccessPanel } from "@/components/dl/SuccessPanel";
+import { readAttribution } from "@/lib/attribution";
 
 export type LeadFormField =
   | "fullName"
@@ -164,6 +165,7 @@ export function LeadForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...readAttribution(),
           type,
           firstName: name.firstName,
           lastName: name.lastName,

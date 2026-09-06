@@ -7,6 +7,7 @@ import { Kicker } from "@/components/dl/Kicker";
 import { Reveal } from "@/components/dl/Reveal";
 import { SITE } from "@/content/site";
 import { cn } from "@/lib/cn";
+import { readAttribution } from "@/lib/attribution";
 
 /**
  * Contact — the routed inquiry page.
@@ -219,6 +220,7 @@ function ContactForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...readAttribution(),
           type: route.leadType,
           firstName: firstName || fullName,
           lastName: rest.join(" "),

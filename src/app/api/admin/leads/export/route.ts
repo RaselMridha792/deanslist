@@ -41,6 +41,16 @@ const COLUMNS: { key: string; label: string }[] = [
   { key: "tags", label: "Tags" },
   { key: "message", label: "Message" },
   { key: "internalNotes", label: "Internal notes" },
+
+  // Attribution, last because it is the least read and the widest. Without it
+  // an export answers "who registered" and not "which ad produced them", and
+  // the second question is the one that decides where the next budget goes.
+  { key: "utmSource", label: "Campaign source" },
+  { key: "utmMedium", label: "Campaign medium" },
+  { key: "utmCampaign", label: "Campaign" },
+  { key: "utmContent", label: "Ad creative" },
+  { key: "utmTerm", label: "Campaign term" },
+  { key: "clickId", label: "Click id" },
 ];
 
 export async function GET(req: NextRequest) {
@@ -92,6 +102,12 @@ export async function GET(req: NextRequest) {
     tags: l.tags.map((t) => t.tag.name).join(", "),
     message: l.message ?? "",
     internalNotes: l.internalNotes ?? "",
+    utmSource: l.utmSource ?? "",
+    utmMedium: l.utmMedium ?? "",
+    utmCampaign: l.utmCampaign ?? "",
+    utmContent: l.utmContent ?? "",
+    utmTerm: l.utmTerm ?? "",
+    clickId: l.clickId ?? "",
   }));
 
   const stamp = new Date().toISOString().slice(0, 10);

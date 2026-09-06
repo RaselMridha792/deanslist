@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { CaptureAttribution } from "@/components/site/CaptureAttribution";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Launcher } from "@/components/site/Launcher";
@@ -23,6 +25,12 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       >
         Skip to content
       </a>
+      {/* Records utm_* and the ad click id on the landing page, so an entry
+          submitted two pages later still names the campaign that paid for it. */}
+      <Suspense fallback={null}>
+        <CaptureAttribution />
+      </Suspense>
+
       <SiteHeader />
       <main id="main">{children}</main>
       <SiteFooter />

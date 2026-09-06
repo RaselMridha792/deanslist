@@ -36,6 +36,16 @@ export async function POST(req: NextRequest) {
       marketingOptIn: true,
       consentAt: new Date(),
       ipAddress: ip,
+
+      // Same reasoning as /api/leads: a newsletter signup from an ad is still
+      // that ad's result, and the campaign markers reach here from the browser
+      // because the request URL no longer carries them.
+      utmSource: parsed.data.utmSource,
+      utmMedium: parsed.data.utmMedium,
+      utmCampaign: parsed.data.utmCampaign,
+      utmContent: parsed.data.utmContent,
+      utmTerm: parsed.data.utmTerm,
+      clickId: parsed.data.clickId,
     },
   });
 
