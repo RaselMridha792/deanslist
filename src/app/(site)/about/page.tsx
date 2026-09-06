@@ -7,7 +7,14 @@ import { GrayscaleImage } from "@/components/dl/GrayscaleMedia";
 import { Kicker } from "@/components/dl/Kicker";
 import { Reveal } from "@/components/dl/Reveal";
 import { cn } from "@/lib/cn";
-import { formatStat, getCurrentShow, getLatestWinner, getStats } from "@/lib/queries";
+import { env } from "@/lib/env";
+import { prisma } from "@/lib/prisma";
+import {
+  formatStat,
+  getCurrentShow,
+  getLatestWinner,
+  getStats,
+} from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "What is the Dean's List",
@@ -40,11 +47,44 @@ export const dynamic = "force-dynamic";
  *     old site publishes 1.7M for the same thing), so its cell stays out until
  *     someone confirms it in the dashboard.
  */
+/**
+ * The editable half of this page.
+ *
+ * Same split as /rules and src/lib/queries.ts: an unreachable database is a
+ * fault, so it warns and serves the built-in copy in development and rethrows
+ * in production. Either way the fallback is the client's own words, so an
+ * outage costs the dashboard's edits and never the page.
+ */
+async function getAboutSections() {
+  try {
+    return await prisma.pageSection.findMany({
+      where: { page: "about", published: true },
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch (err) {
+    if (env.NODE_ENV === "production") throw err;
+    console.warn(
+      `[about] Database unreachable, serving the built-in copy: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
+    return [];
+  }
+}
+
+/**
+ * The one reserved key on this page. A section saved as `intro` replaces the
+ * paragraph beside the heading instead of becoming a numbered cell, because
+ * that paragraph is the only editable block here that is not one.
+ */
+const INTRO_KEY = "intro";
+
 export default async function AboutPage() {
-  const [show, winner, stats] = await Promise.all([
+  const [show, winner, stats, sections] = await Promise.all([
     getCurrentShow(),
     getLatestWinner(),
     getStats(),
+    getAboutSections(),
   ]);
 
   /* ------------------------------------------------ 01 / The platform */
@@ -70,29 +110,52 @@ export default async function AboutPage() {
     .filter((s): s is string => Boolean(s))
     .join(" ");
 
-  const platform = [
+  const BUILT_IN = [
     {
-      n: "01",
       title: "The format",
       body: "Each show is a challenge with a deadline. Entries are video performances, reviewed by the team and put to the audience.",
     },
     {
-      n: "02",
       title: "The vote",
       body: "Every round is decided live across YouTube and Facebook. On Drop That Mike the audience controls the prize pool with Freeze or Pass.",
     },
-    { n: "03", title: "The prize", body: prizeBody },
+    { title: "The prize", body: prizeBody },
     {
-      n: "04",
       title: "The Roll",
       body: "Winners take a permanent place on the Principal's Roll of the Dean's List, the honours list of the platform.",
     },
   ];
 
+  /*
+   * Dashboard copy wins, in full or not at all.
+   *
+   * Merging the two per-cell was the tempting version and it is wrong: an
+   * editor who publishes three cells means three, and quietly filling the
+   * fourth from a hardcoded string would put words on the page that nobody
+   * wrote and nobody can find to change. So the moment a section exists for
+   * this page, the built-in list steps aside entirely.
+   *
+   * The numbering is derived rather than stored, so reordering in the
+   * dashboard renumbers the page instead of leaving 01, 02, 04.
+   */
+  const intro =
+    sections.find((row) => row.key === INTRO_KEY)?.body.trim() || platformBody;
+
+  const cells = sections.filter((row) => row.key !== INTRO_KEY);
+  const platform = (
+    cells.length > 0
+      ? cells.map((row) => ({
+          title: row.heading?.trim() || row.key.replace(/-/g, " "),
+          body: row.body.trim(),
+        }))
+      : BUILT_IN
+  ).map((c, i) => ({ ...c, n: String(i + 1).padStart(2, "0") }));
+
   /* ---------------------------------------- 02 / The Principal's Roll */
 
   const roll = ["The Roll is the record of every Dean's List winner."];
-  if (winner?.showTitle) roll.push(`${winner.name} joined it after ${winner.showTitle}.`);
+  if (winner?.showTitle)
+    roll.push(`${winner.name} joined it after ${winner.showTitle}.`);
   if (show) roll.push(`${show.title} adds the next name.`);
 
   /* --------------------------------------------------------- the stats */
@@ -133,8 +196,9 @@ export default async function AboutPage() {
           </div>
 
           <p className="max-w-[44ch] animate-dl-rise text-pretty text-lede text-ground/85 [animation-delay:.2s]">
-            A global online talent competition, broadcast and voted on across YouTube and Facebook.
-            No travel, no venue, no gatekeeping. Just the performance.
+            A global online talent competition, broadcast and voted on across
+            YouTube and Facebook. No travel, no venue, no gatekeeping. Just the
+            performance.
           </p>
         </div>
       </section>
@@ -155,11 +219,19 @@ export default async function AboutPage() {
           </Reveal>
 
           <Reveal index={1}>
-            <p className="max-w-[52ch] text-pretty text-lede text-neutral-800">{platformBody}</p>
+            <p className="max-w-[52ch] text-pretty text-lede text-neutral-800">
+              {intro}
+            </p>
           </Reveal>
         </div>
 
-        <CellGrid cols={4} className="border-y-2 border-rule">
+        {/* The column count follows the number of cells. Four columns holding
+            two published sections is two empty columns and a row that looks
+            broken, and the dashboard has no reason to know about the grid. */}
+        <CellGrid
+          cols={platform.length >= 4 ? 4 : platform.length >= 3 ? 3 : 2}
+          className="border-y-2 border-rule"
+        >
           {platform.map((c, i) => (
             <Cell
               key={c.n}
@@ -171,11 +243,15 @@ export default async function AboutPage() {
                 i === 0 && "lg:pl-0",
               )}
             >
-              <p className="text-[14px] font-extrabold tracking-[.1em] text-brand">{c.n}</p>
+              <p className="text-[14px] font-extrabold tracking-[.1em] text-brand">
+                {c.n}
+              </p>
               <h3 className="text-[clamp(24px,2.2vw,36px)] font-extrabold leading-none tracking-[-.03em]">
                 {c.title}
               </h3>
-              <p className="mt-auto text-pretty text-body text-neutral-700">{c.body}</p>
+              <p className="mt-auto text-pretty text-body text-neutral-700">
+                {c.body}
+              </p>
             </Cell>
           ))}
         </CellGrid>
@@ -248,10 +324,13 @@ export default async function AboutPage() {
             </h2>
           </Reveal>
 
-          <Reveal index={1} className="flex flex-col gap-6 border-t-2 border-ground pt-6">
+          <Reveal
+            index={1}
+            className="flex flex-col gap-6 border-t-2 border-ground pt-6"
+          >
             <p className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] text-ground/90">
-              Entries are open. Four fields and one minute stand between you and the Principal&apos;s
-              Roll.
+              Entries are open. Four fields and one minute stand between you and
+              the Principal&apos;s Roll.
             </p>
             {/*
               A black button on the red field. Not a Button variant: the four in

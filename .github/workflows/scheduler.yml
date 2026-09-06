@@ -1,0 +1,79 @@
+# The campaign scheduler.
+#
+# /api/cron/tick is what actually sends a scheduled campaign and retries a
+# failed one. Nothing calls it on its own, so without a timer a campaign
+# scheduled for Tuesday at 10am simply sits in the queue, and the dashboard
+# says so on the campaigns screen rather than pretending otherwise.
+#
+# vercel.json also declares a cron, but Vercel's free plan runs one at most
+# once a day, which is too coarse for "send at 10". This runs every fifteen
+# minutes and is the real scheduler; the Vercel one is the floor that keeps
+# working if this is ever disabled.
+#
+# Running both is safe. claimNextJob takes each job with a conditional update
+# and only proceeds when exactly one row changed, so two ticks that overlap
+# cannot claim the same job.
+#
+# SETUP. Two repository secrets, in Settings > Secrets and variables > Actions:
+#   CRON_SECRET  the same value as the CRON_SECRET environment variable on the
+#                deployment. If they differ the endpoint answers 401 and the
+#                job fails loudly rather than silently doing nothing.
+#   SITE_URL     the deployment origin, no trailing slash,
+#                e.g. https://deanslist-one.vercel.app
+name: scheduler
+
+on:
+  schedule:
+    # Every 15 minutes. GitHub queues rather than guarantees this, so treat it
+    # as "within about fifteen minutes", not as a wall clock.
+    - cron: "*/15 * * * *"
+  # So the timer can be proven to work without waiting for the next slot.
+  workflow_dispatch:
+
+# A tick that picks up a send holds the request open while it works through the
+# queue. Two of those at once is not a correctness problem, but it is wasted
+# work, so a run waits for the one before it instead of piling up.
+concurrency:
+  group: scheduler
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Call the tick endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CRON_SECRET}" ] || [ -z "${SITE_URL}" ]; then
+            echo "CRON_SECRET or SITE_URL is not set. See the comment at the top of this file."
+            exit 1
+          fi
+
+          # --max-time 300: a tick that picks up a campaign holds the connection
+          # while it sends, and sending is rate limited rather than slow. The
+          # endpoint bounds its own work, and a request this gives up on still
+          # leaves the queue consistent.
+          #
+          # The body is written to a file and the status read separately, so a
+          # non-2xx fails this step with the endpoint's own message rather than
+          # curl's generic one.
+          status=$(curl --silent --show-error --max-time 300 \
+            --output response.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "${SITE_URL}/api/cron/tick")
+
+          echo "HTTP ${status}"
+          cat response.json || true
+          echo
+
+          case "${status}" in
+            2*) exit 0 ;;
+            401) echo "Refused. CRON_SECRET here does not match the deployment."; exit 1 ;;
+            503) echo "The deployment has no CRON_SECRET set, so the scheduler is off."; exit 1 ;;
+            *)   echo "Unexpected status ${status}."; exit 1 ;;
+          esac

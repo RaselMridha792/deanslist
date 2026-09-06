@@ -35,9 +35,12 @@ const PAGES = [
 
 const PAGE_OPTIONS = PAGES.map((p) => ({ value: p.value, label: p.label }));
 
-type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
-const one = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
+const one = (v: string | string[] | undefined) =>
+  typeof v === "string" ? v : undefined;
 
 function excerpt(body: string, max = 110): string {
   const flat = body.replace(/\s+/g, " ").trim();
@@ -53,8 +56,12 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
   const presetPage = PAGES.find((p) => p.value === one(params.page))?.value;
 
   const [sections, editing] = await Promise.all([
-    prisma.pageSection.findMany({ orderBy: [{ page: "asc" }, { sortOrder: "asc" }] }),
-    editId ? prisma.pageSection.findUnique({ where: { id: editId } }) : Promise.resolve(null),
+    prisma.pageSection.findMany({
+      orderBy: [{ page: "asc" }, { sortOrder: "asc" }],
+    }),
+    editId
+      ? prisma.pageSection.findUnique({ where: { id: editId } })
+      : Promise.resolve(null),
   ]);
 
   const showForm = creating || Boolean(editing);
@@ -66,7 +73,9 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
 
   // Sections stored against a page that is no longer in the list above would
   // otherwise vanish from this screen entirely.
-  const orphans = sections.filter((s) => !PAGES.some((p) => p.value === s.page));
+  const orphans = sections.filter(
+    (s) => !PAGES.some((p) => p.value === s.page),
+  );
 
   const nextOrder = (page: string) => {
     const rows = sections.filter((s) => s.page === page);
@@ -84,7 +93,10 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
               Cancel
             </Link>
           ) : (
-            <Link href={`${LIST}?new=1`} className="btn btn-primary !px-6 !py-2.5 !text-xs">
+            <Link
+              href={`${LIST}?new=1`}
+              className="btn btn-primary !px-6 !py-2.5 !text-xs"
+            >
               New section
             </Link>
           )
@@ -95,24 +107,39 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
         <p className="eyebrow">Before you write</p>
         <ul className="mt-4 max-w-prose space-y-3 text-sm leading-relaxed text-admin-muted">
           <li>
-            <span className="text-admin-text">Draft is the default.</span> A section is invisible to
-            visitors until <em>Published</em> is ticked, so half-written copy is safe to save.
+            <span className="text-admin-text">Draft is the default.</span> A
+            section is invisible to visitors until <em>Published</em> is ticked,
+            so half-written copy is safe to save.
           </li>
           <li>
-            <span className="text-admin-text">One section per key, per page.</span> Reusing a key on
-            the same page is rejected — edit the existing section instead.
+            <span className="text-admin-text">
+              One section per key, per page.
+            </span>{" "}
+            Reusing a key on the same page is rejected — edit the existing
+            section instead.
           </li>
           <li>
-            <span className="text-admin-text">/rules is not in Google yet.</span> It carries a
-            noindex tag and ships an honest outline of what the rules will cover, because
-            contest rules are a legal document and nothing there is drafted on the
-            client&apos;s behalf. The tag comes off once the official wording is published
-            here.
+            <span className="text-admin-text">
+              /rules is not in Google yet.
+            </span>{" "}
+            It carries a noindex tag and ships an honest outline of what the
+            rules will cover, because contest rules are a legal document and
+            nothing there is drafted on the client&apos;s behalf. The tag comes
+            off once the official wording is published here.
           </li>
           <li>
-            <span className="text-admin-text">Not yet wired to the public pages.</span> /about and
-            /rules still render their built-in copy, so a section saved today is stored and
-            ready rather than live. Writing it now is what unblocks the switch-over.
+            <span className="text-admin-text">Live on the public pages.</span>{" "}
+            /about and /rules read published sections at request time. A page
+            with no sections renders its built-in copy, and the first section
+            you publish for that page replaces that copy in full rather than
+            being merged into it, so three published sections means three on the
+            page and not three plus a leftover.
+          </li>
+          <li>
+            <span className="text-admin-text">One reserved key.</span> On
+            /about, a section with the key <code>intro</code> replaces the
+            paragraph beside the heading instead of becoming a numbered cell.
+            Every other key becomes a cell, numbered in the order set here.
           </li>
         </ul>
       </div>
@@ -171,7 +198,10 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                 label="Order"
                 name="sortOrder"
                 type="number"
-                defaultValue={editing?.sortOrder ?? nextOrder(editing?.page ?? presetPage ?? "about")}
+                defaultValue={
+                  editing?.sortOrder ??
+                  nextOrder(editing?.page ?? presetPage ?? "about")
+                }
                 help="Low numbers first, top to bottom on the page."
               />
 
@@ -192,7 +222,10 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
             title="No sections written yet"
             body="Nothing is missing. Each public page falls back to the copy that ships with the site, and a section written here replaces that block once it is published. The rules page is the one waiting on the client — it is noindex until the official wording lands."
             action={
-              <Link href={`${LIST}?new=1&page=rules`} className="btn btn-primary">
+              <Link
+                href={`${LIST}?new=1&page=rules`}
+                className="btn btn-primary"
+              >
                 Start the rules copy
               </Link>
             }
@@ -225,7 +258,9 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
               </div>
 
               <div className="mt-4">
-                <AdminTable head={["Section", "Preview", "Order", "Status", ""]}>
+                <AdminTable
+                  head={["Section", "Preview", "Order", "Status", ""]}
+                >
                   {g.rows.map((s) => (
                     <Row key={s.id}>
                       <Cell>
@@ -233,14 +268,21 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                           href={`${LIST}?edit=${s.id}`}
                           className="block font-medium text-admin-text transition-colors hover:text-brand-onDark"
                         >
-                          {s.heading || <span className="text-admin-muted">No heading</span>}
+                          {s.heading || (
+                            <span className="text-admin-muted">No heading</span>
+                          )}
                         </Link>
-                        <span className="block font-mono text-xs text-admin-faint">{s.key}</span>
+                        <span className="block font-mono text-xs text-admin-faint">
+                          {s.key}
+                        </span>
                       </Cell>
                       <Cell muted className="max-w-md">
-                        <span className="block truncate">{excerpt(s.body)}</span>
+                        <span className="block truncate">
+                          {excerpt(s.body)}
+                        </span>
                         <span className="mt-1 block text-[11px] text-admin-faint">
-                          {s.body.length.toLocaleString("en-US")} characters · updated{" "}
+                          {s.body.length.toLocaleString("en-US")} characters ·
+                          updated{" "}
                           {s.updatedAt.toLocaleDateString("en-GB", {
                             day: "2-digit",
                             month: "short",
@@ -286,8 +328,9 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
                 Unassigned
               </h2>
               <p className="mt-2 max-w-prose text-sm text-admin-muted">
-                These are stored against a page that is not in the list above, so nothing on the
-                site will ever render them. Move each one to a real page or delete it.
+                These are stored against a page that is not in the list above,
+                so nothing on the site will ever render them. Move each one to a
+                real page or delete it.
               </p>
               <div className="mt-4">
                 <AdminTable head={["Page", "Section", "Status", ""]}>
@@ -334,8 +377,8 @@ export default async function SectionsAdminPage({ searchParams }: Props) {
 
       {session.role !== "OWNER" && (
         <p className="mt-8 text-xs text-admin-faint">
-          Deleting a section is restricted to the account owner. Untick <em>Published</em> to
-          take one off the site.
+          Deleting a section is restricted to the account owner. Untick{" "}
+          <em>Published</em> to take one off the site.
         </p>
       )}
     </>
