@@ -65,11 +65,12 @@ model Show {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  leads     Lead[]
-  winners   Winner[]
-  episodes  Episode[]
-  campaigns Campaign[]
-  gallery   GalleryImage[]
+  leads      Lead[]
+  winners    Winner[]
+  episodes   Episode[]
+  campaigns  Campaign[]
+  promotions Promotion[]
+  gallery    GalleryImage[]
 
   @@index([status])
   @@index([slug])
@@ -88,6 +89,78 @@ model Episode {
   createdAt   DateTime  @default(now())
 
   @@index([showId])
+}
+
+
+/// A campaign with a public page: a contest, a call for entries, a promotion
+/// that runs alongside a show. The client runs several at once and changes them
+/// week to week, so they are rows rather than pages in the codebase.
+///
+/// NAMED Promotion, NOT Campaign, because `Campaign` in this schema is already
+/// an email send and has been since Phase 7. Renaming that one to free the word
+/// would churn a tested sending pipeline for a naming preference. The ambiguity
+/// is resolved where it actually matters — on screen: the dashboard calls these
+/// "Campaigns", which is the client's word for them, and calls the email one
+/// "Email".
+model Promotion {
+  id    String @id @default(cuid())
+  slug  String @unique
+  title String
+
+  /// Small label above the title. "Dean's List presents", "Running now".
+  kicker String?
+  /// The line the poster ends on. "Host it. Snap it. Post it."
+  tagline String?
+  /// One or two sentences. This is what the index card shows, so it is required
+  /// while the long body is not: a campaign with no summary would be a blank
+  /// card, and a blank card is worse than no card.
+  summary String
+  /// The full description. Blank lines separate paragraphs.
+  body String?
+
+  /// How it works, as numbered steps.
+  ///
+  /// One text field rather than a child table, and blank lines separate the
+  /// steps: the first line of each is its heading and the rest is its body.
+  /// It is the same shape PageSection already uses for /rules, so an editor
+  /// learns it once, and it means editing four steps is one form rather than
+  /// four screens.
+  steps String?
+
+  prizeTitle String?
+  /// The small print under the prize. "Room accommodations only."
+  prizeNote  String?
+  /// Space-separated, with or without the hash.
+  hashtags   String?
+
+  /// Poster. A media path like "/media/campaigns/watch-party" or an absolute URL.
+  imagePath String?
+
+  ctaLabel String?
+  ctaHref  String?
+
+  status PromotionStatus @default(DRAFT)
+
+  /// The show it runs alongside, if any.
+  showId String?
+  show   Show?   @relation(fields: [showId], references: [id], onDelete: SetNull)
+
+  startsAt DateTime?
+  endsAt   DateTime?
+  /// Lower sorts first. Ties break on createdAt, newest first.
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([slug])
+}
+
+enum PromotionStatus {
+  DRAFT
+  RUNNING
+  ENDED
 }
 
 model Winner {

@@ -24,6 +24,7 @@ const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
     title: "Content",
     items: [
       { href: "/admin/shows", label: "Shows & Events", minRole: "EDITOR" },
+      { href: "/admin/campaigns-public", label: "Campaigns", minRole: "EDITOR" },
       { href: "/admin/winners", label: "Winners", minRole: "EDITOR" },
       { href: "/admin/gallery", label: "Gallery", minRole: "EDITOR" },
       { href: "/admin/content", label: "Sponsors & Copy", minRole: "EDITOR" },
@@ -33,7 +34,7 @@ const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
     title: "Audience",
     items: [
       { href: "/admin/segments", label: "Segments", minRole: "EDITOR" },
-      { href: "/admin/campaigns", label: "Campaigns", minRole: "EDITOR" },
+      { href: "/admin/campaigns", label: "Email", minRole: "EDITOR" },
       { href: "/admin/chatbot", label: "Chatbot", minRole: "EDITOR" },
     ],
   },

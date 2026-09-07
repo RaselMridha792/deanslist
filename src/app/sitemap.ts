@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getShows, getWinners } from "@/lib/queries";
+import { getPromotionSlugs } from "@/lib/promotions";
 import { absoluteUrl } from "@/lib/seo";
 
 /**
@@ -57,19 +58,23 @@ type Entry = MetadataRoute.Sitemap[number];
  * `changeFrequency` and `priority` are advisory. Google ignores both; Bing and
  * several smaller crawlers still read them, and they cost nothing.
  */
-const STATIC_ROUTES: { path: string; changeFrequency: Entry["changeFrequency"]; priority: number }[] =
-  [
-    { path: "/", changeFrequency: "weekly", priority: 1 },
-    { path: "/enter", changeFrequency: "weekly", priority: 0.9 },
-    { path: "/shows", changeFrequency: "weekly", priority: 0.8 },
-    { path: "/watch", changeFrequency: "weekly", priority: 0.7 },
-    { path: "/winners", changeFrequency: "monthly", priority: 0.7 },
-    { path: "/about", changeFrequency: "monthly", priority: 0.6 },
-    { path: "/join", changeFrequency: "monthly", priority: 0.6 },
-    { path: "/sponsors", changeFrequency: "monthly", priority: 0.6 },
-    { path: "/contact", changeFrequency: "monthly", priority: 0.5 },
-    { path: "/privacy", changeFrequency: "yearly", priority: 0.2 },
-  ];
+const STATIC_ROUTES: {
+  path: string;
+  changeFrequency: Entry["changeFrequency"];
+  priority: number;
+}[] = [
+  { path: "/", changeFrequency: "weekly", priority: 1 },
+  { path: "/enter", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/shows", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/watch", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/winners", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/campaigns", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/about", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/join", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/sponsors", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/contact", changeFrequency: "monthly", priority: 0.5 },
+  { path: "/privacy", changeFrequency: "yearly", priority: 0.2 },
+];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base: MetadataRoute.Sitemap = STATIC_ROUTES.map((r) => ({
@@ -87,7 +92,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
    * and the static half of this file needs no database at all. So the dynamic
    * half is allowed to fail on its own.
    */
-  const [shows, winners] = await Promise.all([
+  const [shows, winners, promotionSlugs] = await Promise.all([
     getShows().catch((err: unknown) => {
       console.error("[sitemap] shows unavailable:", err);
       return [];
@@ -96,14 +101,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       console.error("[sitemap] winners unavailable:", err);
       return [];
     }),
+    getPromotionSlugs().catch((err: unknown) => {
+      console.error("[sitemap] campaigns unavailable:", err);
+      return [] as string[];
+    }),
   ]);
+
+  // Campaigns change weekly, and a contest nobody can find is a contest nobody
+  // enters, so they are worth crawling promptly.
+  const promotionEntries: MetadataRoute.Sitemap = promotionSlugs.map(
+    (slug) => ({
+      url: absoluteUrl(`/campaigns/${slug}`),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }),
+  );
 
   const showEntries: MetadataRoute.Sitemap = shows.map((show) => ({
     url: absoluteUrl(`/shows/${show.slug}`),
     // A show that has already aired has settled content. One still ahead has
     // no meaningful modification date yet, so it gets none.
     lastModified: pastDate(show.startsAt),
-    changeFrequency: show.status === "OPEN" || show.status === "LIVE" ? "daily" : "monthly",
+    changeFrequency:
+      show.status === "OPEN" || show.status === "LIVE" ? "daily" : "monthly",
     priority: show.status === "OPEN" || show.status === "LIVE" ? 0.9 : 0.6,
   }));
 
@@ -116,5 +136,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...base, ...showEntries, ...winnerEntries];
+  return [...base, ...showEntries, ...winnerEntries, ...promotionEntries];
 }

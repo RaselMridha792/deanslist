@@ -28,6 +28,7 @@ const PUBLIC_ROUTES = [
   "/shows/drop-that-mike",
   "/winners",
   "/winners/pj-galloway",
+  "/campaigns",
   "/watch",
   "/enter",
   "/join",
@@ -45,7 +46,7 @@ test.describe("public routes", () => {
   test("the route list has not silently shrunk", () => {
     // A guard on the guard. If a page is deleted, someone has to delete its
     // entry here too, and that edit is visible in review.
-    expect(PUBLIC_ROUTES).toHaveLength(15);
+    expect(PUBLIC_ROUTES).toHaveLength(16);
   });
 
   for (const route of PUBLIC_ROUTES) {
@@ -628,6 +629,77 @@ test.describe("old Joomla URLs", () => {
         rule.permanent === true || rule.statusCode === 301,
         `${rule.source} is not a permanent redirect — the old page's ranking will not transfer`,
       ).toBe(true);
+    }
+  });
+});
+
+/* ================================================ campaigns are dynamic === */
+
+/**
+ * Campaigns are rows, not pages.
+ *
+ * The client adds and retires several a week, so the thing worth proving is not
+ * that a particular contest renders — it is that whatever is in the database
+ * appears, and that a status change is visible on the public site without a
+ * deploy. A test that asserted "Watch Party Contest exists" would pass forever
+ * and prove nothing about the next campaign.
+ */
+test.describe("campaigns", () => {
+  test("every running campaign has a page that renders it", async ({ page, request, baseURL }) => {
+    await page.goto("/campaigns");
+
+    const links = await page
+      .locator('a[href^="/campaigns/"]')
+      .evaluateAll((els) => [...new Set(els.map((e) => e.getAttribute("href")!))]);
+
+    expect(
+      links.length,
+      "the campaigns index listed nothing — either the database is empty or the " +
+        "page stopped reading it",
+    ).toBeGreaterThan(0);
+
+    for (const href of links) {
+      const res = await request.get(`${baseURL}${href}`);
+      expect(res.status(), `${href} is linked from the index but does not resolve`).toBe(200);
+
+      await page.goto(href);
+      // The title is the one field a campaign cannot be without, so an empty
+      // heading means the page rendered a row it could not read.
+      const heading = (await page.locator("h1").first().innerText()).trim();
+      expect(heading.length, `${href} rendered an empty heading`).toBeGreaterThan(0);
+    }
+  });
+
+  test("a campaign nobody has published is not reachable", async ({ request, baseURL }) => {
+    // DRAFT is the only status that hides a campaign, and getting that wrong
+    // would publish a contest before its prize or its rules are settled.
+    const res = await request.get(`${baseURL}/campaigns/definitely-not-a-real-campaign`);
+    expect(res.status()).toBe(404);
+  });
+
+  test("the campaigns index is in the sitemap, and so is each campaign", async ({
+    page,
+    request,
+    baseURL,
+  }) => {
+    const xml = await (await request.get(`${baseURL}/sitemap.xml`)).text();
+    expect(xml, "the campaigns index is missing from the sitemap").toContain("/campaigns");
+
+    // Read the rendered links rather than regexing the HTML. The markup also
+    // contains build-chunk paths like /campaigns/page.js, and a regex over raw
+    // HTML picks those up and then fails on a slug that was never a campaign.
+    await page.goto("/campaigns");
+    const slugs = await page
+      .locator('a[href^="/campaigns/"]')
+      .evaluateAll((els) => [
+        ...new Set(els.map((e) => e.getAttribute("href")!.split("/")[2])),
+      ]);
+
+    // A campaign the crawler cannot find is a contest nobody enters.
+    for (const slug of slugs) {
+      expect(xml, `/campaigns/${slug} is live but not in the sitemap`).toContain(
+        `/campaigns/${slug}`,
+      );
     }
   });
 });

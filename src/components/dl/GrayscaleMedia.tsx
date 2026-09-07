@@ -22,6 +22,8 @@ export function GrayscaleImage({
   priority = false,
   sizes,
   hover = true,
+  color = false,
+  contain = false,
   className,
 }: {
   src: string;
@@ -32,12 +34,34 @@ export function GrayscaleImage({
   sizes?: string;
   /** Scale on hover, per the design's 1.04-1.05 over 1.2s. */
   hover?: boolean;
+  /**
+   * Keep the image's own colour.
+   *
+   * For a PHOTOGRAPH the answer is always no: the site is monochrome and one
+   * colour photograph in it reads as a mistake. For ARTWORK it is yes. A
+   * campaign poster is a designed object with its own palette, and desaturating
+   * it does not make it fit the site — it just breaks the poster.
+   */
+  color?: boolean;
+  /**
+   * Fit the whole image inside the frame instead of cropping to fill it.
+   *
+   * Posters arrive in whatever shape they were made in, one portrait and the
+   * next landscape, and cropping them to a common ratio cuts the title off the
+   * tall one. Contained, they letterbox against the frame and stay whole.
+   */
+  contain?: boolean;
   className?: string;
 }) {
   const base = mediaImage(src);
   return (
     <div
-      className={cn("relative overflow-hidden bg-neutral-300", className)}
+      className={cn(
+        "relative overflow-hidden",
+        // Shows through wherever a contained image letterboxes.
+        contain ? "bg-ink" : "bg-neutral-300",
+        className,
+      )}
       style={ratio ? { aspectRatio: ratio } : undefined}
     >
       <picture>
@@ -50,7 +74,9 @@ export function GrayscaleImage({
           decoding={priority ? "sync" : "async"}
           fetchPriority={priority ? "high" : undefined}
           className={cn(
-            "grayscale-media h-full w-full object-cover",
+            "h-full w-full",
+            contain ? "object-contain" : "object-cover",
+            !color && "grayscale-media",
             hover &&
               "transition-transform duration-[1200ms] ease-dl group-hover:scale-[1.05]",
           )}
