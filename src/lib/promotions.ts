@@ -31,6 +31,17 @@ export type Promotion = {
   showTitle: string | null;
   startsAt: string | null;
   endsAt: string | null;
+  /** Null when the campaign takes no entries, which is the default. */
+  entry: {
+    heading: string;
+    blurb: string | null;
+    buttonLabel: string;
+    askPhone: boolean;
+    askCity: boolean;
+    askGroupSize: boolean;
+    askLink: boolean;
+    question: string | null;
+  } | null;
 };
 
 /**
@@ -92,6 +103,24 @@ function shape(row: Row): Promotion {
     showTitle: row.show?.title ?? null,
     startsAt: row.startsAt ? row.startsAt.toISOString() : null,
     endsAt: row.endsAt ? row.endsAt.toISOString() : null,
+    /*
+     * An ENDED campaign never shows its form, whatever the toggle says.
+     * Collecting entries to a contest that has closed is worse than collecting
+     * none: somebody fills it in, waits, and hears nothing.
+     */
+    entry:
+      row.entryEnabled && row.status === "RUNNING"
+        ? {
+            heading: row.entryHeading?.trim() || `Enter ${row.title}`,
+            blurb: row.entryBlurb,
+            buttonLabel: row.entryButtonLabel?.trim() || "Send my entry",
+            askPhone: row.entryAskPhone,
+            askCity: row.entryAskCity,
+            askGroupSize: row.entryAskGroupSize,
+            askLink: row.entryAskLink,
+            question: row.entryQuestion,
+          }
+        : null,
   };
 }
 

@@ -62,6 +62,9 @@ model Show {
   status        ShowStatus @default(DRAFT)
   heroImageUrl  String?
   trailerUrl    String?
+  /// Where the show streams. A Facebook Live or YouTube URL, set on the day.
+  /// /live reads this and nothing else decides what plays there.
+  liveUrl       String?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
@@ -149,6 +152,32 @@ model Promotion {
   endsAt   DateTime?
   /// Lower sorts first. Ties break on createdAt, newest first.
   sortOrder Int @default(0)
+
+  /// ------------------------------------------------------------- entries
+  ///
+  /// A contest people can enter FROM the campaign page.
+  ///
+  /// Deliberately not a form builder. A producer wants a working sign-up form
+  /// for the contest they thought of this morning, not a field-type dropdown;
+  /// so the shape is fixed and the variable parts are toggles. Name and email
+  /// are always asked, because a contest entry nobody can be contacted about is
+  /// not an entry.
+  entryEnabled     Boolean @default(false)
+  entryHeading     String?
+  entryBlurb       String?
+  entryButtonLabel String?
+
+  entryAskPhone     Boolean @default(true)
+  entryAskCity      Boolean @default(true)
+  /// "How many people are coming?" — a watch party needs five, a solo act none.
+  entryAskGroupSize Boolean @default(false)
+  /// "Link to your post" — for anything judged on something already published.
+  entryAskLink      Boolean @default(false)
+  /// One free-text question, asked as written. Covers the long tail that a
+  /// fixed form cannot, without becoming a form builder.
+  entryQuestion     String?
+
+  entries Lead[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -273,6 +302,11 @@ model Lead {
   utmContent  String?
   utmTerm     String?
 
+  /// The campaign this lead entered, when it came from a campaign's own form.
+  /// Null for every other route in, which is most of them.
+  promotionId String?
+  promotion   Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+
   /// The advertising platform's click id: fbclid from Meta, gclid from Google.
   /// Kept because a server-side conversion event needs it to match a lead back
   /// to the click that produced it, which is what recovers the conversions an
@@ -299,6 +333,7 @@ model Lead {
   @@index([createdAt])
   // The dashboard filters on these; without indexes every filter is a seq scan.
   @@index([country])
+  @@index([promotionId])
   @@index([showId])
   @@index([source])
   @@index([marketingOptIn])

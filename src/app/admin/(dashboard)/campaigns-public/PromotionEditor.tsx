@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
+  Checkbox,
   CrudForm,
   DeleteButton,
   Field,
@@ -29,6 +30,15 @@ export type PromotionRow = {
   status: string;
   showId: string | null;
   sortOrder: number;
+  entryEnabled: boolean;
+  entryHeading: string | null;
+  entryBlurb: string | null;
+  entryButtonLabel: string | null;
+  entryAskPhone: boolean;
+  entryAskCity: boolean;
+  entryAskGroupSize: boolean;
+  entryAskLink: boolean;
+  entryQuestion: string | null;
 };
 
 const STATUS = [
@@ -204,6 +214,77 @@ The audience votes before the end of the show.`}
         defaultValue={String(promotion?.sortOrder ?? 0)}
         help="Lower shows first, within its status."
       />
+
+      {/* --------------------------------------------------- entry form */}
+      <div className="sm:col-span-2 border-t-2 border-admin-line pt-6">
+        <p className="eyebrow">Entry form</p>
+        <p className="mt-2 max-w-[70ch] text-sm text-admin-muted">
+          Switch this on and the campaign page gets its own sign-up form, and
+          the entries arrive in Leads tagged with this campaign. Name and email
+          are always asked; the rest are up to you. The form only shows while
+          the campaign is Running — collecting entries to a closed contest is
+          worse than collecting none.
+        </p>
+      </div>
+
+      <Checkbox
+        name="entryEnabled"
+        label="Take entries on this campaign's page"
+        defaultChecked={promotion?.entryEnabled ?? false}
+      />
+
+      <Field
+        name="entryButtonLabel"
+        label="Entry button label"
+        defaultValue={promotion?.entryButtonLabel ?? ""}
+        help='Defaults to "Send my entry".'
+      />
+
+      <Field
+        name="entryHeading"
+        label="Entry form heading"
+        defaultValue={promotion?.entryHeading ?? ""}
+        help="Defaults to Enter, then the campaign title."
+      />
+
+      <Field
+        name="entryQuestion"
+        label="One extra question"
+        defaultValue={promotion?.entryQuestion ?? ""}
+        help='Asked exactly as written. "Where are you watching from?" Leave empty for none.'
+      />
+
+      <TextArea
+        name="entryBlurb"
+        label="Entry form note"
+        defaultValue={promotion?.entryBlurb ?? ""}
+        rows={2}
+        help="A line under the heading. What happens after they enter, or what you need from them."
+      />
+
+      <Checkbox
+        name="entryAskPhone"
+        label="Ask for a phone number"
+        defaultChecked={promotion?.entryAskPhone ?? true}
+      />
+
+      <Checkbox
+        name="entryAskCity"
+        label="Ask where they are"
+        defaultChecked={promotion?.entryAskCity ?? true}
+      />
+
+      <Checkbox
+        name="entryAskGroupSize"
+        label="Ask how many people"
+        defaultChecked={promotion?.entryAskGroupSize ?? false}
+      />
+
+      <Checkbox
+        name="entryAskLink"
+        label="Ask for a link"
+        defaultChecked={promotion?.entryAskLink ?? false}
+      />
     </CrudForm>
   );
 }
@@ -212,9 +293,11 @@ The audience votes before the end of the show.`}
 export function PromotionCard({
   promotion,
   shows,
+  entryCount,
 }: {
   promotion: PromotionRow;
   shows: { id: string; title: string }[];
+  entryCount: number;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -241,6 +324,29 @@ export function PromotionCard({
           <p className="mt-2 max-w-[70ch] text-sm text-admin-muted">
             {promotion.summary}
           </p>
+          {/* The number is the reason the form exists, so it goes where the
+              status is rather than three clicks away in Leads. */}
+          {(promotion.entryEnabled || entryCount > 0) && (
+            <p className="mt-3">
+              <Link
+                href={`/admin/leads?promotion=${promotion.slug}`}
+                className="inline-flex items-baseline gap-2 border-2 border-admin-line-strong px-3 py-1.5 transition-colors hover:border-brand-onDark"
+              >
+                <span className="text-lg font-extrabold tabular-nums text-admin-text">
+                  {entryCount}
+                </span>
+                <span className="text-eyebrow font-semibold uppercase text-admin-faint">
+                  {entryCount === 1 ? "entry" : "entries"}
+                </span>
+              </Link>
+              {!promotion.entryEnabled && entryCount > 0 && (
+                <span className="ml-3 text-xs text-admin-faint">
+                  form is switched off
+                </span>
+              )}
+            </p>
+          )}
+
           <p className="mt-2 text-xs text-admin-faint">
             /campaigns/{promotion.slug}
             {promotion.status !== "DRAFT" && (

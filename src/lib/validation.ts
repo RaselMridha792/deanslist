@@ -63,6 +63,16 @@ export const leadSchema = z.object({
    */
   website: z.string().max(200).optional(),
 
+  /**
+   * The campaign this entry came from, by slug.
+   *
+   * A slug rather than an id because a slug is already public and an id is not.
+   * The route resolves it and ignores anything that does not match a campaign
+   * the public can currently see, so a crafted body cannot attach an entry to a
+   * draft nobody was ever shown.
+   */
+  promotionSlug: z.string().max(80).optional(),
+
   ...attributionShape,
 });
 

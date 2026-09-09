@@ -7,6 +7,7 @@ import { Cell, CellGrid } from "@/components/dl/CellGrid";
 import { GrayscaleImage } from "@/components/dl/GrayscaleMedia";
 import { Kicker } from "@/components/dl/Kicker";
 import { Reveal } from "@/components/dl/Reveal";
+import { CampaignEntryForm } from "@/components/forms/CampaignEntryForm";
 import { getPromotion, getPromotionSlugs } from "@/lib/promotions";
 import { mediaImage } from "@/lib/media";
 
@@ -91,13 +92,26 @@ export default async function CampaignPage({ params }: Params) {
               </p>
             )}
 
-            {!ended && promotion.ctaLabel && promotion.ctaHref && (
+            {/* A campaign taking entries points at its own form. Sending
+                somebody to another page from here is asking them to come back. */}
+            {!ended && promotion.entry && (
               <div className="mt-9">
-                <ButtonLink href={promotion.ctaHref} size="lg">
-                  {promotion.ctaLabel}
+                <ButtonLink href="#enter" size="lg">
+                  {promotion.entry.buttonLabel}
                 </ButtonLink>
               </div>
             )}
+
+            {!ended &&
+              !promotion.entry &&
+              promotion.ctaLabel &&
+              promotion.ctaHref && (
+                <div className="mt-9">
+                  <ButtonLink href={promotion.ctaHref} size="lg">
+                    {promotion.ctaLabel}
+                  </ButtonLink>
+                </div>
+              )}
           </div>
 
           {promotion.imagePath && (
@@ -201,6 +215,40 @@ export default async function CampaignPage({ params }: Params) {
               </p>
             )}
           </Reveal>
+        </section>
+      )}
+
+      {/* -------------------------------------------------------- enter */}
+      {promotion.entry && (
+        <section id="enter" className="shell pt-section">
+          <div className="grid gap-[clamp(28px,4vw,64px)] min-[901px]:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+            <Reveal>
+              <Kicker>Take part</Kicker>
+              <h2 className="mt-5 text-balance text-display-md font-extrabold">
+                Get your name in.
+              </h2>
+              <p className="mt-5 max-w-[42ch] text-pretty text-body text-neutral-700">
+                Entries are read by the team. You will hear from us by email,
+                and the result is announced on the show.
+              </p>
+            </Reveal>
+
+            <Reveal index={1}>
+              <CampaignEntryForm
+                config={{
+                  promotionSlug: promotion.slug,
+                  heading: promotion.entry.heading,
+                  blurb: promotion.entry.blurb,
+                  buttonLabel: promotion.entry.buttonLabel,
+                  askPhone: promotion.entry.askPhone,
+                  askCity: promotion.entry.askCity,
+                  askGroupSize: promotion.entry.askGroupSize,
+                  askLink: promotion.entry.askLink,
+                  question: promotion.entry.question,
+                }}
+              />
+            </Reveal>
+          </div>
         </section>
       )}
 

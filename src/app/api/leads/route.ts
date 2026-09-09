@@ -42,6 +42,25 @@ export async function POST(req: NextRequest) {
     ? await prisma.show.findUnique({ where: { slug: data.showSlug } })
     : null;
 
+  /*
+   * The campaign this entry came from, if any.
+   *
+   * Resolved against campaigns the public can actually SEE, not merely against
+   * the slug column. A draft campaign is one nobody has been shown a form for,
+   * so an entry claiming to come from one did not come from a form at all, and
+   * attaching it would put entries against a contest that has not launched.
+   *
+   * A slug that matches nothing is dropped rather than rejected: the entry
+   * itself is still a real person who filled in a real form, and losing them
+   * over a stale link would be the worse failure.
+   */
+  const promotion = data.promotionSlug
+    ? await prisma.promotion.findFirst({
+        where: { slug: data.promotionSlug, status: { in: ["RUNNING", "ENDED"] } },
+        select: { id: true },
+      })
+    : null;
+
   const lead = await prisma.lead.create({
     data: {
       type: data.type,
@@ -49,6 +68,7 @@ export async function POST(req: NextRequest) {
       lastName: data.lastName,
       email: data.email.toLowerCase(),
       phone: data.phone,
+      promotionId: promotion?.id,
       addressLine1: data.addressLine1,
       addressLine2: data.addressLine2,
       city: data.city,

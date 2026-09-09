@@ -56,6 +56,8 @@ export type Show = {
   cadence: string | null;
   prizeAmount: number | null;
   status: string;
+  /** Where the show streams on the night. Read by /live and nothing else. */
+  liveUrl: string | null;
   heroVideo: string | null;
   heroPoster: string | null;
   keyArt: string | null;
@@ -88,7 +90,12 @@ export type Stat = {
 
 /* --------------------------------------------------------------- adapters */
 
-const fromSeedShow = (s: ShowSeed): Show => ({ ...s });
+const fromSeedShow = (s: ShowSeed): Show => ({
+  ...s,
+  // Not in the seed by design. A stream link is set on the day it is used, so
+  // there is nothing sensible for a content file written months earlier to say.
+  liveUrl: null,
+});
 
 const fromSeedWinner = (w: WinnerSeed): Winner => ({
   slug: w.slug,
@@ -136,6 +143,7 @@ export async function getShows(): Promise<Show[]> {
       cadence: seed?.cadence ?? null,
       prizeAmount: r.prizeAmount,
       status: r.status,
+      liveUrl: r.liveUrl ?? null,
       heroVideo: r.trailerUrl ?? seed?.heroVideo ?? null,
       heroPoster: r.heroImageUrl ?? seed?.heroPoster ?? null,
       keyArt: r.heroImageUrl ?? seed?.keyArt ?? null,

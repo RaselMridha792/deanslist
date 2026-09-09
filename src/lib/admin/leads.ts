@@ -44,6 +44,8 @@ export type LeadFilter = {
   showId?: string;
   country?: string;
   tag?: string;
+  /** A campaign slug. Entries that came from that campaign's own form. */
+  promotion?: string;
   from?: string;
   to?: string;
   optIn?: string;
@@ -74,6 +76,7 @@ export function parseLeadFilter(
     source: inList(one("source"), LEAD_SOURCES),
     showId: one("showId"),
     country: one("country"),
+    promotion: one("promotion"),
     tag: one("tag"),
     from: one("from"),
     to: one("to"),
@@ -93,6 +96,7 @@ export function leadWhere(f: LeadFilter): Prisma.LeadWhereInput {
   if (f.country) where.country = { equals: f.country, mode: "insensitive" };
   if (f.optIn) where.marketingOptIn = f.optIn === "yes";
   if (f.tag) where.tags = { some: { tag: { name: f.tag } } };
+  if (f.promotion) where.promotion = { slug: f.promotion };
 
   if (f.q) {
     // Postgres ILIKE via Prisma's insensitive mode. Deliberately not full-text:
@@ -115,7 +119,8 @@ export function leadWhere(f: LeadFilter): Prisma.LeadWhereInput {
     if (f.to) {
       const d = new Date(f.to);
       // `to` is a date, and the team means "including that day".
-      if (!Number.isNaN(d.getTime())) createdAt.lte = new Date(d.setHours(23, 59, 59, 999));
+      if (!Number.isNaN(d.getTime()))
+        createdAt.lte = new Date(d.setHours(23, 59, 59, 999));
     }
     if (createdAt.gte || createdAt.lte) where.createdAt = createdAt;
   }
@@ -141,7 +146,12 @@ export async function findLeads(f: LeadFilter) {
     prisma.lead.count({ where }),
   ]);
 
-  return { rows, total, page, pages: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
+  return {
+    rows,
+    total,
+    page,
+    pages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+  };
 }
 
 export async function getLead(id: string) {
@@ -151,7 +161,9 @@ export async function getLead(id: string) {
       show: { select: { title: true, slug: true } },
       tags: { include: { tag: true } },
       assets: true,
-      conversations: { include: { messages: { orderBy: { createdAt: "asc" } } } },
+      conversations: {
+        include: { messages: { orderBy: { createdAt: "asc" } } },
+      },
     },
   });
 }
@@ -159,7 +171,10 @@ export async function getLead(id: string) {
 /** Distinct values for the filter dropdowns, so they only offer real options. */
 export async function getFilterOptions() {
   const [shows, countries, tags] = await Promise.all([
-    prisma.show.findMany({ select: { id: true, title: true }, orderBy: { title: "asc" } }),
+    prisma.show.findMany({
+      select: { id: true, title: true },
+      orderBy: { title: "asc" },
+    }),
     prisma.lead.findMany({
       where: { country: { not: null } },
       select: { country: true },
@@ -172,13 +187,18 @@ export async function getFilterOptions() {
 
   return {
     shows,
-    countries: countries.map((c) => c.country).filter((c): c is string => Boolean(c)),
+    countries: countries
+      .map((c) => c.country)
+      .filter((c): c is string => Boolean(c)),
     tags,
   };
 }
 
 /** Rebuild a query string from a filter, dropping empty values. */
-export function filterToQuery(f: LeadFilter, overrides: Partial<LeadFilter> = {}) {
+export function filterToQuery(
+  f: LeadFilter,
+  overrides: Partial<LeadFilter> = {},
+) {
   const merged = { ...f, ...overrides };
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(merged)) {
@@ -192,6 +212,16 @@ export function filterToQuery(f: LeadFilter, overrides: Partial<LeadFilter> = {}
 
 export function isFilterActive(f: LeadFilter) {
   return Boolean(
-    f.q || f.type || f.status || f.source || f.showId || f.country || f.tag || f.from || f.to || f.optIn,
+    f.q ||
+    f.type ||
+    f.status ||
+    f.source ||
+    f.showId ||
+    f.country ||
+    f.tag ||
+    f.promotion ||
+    f.from ||
+    f.to ||
+    f.optIn,
   );
 }

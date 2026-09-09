@@ -11,6 +11,7 @@ const NAV = [
   { href: "/shows/drop-that-mike", label: "Shows" },
   { href: "/winners", label: "Winners" },
   { href: "/campaigns", label: "Contests" },
+  { href: "/live", label: "Live" },
   { href: "/watch", label: "Watch" },
   { href: "/join", label: "Join the team" },
   { href: "/sponsors", label: "Sponsors" },

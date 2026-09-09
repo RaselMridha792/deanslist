@@ -163,6 +163,28 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
   });
   if (!show) notFound();
 
+  /*
+   * The reminder emails queued for this show.
+   *
+   * Read rather than inferred from the date. A producer needs to know what will
+   * ACTUALLY go out, and the two are not the same thing: a show whose date moved
+   * before this feature existed can still carry jobs pointing at the old one,
+   * and a show saved while the database was unreachable carries none at all.
+   *
+   * The job payload holds the show id, so this filters in memory. It is a
+   * handful of rows and a JSON path query would be harder to read than the loop.
+   */
+  const reminderJobs = (
+    await prisma.job.findMany({
+      where: { kind: "show_reminder", status: "PENDING" },
+      select: { id: true, runAfter: true, payload: true },
+      orderBy: { runAfter: "asc" },
+    })
+  ).filter((job) => {
+    const raw = job.payload as Record<string, unknown> | null;
+    return typeof raw?.showId === "string" && raw.showId === show.id;
+  });
+
   // Zone is a URL parameter, not a guess: the fields below are rendered in it and
   // the form posts it back, so the wall clock the admin reads is always the wall
   // clock the server writes. Switching zones re-renders every value.
@@ -635,6 +657,52 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
             (i.ytimg.com/vi/&lt;id&gt;/hqdefault.jpg) and rewritten every time this saves.
           </p>
         </div>
+      </section>
+
+      {/* -------------------------------------------------------- reminders */}
+
+      <section className="card mt-16 max-w-3xl p-6">
+        <h2 className="font-display text-lg tracking-wide text-admin-text">
+          Reminder emails
+        </h2>
+
+        {reminderJobs.length > 0 ? (
+          <>
+            <p className="mt-3 text-sm text-admin-muted">
+              Queued for everyone on the list who has opted in. They go out
+              automatically.
+            </p>
+            <ul className="mt-4 space-y-2">
+              {reminderJobs.map((job) => (
+                <li key={job.id} className="flex items-baseline gap-3 text-sm">
+                  <span className="pill border-admin-line-strong bg-admin-raised text-admin-muted">
+                    Queued
+                  </span>
+                  <span className="text-admin-text">
+                    {job.runAfter.toLocaleString("en-GB", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                      timeZone: activeTz,
+                    })}
+                  </span>
+                  <span className="text-xs text-admin-faint">{activeTz}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p className="mt-3 max-w-[70ch] text-sm text-admin-muted">
+            {show.startsAt
+              ? "Nothing queued. Reminders are scheduled when the show is saved with a start time, so save this show to schedule them."
+              : "Nothing queued, because this show has no start time. Set one and save, and a reminder goes out a day before and an hour before."}
+          </p>
+        )}
+
+        <p className="mt-4 max-w-[70ch] text-xs text-admin-faint">
+          Changing the start time replaces these rather than adding to them, so a
+          show that moves does not email the old time. Anything already in the
+          past is skipped rather than sent late.
+        </p>
       </section>
 
       {/* ----------------------------------------------------------- danger */}

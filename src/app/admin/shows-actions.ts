@@ -7,6 +7,10 @@ import { prisma } from "@/lib/prisma";
 import { requireRole, type SessionUser } from "@/lib/auth";
 import { extractYouTubeId } from "@/lib/queries";
 import type { ActionResult } from "@/components/admin/crud";
+import {
+  cancelShowReminders,
+  scheduleShowReminders,
+} from "@/lib/campaigns/jobs";
 
 /**
  * Mutations for shows and their episodes.
@@ -115,7 +119,8 @@ function zoneOffsetMs(instant: Date, timeZone: string): number {
     second: "2-digit",
   }).formatToParts(instant);
 
-  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? "0");
+  const get = (type: string) =>
+    Number(parts.find((p) => p.type === type)?.value ?? "0");
   const asUtc = Date.UTC(
     get("year"),
     get("month") - 1,
@@ -136,7 +141,11 @@ function zoneOffsetMs(instant: Date, timeZone: string): number {
  * lands exactly, which is what makes a time entered on a DST changeover day come
  * back as the hour that was typed.
  */
-function parseWhen(value: string, timeZone: string, label: string): Ok<Date | null> | Fail {
+function parseWhen(
+  value: string,
+  timeZone: string,
+  label: string,
+): Ok<Date | null> | Fail {
   const raw = value.trim();
   if (!raw) return { ok: true, value: null };
 
@@ -163,7 +172,8 @@ function parseWhen(value: string, timeZone: string, label: string): Ok<Date | nu
     hour <= 23 &&
     minute <= 59 &&
     second <= 59;
-  if (!inRange) return { ok: false, error: `${label} is not a valid date and time.` };
+  if (!inRange)
+    return { ok: false, error: `${label} is not a valid date and time.` };
 
   const wall = Date.UTC(year, month - 1, day, hour, minute, second);
   let utc = wall - zoneOffsetMs(new Date(wall), timeZone);
@@ -184,27 +194,33 @@ function parseWhen(value: string, timeZone: string, label: string): Ok<Date | nu
  * 404 with an em dash in it.
  */
 function slugify(input: string): string {
-  return input
-    .normalize("NFKD")
-    // Strip the accents NFKD just split off, so "Café" becomes "cafe", not "caf".
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    // Drop apostrophes rather than turn them into hyphens: dean's -> deans.
-    .replace(/\p{Quotation_Mark}/gu, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 120)
-    .replace(/-+$/, "");
+  return (
+    input
+      .normalize("NFKD")
+      // Strip the accents NFKD just split off, so "Café" becomes "cafe", not "caf".
+      .replace(/\p{Diacritic}/gu, "")
+      .toLowerCase()
+      // Drop apostrophes rather than turn them into hyphens: dean's -> deans.
+      .replace(/\p{Quotation_Mark}/gu, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 120)
+      .replace(/-+$/, "")
+  );
 }
 
 function parsePrize(raw: string): Ok<number | null> | Fail {
   const cleaned = raw.replace(/[$,\s]/g, "");
   if (!cleaned) return { ok: true, value: null };
   if (!/^\d+$/.test(cleaned)) {
-    return { ok: false, error: "Prize must be a whole number, with no decimals." };
+    return {
+      ok: false,
+      error: "Prize must be a whole number, with no decimals.",
+    };
   }
   const n = Number(cleaned);
-  if (n > 100_000_000) return { ok: false, error: "That prize amount looks wrong." };
+  if (n > 100_000_000)
+    return { ok: false, error: "That prize amount looks wrong." };
   return { ok: true, value: n };
 }
 
@@ -220,7 +236,10 @@ function optionalLink(raw: string, label: string): Ok<string | null> | Fail {
   try {
     const url = new URL(v);
     if (url.protocol !== "https:" && url.protocol !== "http:") {
-      return { ok: false, error: `${label} must be an http:// or https:// link.` };
+      return {
+        ok: false,
+        error: `${label} must be an http:// or https:// link.`,
+      };
     }
     return { ok: true, value: url.toString() };
   } catch {
@@ -232,13 +251,19 @@ function optionalLink(raw: string, label: string): Ok<string | null> | Fail {
 }
 
 function slugTaken(err: unknown): boolean {
-  return err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
+  return (
+    err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002"
+  );
 }
 
 /* -------------------------------------------------------------------- show */
 
 const showForm = z.object({
-  title: z.string().trim().min(2, "Give the show a title.").max(120, "Title is too long."),
+  title: z
+    .string()
+    .trim()
+    .min(2, "Give the show a title.")
+    .max(120, "Title is too long."),
   slug: z.string().trim().max(120, "Slug is too long."),
   tagline: z.string().trim().max(200, "Tagline is too long."),
   description: z.string().trim().max(6000, "Description is too long."),
@@ -294,13 +319,15 @@ function prepareShow(f: ShowForm): Ok<ShowData> | Fail {
   if (!slug) {
     return {
       ok: false,
-      error: "That title has no letters or numbers to build a URL from — type a slug yourself.",
+      error:
+        "That title has no letters or numbers to build a URL from — type a slug yourself.",
     };
   }
   if (!SLUG_RE.test(slug)) {
     return {
       ok: false,
-      error: "The URL slug can only contain lowercase letters, numbers and hyphens.",
+      error:
+        "The URL slug can only contain lowercase letters, numbers and hyphens.",
     };
   }
 
@@ -309,7 +336,10 @@ function prepareShow(f: ShowForm): Ok<ShowData> | Fail {
 
   const currency = (f.currency || "USD").toUpperCase();
   if (!/^[A-Z]{3}$/.test(currency)) {
-    return { ok: false, error: "Currency must be a three-letter code, such as USD." };
+    return {
+      ok: false,
+      error: "Currency must be a three-letter code, such as USD.",
+    };
   }
 
   const deadline = parseWhen(f.entryDeadline, tz, "Entry deadline");
@@ -389,13 +419,56 @@ export async function createShow(fd: FormData): Promise<ActionResult> {
   try {
     const show = await prisma.show.create({ data });
     await audit(user, "show.create", "Show", show.id, null, snapshot(show));
+    await syncShowReminders(show.id, show.startsAt, show.status);
     revalidatePublic();
     return { ok: true, id: show.id };
   } catch (err) {
     if (slugTaken(err)) {
-      return { ok: false, error: `The slug "${data.slug}" was just taken. Choose another.` };
+      return {
+        ok: false,
+        error: `The slug "${data.slug}" was just taken. Choose another.`,
+      };
     }
     throw err;
+  }
+}
+
+/**
+ * Keep the pre-show reminder emails in step with the show's date.
+ *
+ * `scheduleShowReminders` and the `show_reminder` job handler were both written
+ * long ago and nothing ever called them, so the site promised "live show
+ * reminders" on five separate forms and sent none. This is the call that was
+ * missing.
+ *
+ * Always cancels first. Rescheduling without cancelling leaves the old jobs
+ * queued, and a show moved from Tuesday to Thursday would still email the whole
+ * list on Tuesday saying it starts in an hour.
+ *
+ * Reminders exist for a show people can actually watch, so a DRAFT or ARCHIVED
+ * show gets its reminders cancelled and none scheduled. A date in the past gets
+ * none either: `scheduleShowReminders` skips offsets that have already gone by,
+ * which is why a show announced two hours before it airs quietly gets one
+ * reminder rather than two.
+ *
+ * Never throws into the caller. A reminder that fails to schedule must not stop
+ * a producer saving a show; it is logged, and the dashboard shows what is
+ * actually queued.
+ */
+async function syncShowReminders(
+  showId: string,
+  startsAt: Date | null,
+  status: string,
+): Promise<void> {
+  try {
+    await cancelShowReminders(showId);
+
+    const airs = status === "OPEN" || status === "LIVE" || status === "CLOSED";
+    if (!startsAt || !airs) return;
+
+    await scheduleShowReminders(showId, startsAt);
+  } catch (err) {
+    console.error("[shows] could not sync reminders", err);
   }
 }
 
@@ -430,13 +503,24 @@ export async function updateShow(fd: FormData): Promise<ActionResult> {
 
   try {
     const after = await prisma.show.update({ where: { id }, data });
-    await audit(user, "show.update", "Show", id, snapshot(before), snapshot(after));
+    await audit(
+      user,
+      "show.update",
+      "Show",
+      id,
+      snapshot(before),
+      snapshot(after),
+    );
+    await syncShowReminders(after.id, after.startsAt, after.status);
     revalidatePublic();
     revalidatePath(`/admin/shows/${id}`);
     return { ok: true, id };
   } catch (err) {
     if (slugTaken(err)) {
-      return { ok: false, error: `The slug "${data.slug}" was just taken. Choose another.` };
+      return {
+        ok: false,
+        error: `The slug "${data.slug}" was just taken. Choose another.`,
+      };
     }
     throw err;
   }
@@ -453,13 +537,28 @@ export async function deleteShow(id: string): Promise<ActionResult> {
 
   const show = await prisma.show.findUnique({
     where: { id },
-    include: { _count: { select: { episodes: true, leads: true, winners: true, gallery: true } } },
+    include: {
+      _count: {
+        select: { episodes: true, leads: true, winners: true, gallery: true },
+      },
+    },
   });
   if (!show) return { ok: false, error: "That show no longer exists." };
 
+  // Before the row goes, or the queued reminders outlive it and spend three
+  // attempts each failing to find the show they were going to email about.
+  await cancelShowReminders(id);
+
   await prisma.show.delete({ where: { id } });
 
-  await audit(user, "show.delete", "Show", id, { ...snapshot(show), counts: show._count }, null);
+  await audit(
+    user,
+    "show.delete",
+    "Show",
+    id,
+    { ...snapshot(show), counts: show._count },
+    null,
+  );
   revalidatePublic();
   return { ok: true };
 }
@@ -469,7 +568,11 @@ export async function deleteShow(id: string): Promise<ActionResult> {
 const episodeForm = z.object({
   id: z.string().trim().max(40),
   showId: z.string().trim().min(1, "Missing show id.").max(40),
-  epTitle: z.string().trim().min(2, "Give the episode a title.").max(160, "Title is too long."),
+  epTitle: z
+    .string()
+    .trim()
+    .min(2, "Give the episode a title.")
+    .max(160, "Title is too long."),
   epNo: z.string().trim().max(6),
   epAiredAt: z.string().trim().max(40),
   epVideoUrl: z
@@ -585,7 +688,10 @@ export async function saveEpisode(fd: FormData): Promise<ActionResult> {
   if (f.id) {
     const before = await prisma.episode.findUnique({ where: { id: f.id } });
     if (!before || before.showId !== show.id) {
-      return { ok: false, error: "That episode no longer exists on this show." };
+      return {
+        ok: false,
+        error: "That episode no longer exists on this show.",
+      };
     }
     await prisma.episode.update({ where: { id: f.id }, data });
     await audit(
@@ -593,8 +699,16 @@ export async function saveEpisode(fd: FormData): Promise<ActionResult> {
       "episode.update",
       "Episode",
       f.id,
-      { title: before.title, videoUrl: before.videoUrl, airedAt: before.airedAt?.toISOString() ?? null },
-      { title: data.title, videoUrl: data.videoUrl, airedAt: data.airedAt?.toISOString() ?? null },
+      {
+        title: before.title,
+        videoUrl: before.videoUrl,
+        airedAt: before.airedAt?.toISOString() ?? null,
+      },
+      {
+        title: data.title,
+        videoUrl: data.videoUrl,
+        airedAt: data.airedAt?.toISOString() ?? null,
+      },
     );
     revalidatePublic();
     revalidatePath(`/admin/shows/${show.id}`);
@@ -621,11 +735,18 @@ export async function deleteEpisode(id: string): Promise<ActionResult> {
   if (!episode) return { ok: false, error: "That episode no longer exists." };
 
   await prisma.episode.delete({ where: { id } });
-  await audit(user, "episode.delete", "Episode", id, {
-    showId: episode.showId,
-    title: episode.title,
-    videoUrl: episode.videoUrl,
-  }, null);
+  await audit(
+    user,
+    "episode.delete",
+    "Episode",
+    id,
+    {
+      showId: episode.showId,
+      title: episode.title,
+      videoUrl: episode.videoUrl,
+    },
+    null,
+  );
 
   revalidatePublic();
   revalidatePath(`/admin/shows/${episode.showId}`);

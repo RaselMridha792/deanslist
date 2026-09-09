@@ -1,6 +1,10 @@
 import { Prisma, type Job } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { coerceFilter, countAudience, sendCampaign } from "@/lib/campaigns/send";
+import {
+  coerceFilter,
+  countAudience,
+  sendCampaign,
+} from "@/lib/campaigns/send";
 
 /**
  * The job runner.
@@ -18,7 +22,11 @@ import { coerceFilter, countAudience, sendCampaign } from "@/lib/campaigns/send"
  * duplicated `send_campaign` means the list gets mailed twice.
  */
 
-export const JOB_KINDS = ["send_campaign", "show_reminder", "recount_segment"] as const;
+export const JOB_KINDS = [
+  "send_campaign",
+  "show_reminder",
+  "recount_segment",
+] as const;
 export type JobKind = (typeof JOB_KINDS)[number];
 
 /** A claim older than this is assumed dead (process killed mid-job) and reclaimable. */
@@ -87,7 +95,11 @@ export async function enqueueCampaignSend(
     return { id: existing.id, created: false };
   }
 
-  const job = await enqueueJob({ kind: "send_campaign", payload: { campaignId }, runAfter });
+  const job = await enqueueJob({
+    kind: "send_campaign",
+    payload: { campaignId },
+    runAfter,
+  });
   return { id: job.id, created: true };
 }
 
@@ -157,7 +169,8 @@ const handlers: Record<JobKind, Handler> = {
     if (!campaign) throw new Error("send_campaign: campaign not found");
 
     // A campaign someone reverted to DRAFT after scheduling it must not fire.
-    if (campaign.status === "DRAFT") return `skipped, "${campaign.name}" is back in draft`;
+    if (campaign.status === "DRAFT")
+      return `skipped, "${campaign.name}" is back in draft`;
 
     const summary = await sendCampaign(campaignId);
     if (summary.stopped === "busy") {
@@ -182,7 +195,8 @@ const handlers: Record<JobKind, Handler> = {
     }
 
     const showId = str(payload.showId);
-    if (!showId) throw new Error("show_reminder: showId or campaignId required");
+    if (!showId)
+      throw new Error("show_reminder: showId or campaignId required");
 
     const show = await prisma.show.findUnique({ where: { id: showId } });
     if (!show) throw new Error("show_reminder: show not found");
@@ -277,7 +291,9 @@ export async function runJob(job: Job): Promise<JobOutcome> {
   }
 
   const payload =
-    job.payload && typeof job.payload === "object" && !Array.isArray(job.payload)
+    job.payload &&
+    typeof job.payload === "object" &&
+    !Array.isArray(job.payload)
       ? (job.payload as Record<string, unknown>)
       : {};
 
@@ -285,18 +301,39 @@ export async function runJob(job: Job): Promise<JobOutcome> {
     const detail = await handler(payload, job);
     await prisma.job.update({
       where: { id: job.id },
-      data: { status: "DONE", finishedAt: new Date(), lockedAt: null, lastError: null },
+      data: {
+        status: "DONE",
+        finishedAt: new Date(),
+        lockedAt: null,
+        lastError: null,
+      },
     });
-    return { id: job.id, kind: job.kind, ok: true, detail, attempts: job.attempts, willRetry: false };
+    return {
+      id: job.id,
+      kind: job.kind,
+      ok: true,
+      detail,
+      attempts: job.attempts,
+      willRetry: false,
+    };
   } catch (err) {
-    const message = (err instanceof Error ? err.message : String(err)).slice(0, 1000);
+    const message = (err instanceof Error ? err.message : String(err)).slice(
+      0,
+      1000,
+    );
     const exhausted = job.attempts >= job.maxAttempts;
-    const backoff = BACKOFF_MS[Math.min(job.attempts - 1, BACKOFF_MS.length - 1)] ?? 60_000;
+    const backoff =
+      BACKOFF_MS[Math.min(job.attempts - 1, BACKOFF_MS.length - 1)] ?? 60_000;
 
     await prisma.job.update({
       where: { id: job.id },
       data: exhausted
-        ? { status: "FAILED", lastError: message, finishedAt: new Date(), lockedAt: null }
+        ? {
+            status: "FAILED",
+            lastError: message,
+            finishedAt: new Date(),
+            lockedAt: null,
+          }
         : {
             status: "PENDING",
             lastError: message,
@@ -338,9 +375,17 @@ export async function runJobById(id: string): Promise<JobOutcome | null> {
   const claimed = await prisma.job.updateMany({
     where: {
       id,
-      OR: [{ status: "PENDING" }, { status: "RUNNING", lockedAt: { lt: staleBefore } }],
+      OR: [
+        { status: "PENDING" },
+        { status: "RUNNING", lockedAt: { lt: staleBefore } },
+      ],
     },
-    data: { status: "RUNNING", lockedAt: now, startedAt: now, attempts: { increment: 1 } },
+    data: {
+      status: "RUNNING",
+      lockedAt: now,
+      startedAt: now,
+      attempts: { increment: 1 },
+    },
   });
   if (claimed.count !== 1) return null;
 
@@ -419,6 +464,35 @@ export async function tick(limit = MAX_JOBS_PER_TICK): Promise<TickResult> {
  * Anything already in the past is skipped rather than fired late — a "starting
  * in one hour" email sent after the show has aired is worse than no email.
  */
+/**
+ * Drop any reminder still waiting to fire for a show.
+ *
+ * Called before rescheduling, because a show whose date moves must not keep the
+ * jobs pointed at the old one. Without this, changing a Tuesday show to
+ * Thursday sends "starting in an hour" on Tuesday to the whole list, and the
+ * only way to find out is that it already happened.
+ *
+ * Only PENDING jobs are touched. One already running is mid-send, and cancelling
+ * it would leave half a list emailed and no record of where it stopped.
+ */
+export async function cancelShowReminders(showId: string): Promise<number> {
+  const pending = await prisma.job.findMany({
+    where: { kind: "show_reminder", status: "PENDING" },
+    select: { id: true, payload: true },
+  });
+
+  const doomed = pending
+    .filter((job) => {
+      const raw = job.payload as unknown as Record<string, unknown> | null;
+      return str(raw?.showId) === showId;
+    })
+    .map((job) => job.id);
+
+  if (doomed.length === 0) return 0;
+  const res = await prisma.job.deleteMany({ where: { id: { in: doomed } } });
+  return res.count;
+}
+
 export async function scheduleShowReminders(
   showId: string,
   startsAt: Date,
@@ -431,12 +505,18 @@ export async function scheduleShowReminders(
 
   const created: string[] = [];
   for (const offset of offsets) {
-    const runAfter = new Date(startsAt.getTime() - offset.hours * 60 * 60 * 1000);
+    const runAfter = new Date(
+      startsAt.getTime() - offset.hours * 60 * 60 * 1000,
+    );
     if (runAfter.getTime() <= Date.now()) continue;
 
     await enqueueJob({
       kind: "show_reminder",
-      payload: { showId, segmentId: segmentId ?? null, templateKey: "reminder" },
+      payload: {
+        showId,
+        segmentId: segmentId ?? null,
+        templateKey: "reminder",
+      },
       runAfter,
     });
     created.push(offset.label);
@@ -448,7 +528,9 @@ export async function scheduleShowReminders(
 export async function recountSegmentNow(segmentId: string) {
   const segment = await prisma.segment.findUnique({ where: { id: segmentId } });
   if (!segment) return null;
-  const { mailable, matching } = await countAudience(coerceFilter(segment.filter));
+  const { mailable, matching } = await countAudience(
+    coerceFilter(segment.filter),
+  );
   await prisma.segment.update({
     where: { id: segmentId },
     data: { lastCount: mailable, lastCountAt: new Date() },

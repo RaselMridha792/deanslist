@@ -29,6 +29,7 @@ const PUBLIC_ROUTES = [
   "/winners",
   "/winners/pj-galloway",
   "/campaigns",
+  "/live",
   "/watch",
   "/enter",
   "/join",
@@ -46,7 +47,7 @@ test.describe("public routes", () => {
   test("the route list has not silently shrunk", () => {
     // A guard on the guard. If a page is deleted, someone has to delete its
     // entry here too, and that edit is visible in review.
-    expect(PUBLIC_ROUTES).toHaveLength(16);
+    expect(PUBLIC_ROUTES).toHaveLength(17);
   });
 
   for (const route of PUBLIC_ROUTES) {

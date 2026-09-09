@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export default async function PublicCampaignsPage() {
   await requireRole("EDITOR");
 
-  const [rows, shows] = await Promise.all([
+  const [rows, shows, entryCounts] = await Promise.all([
     prisma.promotion.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     }),
@@ -25,7 +25,22 @@ export default async function PublicCampaignsPage() {
       select: { id: true, title: true },
       orderBy: { title: "asc" },
     }),
+    // One grouped query rather than a count per card. A campaign with entries
+    // and a campaign with none look identical otherwise, and the whole point of
+    // switching a form on is finding out whether anyone used it.
+    prisma.lead.groupBy({
+      by: ["promotionId"],
+      _count: true,
+      where: { promotionId: { not: null } },
+    }),
   ]);
+
+  const entriesByPromotion = new Map(
+    entryCounts.map((c) => [
+      c.promotionId as string,
+      typeof c._count === "number" ? c._count : 0,
+    ]),
+  );
 
   const promotions: PromotionRow[] = rows.map((r) => ({
     id: r.id,
@@ -45,6 +60,15 @@ export default async function PublicCampaignsPage() {
     status: r.status,
     showId: r.showId,
     sortOrder: r.sortOrder,
+    entryEnabled: r.entryEnabled,
+    entryHeading: r.entryHeading,
+    entryBlurb: r.entryBlurb,
+    entryButtonLabel: r.entryButtonLabel,
+    entryAskPhone: r.entryAskPhone,
+    entryAskCity: r.entryAskCity,
+    entryAskGroupSize: r.entryAskGroupSize,
+    entryAskLink: r.entryAskLink,
+    entryQuestion: r.entryQuestion,
   }));
 
   const running = promotions.filter((p) => p.status === "RUNNING").length;
@@ -81,7 +105,12 @@ export default async function PublicCampaignsPage() {
       ) : (
         <div className="mt-6 flex flex-col gap-4">
           {promotions.map((p) => (
-            <PromotionCard key={p.id} promotion={p} shows={shows} />
+            <PromotionCard
+              key={p.id}
+              promotion={p}
+              shows={shows}
+              entryCount={entriesByPromotion.get(p.id) ?? 0}
+            />
           ))}
         </div>
       )}

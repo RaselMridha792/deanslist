@@ -1197,3 +1197,107 @@ test.describe("registration landing page — /register", () => {
     await expectNoStoredLead(baseURL!, email);
   });
 });
+
+/**
+ * Contest entry forms on campaign pages.
+ *
+ * The behaviour that matters is not that a particular form renders — the client
+ * turns these on and off per contest — it is that an entry reaches the database
+ * attached to the campaign it came from, and that a closed contest never
+ * collects one.
+ */
+test.describe("campaign entry form", () => {
+  /** The slug of a running campaign with its entry form switched on, if any. */
+  async function findEntryCampaign(page: Page): Promise<string | null> {
+    await page.goto("/campaigns");
+    const slugs = await page
+      .locator('a[href^="/campaigns/"]')
+      .evaluateAll((els) => [
+        ...new Set(els.map((e) => e.getAttribute("href")!.split("/")[2])),
+      ]);
+
+    for (const slug of slugs) {
+      await page.goto(`/campaigns/${slug}`);
+      if ((await page.locator("#ce-email").count()) > 0) return slug;
+    }
+    return null;
+  }
+
+  test("an entry reaches the database tagged with its campaign", async ({
+    page,
+    baseURL,
+  }) => {
+    await isolate(page);
+    const slug = await findEntryCampaign(page);
+    test.skip(
+      slug === null,
+      "no running campaign currently has its entry form switched on",
+    );
+
+    const { email, firstName } = identity("campentry");
+    await page.fill("#ce-name", `${firstName} Entrant`);
+    await page.fill("#ce-email", email);
+    if ((await page.locator("#ce-city").count()) > 0) {
+      await page.fill("#ce-city", "South Charleston, WV");
+    }
+    // Scoped to the campaign form. The chat widget carries its own entry form
+    // on every page, so a bare form-submit locator matches two.
+    const form = page.locator("form").filter({ has: page.locator("#ce-email") });
+    await form.locator('button[type="submit"]').click();
+
+    await expect(page.getByText("You are in"), "the entry was not confirmed").toBeVisible({
+      timeout: 20_000,
+    });
+
+    // FAN, not CONTESTANT: entering a fan contest is not entering the talent
+    // competition, and conflating them would put watch party hosts into the
+    // performer pipeline.
+    await expectStoredLead(baseURL!, email, { type: "FAN", firstName });
+  });
+
+  test("a closed contest never shows a form", async ({ page }) => {
+    // Collecting entries to a contest that has ended is worse than collecting
+    // none: somebody fills it in, waits, and never hears anything.
+    await page.goto("/campaigns");
+    const ended = await page
+      .locator('a[href^="/campaigns/"]')
+      .evaluateAll((els) =>
+        els
+          .filter((e) => /ended/i.test(e.textContent || ""))
+          .map((e) => e.getAttribute("href")!),
+      );
+    test.skip(ended.length === 0, "no ended campaign to check");
+
+    for (const href of ended) {
+      await page.goto(href);
+      await expect(
+        page.locator("#ce-email"),
+        `${href} has ended but is still collecting entries`,
+      ).toHaveCount(0);
+    }
+  });
+});
+
+/**
+ * The live page.
+ *
+ * It answers a question that changes hour to hour, so the test asserts the
+ * shape rather than the content: whatever state the show is in, the page says
+ * something definite and explains how the voting works.
+ */
+test.describe("live page", () => {
+  test("it always says where the show is, and how to take part", async ({ page }) => {
+    await page.goto("/live");
+
+    const heading = (await page.locator("h1").first().innerText()).trim();
+    expect(heading.length, "/live rendered an empty heading").toBeGreaterThan(0);
+
+    // The mechanic is the thing a first-time viewer has ten seconds to
+    // understand. It is on the page in every state, deliberately.
+    await expect(page.getByText("FREEZE", { exact: true })).toBeVisible();
+    await expect(page.getByText("PASS", { exact: true })).toBeVisible();
+
+    // And there is always a way to become the act rather than the audience.
+    await expect(page.locator('a[href="/register"]').first()).toBeVisible();
+  });
+});

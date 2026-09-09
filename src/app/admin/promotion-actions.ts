@@ -83,6 +83,16 @@ const schema = z.object({
   status: z.enum(["DRAFT", "RUNNING", "ENDED"]),
   showId: optional(40),
   sortOrder: z.coerce.number().int().min(0).max(999).default(0),
+
+  entryEnabled: z.coerce.boolean().default(false),
+  entryHeading: optional(120),
+  entryBlurb: optional(400),
+  entryButtonLabel: optional(60),
+  entryAskPhone: z.coerce.boolean().default(false),
+  entryAskCity: z.coerce.boolean().default(false),
+  entryAskGroupSize: z.coerce.boolean().default(false),
+  entryAskLink: z.coerce.boolean().default(false),
+  entryQuestion: optional(200),
 });
 
 function read(fd: FormData) {
@@ -103,6 +113,17 @@ function read(fd: FormData) {
     status: String(fd.get("status") ?? "DRAFT"),
     showId: String(fd.get("showId") ?? ""),
     sortOrder: String(fd.get("sortOrder") ?? "0"),
+    // An unchecked box sends nothing at all, so absence is false. Reading it as
+    // a string would make "off" truthy and turn every toggle permanently on.
+    entryEnabled: fd.get("entryEnabled") === "on",
+    entryHeading: String(fd.get("entryHeading") ?? ""),
+    entryBlurb: String(fd.get("entryBlurb") ?? ""),
+    entryButtonLabel: String(fd.get("entryButtonLabel") ?? ""),
+    entryAskPhone: fd.get("entryAskPhone") === "on",
+    entryAskCity: fd.get("entryAskCity") === "on",
+    entryAskGroupSize: fd.get("entryAskGroupSize") === "on",
+    entryAskLink: fd.get("entryAskLink") === "on",
+    entryQuestion: String(fd.get("entryQuestion") ?? ""),
   });
 }
 
