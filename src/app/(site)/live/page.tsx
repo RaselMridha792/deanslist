@@ -268,7 +268,7 @@ export default async function LivePage() {
             index={1}
             className="flex flex-col gap-6 border-t-2 border-ground pt-6"
           >
-            <p className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] text-ground/90">
+            <p className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] text-ground">
               Watching is one thing. Being the act everyone is voting on is
               another. Entering is free.
             </p>

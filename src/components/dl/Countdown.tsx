@@ -16,23 +16,20 @@ function partsUntil(target: number): Parts | null {
   };
 }
 
-/** Next Tuesday at 20:00 in the visitor's own zone. */
-function nextTuesday8pm(): number {
-  const d = new Date();
-  d.setHours(20, 0, 0, 0);
-  // 2 = Tuesday. If it is already past 8pm on a Tuesday, roll to the next one.
-  const delta = (2 - d.getDay() + 7) % 7;
-  d.setDate(d.getDate() + (delta === 0 && Date.now() > d.getTime() ? 7 : delta));
-  return d.getTime();
-}
-
 /**
  * Four cells on a 2px top rule: days, hours, minutes, seconds. Seconds in red.
  *
- * `target` comes from the Shows manager when the client has set a date. With no
- * confirmed date it falls back to next Tuesday 20:00, which is the show's own
- * stated cadence — the one thing about the schedule the old site is consistent
- * about. It never invents a specific calendar date.
+ * WITH NO TARGET, THIS RENDERS NOTHING.
+ *
+ * It used to fall back to "next Tuesday at 20:00" and present that as a real
+ * countdown. Two things were wrong with it. The hour was invented — the client's
+ * own poster says 7PM EST — and it was computed in the VISITOR'S zone, so two
+ * people in different countries were counting to different moments and neither
+ * to the show. Somebody arriving as it hit zero would have missed the start.
+ *
+ * An absent countdown costs nothing. A confident wrong one costs an audience,
+ * and this is the number the ads point people at. So the date comes from the
+ * Shows manager or the component does not render.
  *
  * Hydration-safe: the server and the browser evaluate Date.now() at different
  * moments, so the first client render reproduces the server's dashes exactly
@@ -50,15 +47,23 @@ export function Countdown({
   const [parts, setParts] = useState<Parts | null>(null);
   const [ready, setReady] = useState(false);
 
-  useEffect(() => {
-    const explicit = target ? new Date(target).getTime() : NaN;
-    const ms = Number.isNaN(explicit) ? nextTuesday8pm() : explicit;
+  // A target that is missing, or a string that is not a date, means there is no
+  // confirmed start time. Both are the same answer: do not count to anything.
+  const at = target ? new Date(target).getTime() : NaN;
+  const known = !Number.isNaN(at);
 
-    setParts(partsUntil(ms));
+  useEffect(() => {
+    if (!known) return;
+
+    setParts(partsUntil(at));
     setReady(true);
-    const id = setInterval(() => setParts(partsUntil(ms)), 1000);
+    const id = setInterval(() => setParts(partsUntil(at)), 1000);
     return () => clearInterval(id);
-  }, [target]);
+  }, [at, known]);
+
+  // Nothing rather than a guess. See the note above: a countdown to an invented
+  // time in the visitor's own zone is worse than no countdown at all.
+  if (!known) return null;
 
   const cells: [string, number | null][] = [
     ["Next show", parts?.days ?? null],
@@ -71,7 +76,9 @@ export function Countdown({
 
   return (
     <div className={cn("max-w-countdown", className)}>
-      <div className={cn("grid grid-cols-4", onDark ? "divider-dark" : "divider")}>
+      <div
+        className={cn("grid grid-cols-4", onDark ? "divider-dark" : "divider")}
+      >
         {cells.map(([label, value], i) => (
           <div key={label} className="pr-4 pt-4">
             <p
@@ -82,7 +89,11 @@ export function Countdown({
               )}
             >
               {/* Dashes before the effect runs, identical on server and client. */}
-              {expired ? "00" : value === null ? "--" : String(value).padStart(2, "0")}
+              {expired
+                ? "00"
+                : value === null
+                  ? "--"
+                  : String(value).padStart(2, "0")}
             </p>
             <p
               className={cn(

@@ -103,7 +103,7 @@ function WinnerPlate({
       >
         {initials}
       </span>
-      <span className="text-kicker font-semibold uppercase text-ground/40">
+      <span className="text-kicker font-semibold uppercase text-ground/60">
         {caption}
       </span>
     </div>

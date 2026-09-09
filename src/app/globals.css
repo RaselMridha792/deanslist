@@ -227,7 +227,7 @@
      read as a hole punched in the field. */
   .field-underline {
     @apply w-full border-0 border-b-2 border-white bg-transparent px-0 py-3
-           text-body text-white outline-none placeholder:text-white/60
+           text-body text-white outline-none placeholder:text-white/90
            focus:border-white;
   }
 

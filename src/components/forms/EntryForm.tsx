@@ -76,7 +76,11 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
     ...EMPTY,
     showSlug: defaultShowSlug ?? "",
   });
-  const [consent, setConsent] = useState({ rules: false, broadcast: false, marketing: true });
+  const [consent, setConsent] = useState({
+    rules: false,
+    broadcast: false,
+    marketing: true,
+  });
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -90,20 +94,26 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
 
   const set =
     (key: keyof Values) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >,
+    ) =>
       setValues((v) => ({ ...v, [key]: e.target.value }));
 
   function goNext() {
     const form = formRef.current;
     if (form) {
       const fields = Array.from(
-        form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
-          "input, select, textarea",
-        ),
+        form.querySelectorAll<
+          HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >("input, select, textarea"),
       );
       // offsetParent is null for anything not rendered, so this only ever
       // validates what the visitor can actually see and fix.
-      const bad = fields.find((f) => f.offsetParent !== null && !f.checkValidity());
+      const bad = fields.find(
+        (f) => f.offsetParent !== null && !f.checkValidity(),
+      );
       if (bad) {
         bad.reportValidity();
         return;
@@ -153,10 +163,17 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
       });
 
       const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) throw new Error(data.error ?? "Something went wrong. Please try again.");
+      if (!res.ok)
+        throw new Error(
+          data.error ?? "Something went wrong. Please try again.",
+        );
       router.push("/thank-you?from=contestant");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
       setStatus("error");
     }
   }
@@ -197,7 +214,13 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
                 aria-hidden
                 className={cn(
                   "grid h-[22px] w-[22px] shrink-0 place-items-center text-[11px]",
-                  active ? "bg-brand text-ground" : past ? "bg-ink text-ground" : "bg-neutral-300 text-neutral-700",
+                  // 11px numeral: neutral-700 on neutral-300 is 4.39:1, just
+                  // under. neutral-800 is 6.81 and reads the same at a glance.
+                  active
+                    ? "bg-brand text-ground"
+                    : past
+                      ? "bg-ink text-ground"
+                      : "bg-neutral-300 text-neutral-800",
                 )}
               >
                 {n}
@@ -330,7 +353,9 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
 
       {step === 3 && (
         <div className="flex flex-col gap-4">
-          <StepHeading innerRef={headingRef}>Show us the performance.</StepHeading>
+          <StepHeading innerRef={headingRef}>
+            Show us the performance.
+          </StepHeading>
 
           <TextField
             name="performanceUrl"
@@ -358,11 +383,17 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
             className="flex items-center justify-between gap-4 border-2 border-dashed border-rule p-5 text-[14px] text-neutral-600 opacity-60"
           >
             <span>Drop a video file here (MP4 or MOV, up to 500 MB)</span>
-            <input type="file" name="file" accept="video/*" disabled className="text-[13px]" />
+            <input
+              type="file"
+              name="file"
+              accept="video/*"
+              disabled
+              className="text-[13px]"
+            />
           </div>
           <p className="text-[13px] leading-relaxed text-neutral-700">
-            Direct upload is not switched on yet. Paste a link above and the judges will watch it
-            there.
+            Direct upload is not switched on yet. Paste a link above and the
+            judges will watch it there.
           </p>
 
           <div>
@@ -392,11 +423,16 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
             checked={consent.rules}
             onChange={(v) => setConsent((c) => ({ ...c, rules: v }))}
           >
-            {"I am 18 or older, or entering with a guardian's consent, and I have read the "}
+            {
+              "I am 18 or older, or entering with a guardian's consent, and I have read the "
+            }
             {/* A click on interactive content inside a label does not toggle
                 the control, per the HTML activation-behaviour rules, so this
                 link reads as a link rather than as a second checkbox. */}
-            <Link href="/rules" className="text-brand-onLight underline underline-offset-4">
+            <Link
+              href="/rules"
+              className="text-brand-onLight underline underline-offset-4"
+            >
               rules and eligibility
             </Link>
             .
@@ -408,7 +444,9 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
             checked={consent.broadcast}
             onChange={(v) => setConsent((c) => ({ ...c, broadcast: v }))}
           >
-            {"Dean's List LTD may broadcast my performance across its channels."}
+            {
+              "Dean's List LTD may broadcast my performance across its channels."
+            }
           </Consent>
 
           <Consent
@@ -435,7 +473,12 @@ export function EntryForm({ shows, defaultShowSlug }: Props) {
         )}
 
         {step < STEPS.length ? (
-          <Button type="button" size="lg" onClick={goNext} className="ml-auto min-w-[200px]">
+          <Button
+            type="button"
+            size="lg"
+            onClick={goNext}
+            className="ml-auto min-w-[200px]"
+          >
             Continue
           </Button>
         ) : (

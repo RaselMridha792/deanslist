@@ -84,7 +84,9 @@ export function jsonLdScriptProps(data: JsonLd) {
  *
  * and never emit an empty script tag.
  */
-export function jsonLdGraph(...nodes: (JsonLd | null | undefined)[]): JsonLd | null {
+export function jsonLdGraph(
+  ...nodes: (JsonLd | null | undefined)[]
+): JsonLd | null {
   const graph = nodes.filter((n): n is JsonLd => Boolean(n)).map(stripContext);
   if (graph.length === 0) return null;
   return { "@context": "https://schema.org", "@graph": graph };
@@ -177,6 +179,73 @@ export function showEventJsonLd(show: Show): JsonLd | null {
   // Only two statuses can be asserted from a start date alone. A CLOSED season
   // is not "cancelled" or "postponed", so nothing is claimed for it.
   if (show.status === "OPEN" || show.status === "LIVE") {
+    node.eventStatus = "https://schema.org/EventScheduled";
+  }
+
+  return node;
+}
+
+/* -------------------------------------------------------------- campaign */
+
+/**
+ * `Event` for a campaign that is a contest.
+ *
+ * Campaign pages were the best structured-data candidates on the site and had
+ * none: a named prize, a start, an end, and a page that already carries all
+ * three. Search engines render that as a rich result; a paragraph of prose does
+ * not.
+ *
+ * Two things it will not assert.
+ *
+ * A campaign with no dates gets no node at all. `Event` without `startDate` is
+ * invalid, and inventing one to satisfy a validator would publish a date the
+ * client never set — the same fault the countdown had.
+ *
+ * The prize goes in `description` rather than in `offers`. `offers` describes
+ * something a visitor BUYS, and every one of these is free to enter; putting a
+ * dollar figure there would tell Google the opposite of what the page says.
+ */
+export function promotionEventJsonLd(promotion: {
+  slug: string;
+  title: string;
+  summary: string;
+  prizeTitle: string | null;
+  imagePath: string | null;
+  status: string;
+  startsAt: string | null;
+  endsAt: string | null;
+}): JsonLd | null {
+  const startDate = isoDate(promotion.startsAt);
+  if (!startDate) return null;
+
+  const node: JsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: promotion.title,
+    startDate,
+    url: absoluteUrl(`/campaigns/${promotion.slug}`),
+    description: promotion.prizeTitle
+      ? `${promotion.summary} Prize: ${promotion.prizeTitle}.`
+      : promotion.summary,
+    eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+    location: {
+      "@type": "VirtualLocation",
+      url: SITE.socials.facebook,
+    },
+    organizer: { "@id": ORGANIZATION_ID },
+  };
+
+  const endDate = isoDate(promotion.endsAt);
+  if (endDate) node.endDate = endDate;
+
+  if (promotion.imagePath) {
+    node.image = /^https?:\/\//i.test(promotion.imagePath)
+      ? promotion.imagePath
+      : absoluteUrl(promotion.imagePath);
+  }
+
+  // Only what the status actually supports. ENDED is not "cancelled".
+  if (promotion.status === "RUNNING") {
     node.eventStatus = "https://schema.org/EventScheduled";
   }
 
@@ -283,8 +352,7 @@ export const OG = {
  * mustard — the same reasoning as `bg-brand-gloss`, written out because satori
  * only understands plain CSS gradients.
  */
-export const OG_BRAND_BAR =
-  `linear-gradient(90deg, ${OG.brandDeep} 0%, ${OG.brand} 26%, ${OG.brandLight} 50%, ${OG.brand} 74%, ${OG.brandDeep} 100%)`;
+export const OG_BRAND_BAR = `linear-gradient(90deg, ${OG.brandDeep} 0%, ${OG.brand} 26%, ${OG.brandLight} 50%, ${OG.brand} 74%, ${OG.brandDeep} 100%)`;
 
 /**
  * Title size for a 1200px card, chosen from the length of the string.

@@ -115,11 +115,39 @@ async function getDashboardSections() {
   }
 }
 
-export const metadata: Metadata = {
+const BASE_METADATA: Metadata = {
   title: "Rules & Eligibility",
   description:
-    "Official contest rules, eligibility, judging and prize terms for Dean's List competitions.",
+    "How entry, judging, voting and prizes work on Dean's List challenges. The formal wording is with the client for sign-off.",
 };
+
+/**
+ * Kept out of search until the wording is signed off, and out of the page's own
+ * claim to be final.
+ *
+ * This is a public prize competition with cash payouts, so entrants can
+ * reasonably rely on whatever is published here — and an ad campaign is sending
+ * strangers to read it. Until the client supplies the real wording, an outline
+ * indexed by Google and headed "The official rules" is a liability rather than
+ * a helpful placeholder.
+ *
+ * `follow` stays on: the links out of this page are real pages and there is no
+ * reason to waste them. The directive flips to index the moment the client
+ * publishes sections from the dashboard, so nobody has to remember to.
+ */
+
+export async function generateMetadata(): Promise<Metadata> {
+  // Sections published from the dashboard ARE the client's wording. Anything
+  // else is the outline this file ships with, and that must not be indexed.
+  const published = (await getDashboardSections()).length > 0;
+
+  return {
+    ...BASE_METADATA,
+    robots: published
+      ? { index: true, follow: true }
+      : { index: false, follow: true },
+  };
+}
 
 export default async function RulesPage() {
   const rows = await getDashboardSections();
@@ -146,7 +174,8 @@ export default async function RulesPage() {
 
   const lastUpdated = fromDashboard
     ? rows.reduce<Date | null>(
-        (latest, row) => (!latest || row.updatedAt > latest ? row.updatedAt : latest),
+        (latest, row) =>
+          !latest || row.updatedAt > latest ? row.updatedAt : latest,
         null,
       )
     : null;
@@ -158,15 +187,48 @@ export default async function RulesPage() {
           <div className="animate-dl-rise">
             <Kicker onDark>Rules and eligibility</Kicker>
             <h1 className="mt-5 text-balance text-hero font-extrabold uppercase">
-              The official rules.
+              {fromDashboard ? "The official rules." : "How it works."}
             </h1>
           </div>
           <p className="max-w-[44ch] animate-dl-rise text-pretty text-lede text-ground/85 [animation-delay:200ms]">
-            Eligibility, entry, judging and voting, prize terms and the legal guardrails behind
-            every Dean&apos;s List challenge.
+            Eligibility, entry, judging and voting, prize terms and the legal
+            guardrails behind every Dean&apos;s List challenge.
           </p>
         </div>
       </section>
+
+      {/*
+        Said out loud, where a reader will see it.
+        
+        This is a public prize competition with cash payouts, and entrants can
+        reasonably rely on what a page headed "rules" tells them. Until the
+        client's own wording lands, describing the process is useful and
+        presenting it as the binding terms is not. /privacy and /terms carry the
+        same notice for the same reason.
+      */}
+      {!fromDashboard && (
+        <section className="shell pt-section">
+          <div className="max-w-[68ch] border-l-4 border-brand bg-brand-tint p-6">
+            <p className="kicker">Pending legal review</p>
+            <p className="mt-3 text-pretty text-body text-neutral-800">
+              This describes how entry, judging and prizes work today. The
+              formal wording, the eligibility criteria and the prize terms are
+              being confirmed with Dean&apos;s List LTD, and this page is
+              updated the moment they are. Until then it is a guide rather than
+              the binding terms of the contest.
+            </p>
+            <p className="mt-3 text-[13px] leading-relaxed text-neutral-700">
+              Something unclear before you enter?{" "}
+              <a
+                href={`mailto:${SITE.email}`}
+                className="text-brand-onLight underline underline-offset-4"
+              >
+                {SITE.email}
+              </a>
+            </p>
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto grid max-w-shell gap-[clamp(32px,5vw,96px)] px-gutter pt-section min-[901px]:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] min-[901px]:items-start">
         {/* Sticky only where the two columns exist. Stacked above the rules on a
@@ -181,7 +243,9 @@ export default async function RulesPage() {
               href={`#${s.id}`}
               className="grid grid-cols-[40px_1fr] gap-3 border-b border-rule py-[14px] text-[14px] font-semibold transition-colors duration-200 ease-dl hover:text-brand-onLight"
             >
-              <span className="text-[12px] font-extrabold text-brand">{s.number}</span>
+              <span className="text-[12px] font-extrabold text-brand">
+                {s.number}
+              </span>
               {s.heading}
             </a>
           ))}
@@ -204,9 +268,13 @@ export default async function RulesPage() {
                 className="scroll-mt-[90px] border-t-2 border-rule py-[clamp(28px,3vw,48px)]"
               >
                 <div className="grid grid-cols-[64px_1fr] gap-4">
-                  <p className="pt-[6px] text-[14px] font-extrabold text-brand">{s.number}</p>
+                  <p className="pt-[6px] text-[14px] font-extrabold text-brand">
+                    {s.number}
+                  </p>
                   <div>
-                    <h2 className="mb-5 text-display-sm font-extrabold">{s.heading}</h2>
+                    <h2 className="mb-5 text-display-sm font-extrabold">
+                      {s.heading}
+                    </h2>
 
                     <ol className="flex list-none flex-col gap-3">
                       {s.clauses.map((clause, j) => (
@@ -233,12 +301,14 @@ export default async function RulesPage() {
       <section className="mt-section-lg bg-brand text-ground">
         <div className="mx-auto grid max-w-shell gap-[clamp(32px,5vw,96px)] px-gutter py-section min-[901px]:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] min-[901px]:items-end">
           <Reveal>
-            <h2 className="text-display-xl font-extrabold uppercase">Your stage awaits.</h2>
+            <h2 className="text-display-xl font-extrabold uppercase">
+              Your stage awaits.
+            </h2>
           </Reveal>
           <Reveal index={1} className="border-t-2 border-ground pt-6">
-            <p className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] text-ground/90">
-              Entries are open. Four fields and one minute stand between you and the
-              Principal&apos;s Roll.
+            <p className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] text-ground">
+              Entries are open. Four fields and one minute stand between you and
+              the Principal&apos;s Roll.
             </p>
             <ButtonLink
               href="/enter"

@@ -370,7 +370,7 @@ export default async function WinnersPage() {
             {NEXT_WINNER_COPY.body.map((para) => (
               <p
                 key={para.slice(0, 40)}
-                className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] text-ground/90"
+                className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] text-ground"
               >
                 {para}
               </p>

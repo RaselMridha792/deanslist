@@ -1,4 +1,4 @@
-import { GrayscaleClip } from "@/components/dl/GrayscaleMedia";
+import { LazyClip } from "@/components/dl/LazyClip";
 import { Reveal } from "@/components/dl/Reveal";
 
 /**
@@ -6,12 +6,20 @@ import { Reveal } from "@/components/dl/Reveal";
  * the one place on the site where media is not desaturated.
  *
  * These are the .mov files no browser could decode on the old site, now MP4 +
- * WebM with a poster frame. GrayscaleClip loads the poster first and leaves the
- * file itself to the browser, which is what keeps nine autoplaying loops from
- * being nine simultaneous downloads.
+ * WebM with a poster frame.
+ *
+ * They load one at a time, as each scrolls into view. `preload="none"` was
+ * supposed to do that and does not — autoplay overrides it — so nine clips
+ * below the fold were nine downloads on first paint, and the homepage shipped
+ * 5.2 MB of video before anybody scrolled. On paid traffic that is bytes spent
+ * on people who leave before the page finishes.
  */
 const CLIPS = [
-  { src: "/media/hero/mic", label: "Mic" },
+  // mic-alt, not mic: /media/hero/mic is the hero background directly above this
+  // strip, so using it here fetched the same 511 KB file twice on one page and
+  // showed the same footage in two places a screen apart. mic-alt is the other
+  // take of the same setup, which is what it was shot for.
+  { src: "/media/hero/mic-alt", label: "Mic" },
   { src: "/media/texture/singer-m", label: "Singer" },
   { src: "/media/texture/deck", label: "Boards" },
   { src: "/media/texture/bass", label: "Bass" },
@@ -35,7 +43,7 @@ export function ClipReel() {
       <div className="grid grid-cols-3 gap-[2px] border-t-2 border-rule-dark bg-rule-dark min-[901px]:grid-cols-9">
         {CLIPS.map((clip, i) => (
           <Reveal key={clip.src} index={i}>
-            <GrayscaleClip
+            <LazyClip
               src={clip.src}
               label={clip.label}
               // In colour. This strip is the site's evidence that real people

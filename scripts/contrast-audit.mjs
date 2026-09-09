@@ -35,6 +35,37 @@ const BASE = process.env.BASE_URL || "http://localhost:3000";
 const EMAIL = process.env.ADMIN_EMAIL || "admin@deanslist.live";
 const PASSWORD = process.env.ADMIN_PASSWORD || "ChangeMe123!";
 
+/**
+ * The public site.
+ *
+ * Added because the dashboard was measured and fixed while the public site
+ * never was, so the same class of defect — small grey text under 4.5:1 — sat on
+ * seventeen pages for weeks. A guard that covers half a site teaches you the
+ * half it covers is the whole one.
+ *
+ *   npm run audit:contrast          both, signed in
+ *   PUBLIC_ONLY=1 npm run audit:contrast   public only, no login needed
+ */
+const PUBLIC = [
+  "/",
+  "/about",
+  "/shows",
+  "/shows/drop-that-mike",
+  "/winners",
+  "/winners/pj-galloway",
+  "/campaigns",
+  "/live",
+  "/watch",
+  "/enter",
+  "/register",
+  "/join",
+  "/sponsors",
+  "/rules",
+  "/contact",
+  "/privacy",
+  "/terms",
+];
+
 /** Index routes, plus the "new" forms, which no index links to as a row. */
 const INDEX = [
   "/admin",
@@ -148,6 +179,10 @@ const AUDIT = () => {
       .map((n) => n.textContent.trim())
       .join(" ");
     if (!own) continue;
+    // Declared decorative. A 260px initial at 8% opacity behind a name is a
+    // watermark, not text, and it is hidden from assistive tech for that
+    // reason. Measuring it reports a failure that would be wrong to "fix".
+    if (el.closest("[aria-hidden='true']")) continue;
     const cs = visible(el);
     if (!cs) continue;
 
@@ -222,9 +257,22 @@ const AUDIT = () => {
     const bc0 = parse(cs.borderTopColor);
     const noEdge = parseFloat(cs.borderTopWidth) === 0 || !bc0 || bc0.a === 0;
     const noFill = cs.backgroundColor === "rgba(0, 0, 0, 0)";
-    if (noEdge && noFill && el.tagName === "BUTTON" && el.textContent.trim()) continue;
+    const named =
+      el.textContent.trim() ||
+      el.getAttribute("aria-label") ||
+      el.getAttribute("title");
+    if (noEdge && noFill && el.tagName === "BUTTON" && named) continue;
     if (/^(checkbox|radio)$/.test(el.getAttribute("type") || "") && cs.appearance !== "none") continue;
     if (noEdge && el.tagName === "FIELDSET") continue;
+    // An underline-style field puts its rule on the wrapping label, so the
+    // input has no border of its own and the boundary is still drawn.
+    if (noEdge && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) {
+      const wrap = el.parentElement;
+      const wc = wrap && parse(getComputedStyle(wrap).borderBottomColor);
+      if (wc && wc.a > 0 && parseFloat(getComputedStyle(wrap).borderBottomWidth) > 0) {
+        continue;
+      }
+    }
     if (el.tagName === "TABLE" && noEdge) {
       const wrap = el.parentElement;
       const wc = wrap && parse(getComputedStyle(wrap).borderTopColor);
@@ -299,6 +347,34 @@ const report = (route, findings) => {
   total += findings.length;
 };
 
+/* Public first, while signed out — which is how a visitor sees it. */
+for (const route of PUBLIC) {
+  const res = await page
+    .goto(BASE + route, { waitUntil: "networkidle", timeout: 120000 })
+    .catch(() => null);
+  if (!res || res.status() >= 400) {
+    console.log(route + "  " + (res ? res.status() : "no response"));
+    continue;
+  }
+  await page.waitForTimeout(800);
+  report(route, await page.evaluate(AUDIT));
+}
+
+if (process.env.PUBLIC_ONLY) {
+  const focus = await page.evaluate(FOCUS).catch(() => null);
+  console.log(
+    "\nFocus ring: " +
+      (focus ? focus.width + " " + focus.style + " " + focus.color : "not measured"),
+  );
+  console.log(
+    total + " findings across " + PUBLIC.length + " public routes " +
+      "(text " + (byKind.TEXT || 0) + ", placeholder " + (byKind.PLACEHOLDER || 0) +
+      ", boundary " + (byKind.BOUNDARY || 0) + ").",
+  );
+  await browser.close();
+  process.exit(total > 0 ? 1 : 0);
+}
+
 /* The login page is measured BEFORE signing in: it is the one admin screen a
    signed-out person sees, and the previous suite only ever typed into it. */
 await page.goto(BASE + "/admin/login", { waitUntil: "networkidle", timeout: 120000 });
@@ -346,7 +422,7 @@ for (const route of routes) {
 const focus = await page.evaluate(FOCUS);
 console.log("\nFocus ring: " + (focus ? focus.width + " " + focus.style + " " + focus.color : "no focusable element found"));
 console.log(
-  total + " findings across " + (routes.length + 1) + " routes " +
+  total + " findings across " + (routes.length + PUBLIC.length + 1) + " routes " +
     "(text " + (byKind.TEXT || 0) + ", placeholder " + (byKind.PLACEHOLDER || 0) +
     ", boundary " + (byKind.BOUNDARY || 0) + ").",
 );

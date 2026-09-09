@@ -48,8 +48,23 @@ export default {
           200: "#eae7e7",
           300: "#d7d3d3",
           400: "#bab6b6",
-          500: "#9b9797",
-          600: "#7d7979",
+          /*
+           * 500 and 600 were 2.59:1 and 3.85:1 against the page, and both are
+           * used for the small text that TELLS PEOPLE WHAT TO DO: help under a
+           * field, the label above a value, a placeholder. Seventeen pages
+           * failed on them.
+           *
+           * Measured against the three grounds these actually land on — white
+           * #ffffff, paper #f3f2f2 and surface #eae9e7 — the values below clear
+           * 4.5:1 on all three while keeping the ramp a ramp. The darkest
+           * ground is the one that decides, so `surface` is the number to check
+           * when changing either of them again.
+           *
+           *   500  4.80 / 4.30 / 3.96  ->  5.58 / 5.00 / 4.60
+           *   600  4.30 / 3.85 / 3.54  ->  6.02 / 5.39 / 4.96
+           */
+          500: "#6b6767",
+          600: "#666262",
           700: "#605d5d",
           800: "#444141",
           900: "#2d2b2b",
@@ -151,12 +166,30 @@ export default {
       fontSize: {
         // Display type is fluid and tightly tracked. The negative letter-spacing
         // is doing real work here — Archivo 800 at 100px set at 0 looks loose.
-        "display-xl": ["clamp(56px,8.5vw,160px)", { lineHeight: ".88", letterSpacing: "-.05em" }],
-        "display-lg": ["clamp(48px,6.5vw,120px)", { lineHeight: ".9", letterSpacing: "-.045em" }],
-        "display-md": ["clamp(40px,5vw,88px)", { lineHeight: ".95", letterSpacing: "-.04em" }],
-        "display-sm": ["clamp(26px,2.4vw,40px)", { lineHeight: "1", letterSpacing: "-.03em" }],
-        hero: ["clamp(44px,6.2vw,104px)", { lineHeight: ".92", letterSpacing: "-.04em" }],
-        stat: ["clamp(40px,5vw,84px)", { lineHeight: ".9", letterSpacing: "-.04em" }],
+        "display-xl": [
+          "clamp(56px,8.5vw,160px)",
+          { lineHeight: ".88", letterSpacing: "-.05em" },
+        ],
+        "display-lg": [
+          "clamp(48px,6.5vw,120px)",
+          { lineHeight: ".9", letterSpacing: "-.045em" },
+        ],
+        "display-md": [
+          "clamp(40px,5vw,88px)",
+          { lineHeight: ".95", letterSpacing: "-.04em" },
+        ],
+        "display-sm": [
+          "clamp(26px,2.4vw,40px)",
+          { lineHeight: "1", letterSpacing: "-.03em" },
+        ],
+        hero: [
+          "clamp(44px,6.2vw,104px)",
+          { lineHeight: ".92", letterSpacing: "-.04em" },
+        ],
+        stat: [
+          "clamp(40px,5vw,84px)",
+          { lineHeight: ".9", letterSpacing: "-.04em" },
+        ],
         kicker: ["11px", { lineHeight: "1.4", letterSpacing: ".16em" }],
         eyebrow: ["11px", { lineHeight: "1.4", letterSpacing: ".14em" }],
         nav: ["12px", { lineHeight: "1", letterSpacing: ".12em" }],

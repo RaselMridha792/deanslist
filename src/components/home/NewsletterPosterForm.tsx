@@ -41,10 +41,13 @@ export function NewsletterPosterForm() {
       });
 
       const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) throw new Error(data.error ?? "Something went wrong. Try again.");
+      if (!res.ok)
+        throw new Error(data.error ?? "Something went wrong. Try again.");
       setStatus("success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      setError(
+        err instanceof Error ? err.message : "Something went wrong. Try again.",
+      );
       setStatus("error");
     }
   }
@@ -52,8 +55,8 @@ export function NewsletterPosterForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col border-t-2 border-white">
       <p className="mb-8 mt-6 text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] opacity-90">
-        Entry deadlines, live show reminders and winner announcements, in your inbox before they go
-        out anywhere else.
+        Entry deadlines, live show reminders and winner announcements, in your
+        inbox before they go out anywhere else.
       </p>
 
       <input
@@ -73,7 +76,7 @@ export function NewsletterPosterForm() {
           disabled={done}
           autoComplete="given-name"
           placeholder="Your name"
-          className="w-full border-0 bg-transparent p-0 text-[20px] font-semibold text-white outline-none placeholder:text-white/60 disabled:opacity-70"
+          className="w-full border-0 bg-transparent p-0 text-[20px] font-semibold text-white outline-none placeholder:text-white/90 disabled:opacity-70"
         />
       </label>
 
@@ -86,7 +89,7 @@ export function NewsletterPosterForm() {
           disabled={done}
           autoComplete="email"
           placeholder="you@example.com"
-          className="w-full border-0 bg-transparent p-0 text-[20px] font-semibold text-white outline-none placeholder:text-white/60 disabled:opacity-70"
+          className="w-full border-0 bg-transparent p-0 text-[20px] font-semibold text-white outline-none placeholder:text-white/90 disabled:opacity-70"
         />
       </label>
 
@@ -102,7 +105,11 @@ export function NewsletterPosterForm() {
         disabled={status === "loading" || done}
         className="mt-7 w-full border-ink bg-ink py-[18px] text-white hover:border-neutral-900 hover:bg-neutral-900 disabled:opacity-100"
       >
-        {done ? "You're on the list" : status === "loading" ? "Sending" : "Notify me"}
+        {done
+          ? "You're on the list"
+          : status === "loading"
+            ? "Sending"
+            : "Notify me"}
       </Button>
 
       <p role="status" className="sr-only">
@@ -110,7 +117,8 @@ export function NewsletterPosterForm() {
       </p>
 
       <p className="mt-[14px] text-[12px] opacity-90">
-        Show dates, entry deadlines and results. No spam, unsubscribe in one click.
+        Show dates, entry deadlines and results. No spam, unsubscribe in one
+        click.
       </p>
     </form>
   );

@@ -259,7 +259,7 @@ export default async function WinnerPage({ params }: Params) {
                 ratio="9/16"
                 poster={
                   <div className="flex h-full w-full items-center justify-center bg-ink">
-                    <span className="text-kicker font-semibold uppercase text-ground/40">
+                    <span className="text-kicker font-semibold uppercase text-ground/60">
                       Press play
                     </span>
                   </div>

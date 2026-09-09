@@ -10,6 +10,12 @@ import { Reveal } from "@/components/dl/Reveal";
 import { CampaignEntryForm } from "@/components/forms/CampaignEntryForm";
 import { getPromotion, getPromotionSlugs } from "@/lib/promotions";
 import { mediaImage } from "@/lib/media";
+import {
+  breadcrumbJsonLd,
+  jsonLdGraph,
+  jsonLdScriptProps,
+  promotionEventJsonLd,
+} from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -52,8 +58,34 @@ export default async function CampaignPage({ params }: Params) {
 
   const ended = promotion.status === "ENDED";
 
+  /*
+   * A contest with a named prize and a date is exactly what a search engine
+   * renders as a rich result, and these pages carried no structured data at
+   * all. Returns null when the campaign has no dates, rather than inventing
+   * one to satisfy a validator.
+   */
+  const jsonLd = jsonLdGraph(
+    breadcrumbJsonLd([
+      { name: "Campaigns", path: "/campaigns" },
+      { name: promotion.title, path: `/campaigns/${promotion.slug}` },
+    ]),
+    promotionEventJsonLd({
+      slug: promotion.slug,
+      title: promotion.title,
+      summary: promotion.summary,
+      prizeTitle: promotion.prizeTitle,
+      imagePath: promotion.imagePath
+        ? `${mediaImage(promotion.imagePath)}.jpg`
+        : null,
+      status: promotion.status,
+      startsAt: promotion.startsAt,
+      endsAt: promotion.endsAt,
+    }),
+  );
+
   return (
     <>
+      {jsonLd && <script {...jsonLdScriptProps(jsonLd)} />}
       {/* ---------------------------------------------------------- hero */}
       <section className="bg-ink text-ground">
         <div className="shell grid gap-[clamp(32px,5vw,80px)] py-[clamp(40px,6vw,88px)] min-[901px]:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] min-[901px]:items-center">
@@ -266,7 +298,7 @@ export default async function CampaignPage({ params }: Params) {
             className="flex flex-col gap-6 border-t-2 border-ground pt-6"
           >
             {promotion.hashtags.length > 0 && (
-              <p className="flex flex-wrap gap-x-4 gap-y-2 text-kicker font-semibold uppercase text-ground/90">
+              <p className="flex flex-wrap gap-x-4 gap-y-2 text-kicker font-semibold uppercase text-ground">
                 {promotion.hashtags.map((tag) => (
                   <span key={tag}>{tag}</span>
                 ))}
