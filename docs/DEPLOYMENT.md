@@ -110,7 +110,8 @@ claim the same job.
   exited 0, and `app` reported healthy about 6 seconds later. By IP, every
   public page answered 200.
 
-Sections 3.6 (the Neon move), 3.9 and later have not been run yet.
+Section 3.6 (the Neon move) was run the same day; see the note there. 3.9 and
+later have not been run yet.
 
 ### 3.0 What runs, and where the image comes from
 
@@ -220,6 +221,28 @@ browse to the server's IP over plain http. Put the real names back before
 cutover, and Caddy fetches the certificates by itself on the next start.
 
 ### 3.6 Moving the data off Neon (before the first full start)
+
+**Done on 2026-09-11.** What actually ran differs from the commands below in
+three ways:
+
+1. **A full backup of Neon came first, before anything was deleted.** It is on
+   the VPS as `backups/deanslist-neon-pre-purge-<date>.dump`. Then
+   `npm run db:purge-test:apply` removed 390 leads, every one of them
+   synthetic. It kept the two conversations that have no lead: the script used
+   to delete those too, and was fixed first.
+2. **The copy is `/root/deanslist/restore-from-neon.sh`.** It reads Neon's
+   credentials from `/root/deanslist/.neon-service.conf` (a libpq service file,
+   mode 600), so no password appears in a command line. It rebuilds the
+   database from the dump and prints every table's row count on both sides.
+   All 14 matched. `migrate` then reported "No pending migrations to apply".
+3. **Do not run it as `ssh … 'bash -s' <<EOF`.** `docker compose exec`
+   forwards stdin, so it read the rest of the script as its own input, and the
+   first attempt stopped halfway with exit 0. The script lives on the server
+   and every docker call reads `/dev/null` or a named file.
+
+At cutover, after Vercel stops taking submissions:
+`bash /root/deanslist/restore-from-neon.sh fresh` copies whatever arrived on
+Neon since. Then delete `.neon-service.conf`. The VPS no longer needs Neon.
 
 Do this before DNS changes, and before `docker compose up -d` brings up
 `migrate`. Restoring into an empty database is simple. Restoring on top of
