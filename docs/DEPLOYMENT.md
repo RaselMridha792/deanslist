@@ -88,7 +88,29 @@ claim the same job.
 
 ---
 
-## 3. Hostinger VPS (KVM 1), Docker — UNVERIFIED
+## 3. Hostinger VPS (KVM 1), Docker
+
+**Run on 2026-09-11** against the real server (2.24.79.44, Ubuntu 26.04.1
+"resolute"). Sections 3.1 to 3.5, 3.7 and 3.8 went as written. Where it differed:
+
+- **No `deploy` user.** The stack runs as root, with root allowed to log in
+  by key only (`PermitRootLogin prohibit-password` and `PasswordAuthentication
+  no`, in `/etc/ssh/sshd_config.d/00-deanslist-hardening.conf`). The file is
+  named `00-` because sshd takes the first value it reads and Hostinger's
+  cloud-init file turns passwords back on. The client's fallback, if a key is
+  lost, is Hostinger's browser Web console, which does not use SSH.
+- **Docker's official repo already lists `resolute`**, so the standard install
+  worked on 26.04. Container logs are capped in `/etc/docker/daemon.json`
+  (10 MB × 3 per container).
+- **`CRON_SECRET` is left empty until DNS cutover.** Until then Neon is still
+  the live database. After the data is copied across, a second scheduler would
+  work the same queued jobs from a second database and send everything twice.
+  Set it at cutover (section 5).
+- First start on an empty database: `migrate` applied every migration and
+  exited 0, and `app` reported healthy about 6 seconds later. By IP, every
+  public page answered 200.
+
+Sections 3.6 (the Neon move), 3.9 and later have not been run yet.
 
 ### 3.0 What runs, and where the image comes from
 
@@ -372,9 +394,13 @@ Vercel.
    because the old TTL is what is already cached.
 2. Point the `A` records for `deanslist.live` and `www` at the VPS IP. Remove
    any `AAAA` record that points elsewhere.
-3. Make sure `SITE_ADDRESS` in `.env` is `deanslist.live, www.deanslist.live`
-   and run `docker compose up -d`. Caddy obtains both certificates as soon as
-   DNS resolves to it. `docker compose logs -f caddy` shows it happen.
+3. In `.env`, set `SITE_ADDRESS` to `deanslist.live, www.deanslist.live` and
+   give `CRON_SECRET` a value (`openssl rand -hex 32`). Then run
+   `docker compose up -d`. Caddy obtains both certificates as soon as DNS
+   resolves to it, which `docker compose logs -f caddy` shows. The scheduler
+   starts ticking, so switch off the Vercel cron and
+   `.github/workflows/scheduler.yml` in the same minute: from here on the VPS
+   database is the only one that should send anything.
 4. Watch `docker compose logs -f app caddy` for the first hour.
 5. Raise the TTL back to 3600 once traffic has settled.
 
