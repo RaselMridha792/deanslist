@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { requireSession } from "@/lib/auth";
 import { mediaImage } from "@/lib/media";
-import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { LogoutButton } from "@/components/admin/LogoutButton";
 
 /**
@@ -27,38 +26,19 @@ export default async function AdminLayout({
   const session = await requireSession();
 
   return (
-    <div className="admin flex min-h-screen">
-      {/* The sunk column runs the full page height; the panel inside it sticks.
-          Without the wrapper the column ends at 100vh and the page ground shows
-          beneath it on any page longer than the viewport, which reads as a
-          rendering fault. */}
-      <div className="w-60 shrink-0 bg-admin-sunk">
-        <aside className="sticky top-0 flex h-screen flex-col px-5 py-6 text-admin-text">
-          <Link href="/admin" className="flex items-center gap-3">
-            <img
-              src={`${mediaImage("/media/brand/logo")}.png`}
-              alt="Dean's List"
-              className="h-11 w-auto"
-            />
-            <span className="text-kicker font-semibold uppercase text-brand-onDark">
-              Dashboard
-            </span>
-          </Link>
-
-          <AdminNav role={session.role} />
-
-          <div className="mt-auto border-t-2 border-admin-line-strong pt-5">
-            <p className="text-[12px] text-admin-muted">{session.name}</p>
-            <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-admin-faint">
-              {session.role}
-            </p>
-            <LogoutButton />
-          </div>
-        </aside>
-      </div>
+    // A column on a wide screen, a stack on a phone: the sidebar becomes a top
+    // bar below lg. See AdminSidebar.
+    <div className="admin min-h-screen lg:flex">
+      <AdminSidebar role={session.role} logoSrc={`${mediaImage("/media/brand/logo")}.png`}>
+        <p className="text-[12px] text-admin-muted">{session.name}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-admin-faint">
+          {session.role}
+        </p>
+        <LogoutButton />
+      </AdminSidebar>
 
       <div className="min-w-0 flex-1">
-        <div className="mx-auto max-w-[1400px] px-6 py-10 lg:px-10">
+        <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 sm:py-10 lg:px-10">
           {children}
         </div>
       </div>

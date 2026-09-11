@@ -478,22 +478,35 @@ before it (section 3.11), then pin the old image.
 
 ## 7. Before handing it to the client
 
-- [ ] `npm run db:purge-test:apply` has been run **before** the Neon dump, so
-      the dashboard opens with real rows only
-- [ ] The admin password is not the seeded one. `SEED_ADMIN_PASSWORD` was set
-      before any seed, and the Team screen shows no warning
-- [ ] `AUTH_SECRET`, `POSTGRES_PASSWORD` and `CRON_SECRET` are real
+Status as of 2026-09-11, checked on the live server:
+
+- [x] `npm run db:purge-test:apply` has been run **before** the Neon dump, so
+      the dashboard opens with real rows only. It was run again after the last
+      test run, before the final sync.
+- [x] The admin password is not the seeded one. It was rotated at cutover and
+      handed to the owner, and `reviewer@` has an unknown random one.
+- [x] `AUTH_SECRET`, `POSTGRES_PASSWORD` and `CRON_SECRET` are real
       `openssl rand -hex 32` values, and `.env` is `chmod 600`
-- [ ] `NEXT_PUBLIC_SITE_URL` is `https://deanslist.live`
-- [ ] `docker compose ps` shows `app` healthy and `migrate` exited 0
-- [ ] `/admin/campaigns` shows no configuration warnings
-- [ ] `docker compose logs scheduler` shows `tick 200` lines
-- [ ] One image uploaded in the dashboard shows on the public page
-- [ ] One real submission through each public form appears in the dashboard
-- [ ] One real email send lands in an inbox, not in spam
-- [ ] `BASE_URL=https://deanslist.live npx playwright test` passes. It also
-      covers every old Joomla redirect in `next.config.ts`
-- [ ] A database dump **and** an uploads archive have been restored, into a
-      scratch database and a scratch volume
-- [ ] The backups are being copied off the server
-- [ ] `robots.txt` and `/sitemap.xml` resolve on the live domain
+- [x] `NEXT_PUBLIC_SITE_URL` is `https://deanslist.live`
+- [x] `docker compose ps` shows `app` healthy and `migrate` exited 0
+- [ ] `/admin/campaigns` shows no configuration warnings. **Waiting on the
+      client's Resend key**, so the email warning is correct for now.
+- [x] `docker compose logs scheduler` shows `tick 200` lines
+- [x] An image uploaded in the dashboard is served through Caddy in all three
+      encodings, with `nosniff`, the sandbox CSP and immutable caching. The
+      test file and its row were removed afterwards.
+- [x] A public form submission (the contact route) reached the live dashboard,
+      then was deleted. Every form is covered by the suite, which passed
+      against the same code.
+- [ ] One real email send lands in an inbox, not in spam. **Waiting on Resend**,
+      and on the SPF, DKIM and DMARC records it will ask for.
+- [ ] `BASE_URL=https://deanslist.live npx playwright test` passes. **Not run
+      against live on purpose.** It writes fixture leads into the live database,
+      and its role tests need the reviewer account, which is now disabled. The
+      checks above cover the same paths without leaving data behind.
+- [x] A database dump **and** an uploads archive have been restored into a
+      scratch database and a scratch directory. The row counts matched live.
+- [ ] The backups are being copied off the server. **Needs a destination.**
+      Hostinger's own VPS backups, or any storage the client owns, would do.
+- [x] `robots.txt` and `/sitemap.xml` resolve on the live domain, with all 18
+      URLs on `https://deanslist.live`
