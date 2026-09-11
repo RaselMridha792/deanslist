@@ -45,8 +45,8 @@ export const results: EmailTemplate = {
       heading("The audience has voted"),
       paragraph(
         ctx.winnerName
-          ? `${name}, ${accent(ctx.showTitle)} is decided. ${escapeHtml(ctx.winnerName)} takes it, voted through by the audience and added to the Principal's Roll.`
-          : `${name}, ${accent(ctx.showTitle)} is decided. The audience voted, the pot stopped falling, and we have a winner.`,
+          ? `${name}, ${accent(ctx.showTitle)} is decided. ${escapeHtml(ctx.winnerName)} takes it, voted through by the audience, and makes The Dean's List.`
+          : `${name}, ${accent(ctx.showTitle)} is decided. The audience voted, the clock hit zero, and we have a winner.`,
       ),
       paragraph(
         "Every round of this was in the audience's hands. Thank you for showing up and voting — that is the whole show.",
@@ -65,7 +65,7 @@ export const results: EmailTemplate = {
 
   text: (ctx) => [
     ctx.winnerName
-      ? `${ctx.firstName}, ${ctx.showTitle} is decided. ${ctx.winnerName} takes it, voted through by the audience and added to the Principal's Roll.`
+      ? `${ctx.firstName}, ${ctx.showTitle} is decided. ${ctx.winnerName} takes it, voted through by the audience, and makes The Dean's List.`
       : `${ctx.firstName}, ${ctx.showTitle} is decided. The audience voted and we have a winner.`,
     "",
     "Every round of this was in the audience's hands. Thank you for showing up",

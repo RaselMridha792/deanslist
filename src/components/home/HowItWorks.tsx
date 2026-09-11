@@ -25,12 +25,12 @@ const STEPS = [
   {
     step: "03",
     title: "Get voted",
-    body: "The audience decides live across YouTube and Facebook. On Drop That Mike they control the prize pool itself.",
+    body: "The audience decides live across YouTube and Facebook. On Drop That Mike every Freeze grows the performer's money bank.",
   },
   {
     step: "04",
     title: "Make the list",
-    body: "Win the cash prize and take your place on the Principal's Roll of the Dean's List.",
+    body: "Win the cash prize and make The Dean's List.",
   },
 ];
 
@@ -49,8 +49,8 @@ export function HowItWorks() {
           <p className="m-0 max-w-[52ch] text-pretty text-[clamp(17px,1.35vw,22px)] leading-[1.5] text-neutral-800">
             The Dean&apos;s List is an online talent competition broadcast across YouTube and
             Facebook. Contestants perform from wherever they are, the audience votes live, and
-            winners take home a cash prize and a permanent place on the{" "}
-            <strong className="font-extrabold">Principal&apos;s Roll</strong>.
+            winners take home a cash prize and make{" "}
+            <strong className="font-extrabold">The Dean&apos;s List</strong>.
           </p>
         </Reveal>
       </div>

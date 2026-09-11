@@ -40,7 +40,7 @@ const COPY = {
   promoTitle: "See how it plays.",
   ctaTitle: "Your stage awaits.",
   ctaOpen:
-    "Entries are open. Four fields and one minute stand between you and the Principal's Roll.",
+    "Entries are open. Four fields and one minute stand between you and The Dean's List.",
   ctaClosed:
     "Entries are not open for this show. Register your interest and you will hear first when they are.",
   tba: "To be announced",

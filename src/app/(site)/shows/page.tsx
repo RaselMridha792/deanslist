@@ -38,7 +38,7 @@ const COPY = {
   allTitle: "The full list.",
   ctaTitle: "Your stage awaits.",
   ctaBody:
-    "Entries are open. Four fields and one minute stand between you and the Principal's Roll.",
+    "Entries are open. Four fields and one minute stand between you and The Dean's List.",
   tba: "To be announced",
 } as const;
 

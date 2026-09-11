@@ -35,7 +35,7 @@ const AFTER_ENTRY = [
   {
     n: "03",
     title: "Payout",
-    body: "Winners are announced on air and paid the prize pool as locked by the audience.",
+    body: "Winners are announced on air and paid what is left in their money bank when the final clock hits zero.",
   },
 ] as const;
 

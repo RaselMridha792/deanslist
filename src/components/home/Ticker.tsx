@@ -16,7 +16,9 @@ const ITEMS = [
   "Songwriters",
   "Perform from anywhere",
   "Voted live",
-  "$1,000 prize",
+  // Not a figure. The weekly prize is $250 today and will change as sponsors
+  // come in, so the client asked for "cash prize" rather than a number.
+  "Cash prizes",
 ];
 
 function Run({ hidden = false }: { hidden?: boolean }) {

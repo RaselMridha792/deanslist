@@ -49,7 +49,7 @@ function whoLine(ctx: TemplateContext): string {
   if (ctx.winnerName) {
     return `${accent(ctx.winnerName)} won ${escapeHtml(ctx.showTitle)}.`;
   }
-  return `Meet the latest name on the Principal's Roll from ${accent(ctx.showTitle)}.`;
+  return `Meet the latest performer to make The Dean's List, from${accent(ctx.showTitle)}.`;
 }
 
 export const winner: EmailTemplate = {
@@ -59,7 +59,7 @@ export const winner: EmailTemplate = {
     "Profile of a past winner, used between seasons to keep the list warm. Typographic — carries no image, by design.",
   // Phrased so it still reads as a sentence when no winner name is confirmed
   // and {{winnerName}} falls back to "the winner".
-  subject: "{{winnerName}} is on the Principal's Roll",
+  subject: "{{winnerName}} made The Dean's List",
   preheader: "One entry, one performance, one audience vote. Here is how it went.",
 
   html: (ctx) => {
@@ -71,9 +71,9 @@ export const winner: EmailTemplate = {
     ].join("");
 
     return [
-      eyebrow("Principal's Roll"),
+      eyebrow("Made The Dean's List"),
       ctx.winnerName ? monogram(ctx.winnerName) : "",
-      heading(ctx.winnerName ?? "The Principal's Roll"),
+      heading(ctx.winnerName ?? "The Dean's List"),
       paragraph(whoLine(ctx)),
       paragraph(
         "No agent. No showcase. No plane ticket. An entry form, a performance filmed at home, and an audience that voted them through round after round.",
@@ -84,7 +84,7 @@ export const winner: EmailTemplate = {
       divider(),
       subheading("The list is how you hear first"),
       paragraph(
-        `${escapeHtml(ctx.firstName)}, everyone on the Principal's Roll started by filling in one form. Entries for the next show are announced to this list before anywhere else.`,
+        `${escapeHtml(ctx.firstName)}, everyone who made The Dean's List started by filling in one form. Entries for the next show are announced to this list before anywhere else.`,
       ),
       secondaryLink(ctx.entryLink, "Enter the next show"),
     ].join("");
@@ -95,7 +95,7 @@ export const winner: EmailTemplate = {
       ? `${ctx.winnerName} won ${ctx.prizeAmount} on ${ctx.showTitle}.`
       : ctx.winnerName
         ? `${ctx.winnerName} won ${ctx.showTitle}.`
-        : `Meet the latest name on the Principal's Roll from ${ctx.showTitle}.`,
+        : `Meet the latest performer to make The Dean's List, from${ctx.showTitle}.`,
     "",
     "No agent. No showcase. No plane ticket. An entry form, a performance filmed",
     "at home, and an audience that voted them through round after round.",
@@ -109,7 +109,7 @@ export const winner: EmailTemplate = {
     `Read the full story: ${ctx.showLink}`,
     "",
     "THE LIST IS HOW YOU HEAR FIRST",
-    `${ctx.firstName}, everyone on the Principal's Roll started by filling in one`,
+    `${ctx.firstName}, everyone who made The Dean's List started by filling in one`,
     "form. Entries for the next show are announced to this list before anywhere else.",
     `Enter the next show: ${ctx.entryLink}`,
   ],

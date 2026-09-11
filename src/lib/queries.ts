@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
+import { getChannelVideos } from "@/lib/youtube";
 import {
+  SITE,
   SHOWS,
   WINNERS,
   EPISODES,
@@ -83,7 +85,13 @@ export type Winner = {
   announcedAt: string | null;
 };
 
-export type Episode = { videoId: string; title: string; showSlug: string | null };
+export type Episode = {
+  videoId: string;
+  title: string;
+  showSlug: string | null;
+  /** When it aired, where known. Orders the Drop That Mike library. */
+  publishedAt?: string | null;
+};
 
 export type Stat = {
   key: string;
@@ -225,10 +233,52 @@ export async function getEpisodes(showSlug?: string): Promise<Episode[]> {
           videoId: extractYouTubeId(r.videoUrl) ?? "",
           title: r.title,
           showSlug: r.show?.slug ?? null,
+          publishedAt: r.airedAt?.toISOString() ?? null,
         }));
 
   const usable = list.filter((e) => e.videoId);
   return showSlug ? usable.filter((e) => e.showSlug === showSlug) : usable;
+}
+
+/**
+ * Every Drop That Mike video, for /watch and the homepage.
+ *
+ * The client wants the library to be Drop That Mike and nothing else, with each
+ * week's live added as it airs (2026-09-11). Two sources, merged:
+ *
+ *   the Dean's List Presents channel feed, filtered to titles that name the
+ *   show, so a weekly live appears without anyone touching the dashboard;
+ *   episodes added by hand in the Shows manager, for anything the feed misses
+ *   (a live titled without the show's name, an upload older than the feed's
+ *   last fifteen).
+ *
+ * Crown the Sound's episodes stay in the database. Its own show page and PJ
+ * Galloway's winner page still play them.
+ */
+export async function getDropThatMikeVideos(): Promise<Episode[]> {
+  const [manual, feed] = await Promise.all([
+    getEpisodes("drop-that-mike"),
+    getChannelVideos(SITE.youtubeChannelId),
+  ]);
+
+  const fromFeed: Episode[] = feed
+    .filter((v) => /drop\s*that\s*mike/i.test(v.title) && !/#shorts/i.test(v.title))
+    .map((v) => ({
+      videoId: v.videoId,
+      title: v.title,
+      showSlug: "drop-that-mike",
+      publishedAt: v.publishedAt,
+    }));
+
+  const seen = new Set<string>();
+  const merged = [...fromFeed, ...manual].filter((e) => {
+    if (seen.has(e.videoId)) return false;
+    seen.add(e.videoId);
+    return true;
+  });
+
+  // Newest first. An episode with no date keeps its place after the dated ones.
+  return merged.sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
 }
 
 /**

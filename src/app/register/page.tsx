@@ -65,7 +65,7 @@ export default async function RegisterPage() {
       title: prize ? `${prize} on the line` : "Cash prizes",
       body: prize
         ? `The current show carries a ${prize} pool, paid to the winner the audience chooses.`
-        : "Winners are paid in cash and take a permanent place on the Principal's Roll.",
+        : "Winners are paid in cash and make The Dean's List.",
     },
     {
       title: "Perform from home",

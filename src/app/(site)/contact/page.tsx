@@ -58,7 +58,7 @@ const INQUIRY_ROUTES = [
 type Route = (typeof INQUIRY_ROUTES)[number];
 
 /**
- * The handle a social URL ends in: "@DeansList2025", "Deanslistltd2025".
+ * The handle a social URL ends in: "@deanslistllc", "Deanslistltd2025".
  *
  * Derived rather than typed out twice, so the label cannot drift from the link
  * it points at when the client edits the URL.

@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s | The Dean's List",
   },
   description:
-    "A global online talent competition. Perform from home, get voted on live, and win a cash prize and a place on the Principal's Roll.",
+    "A global online talent competition. Perform from home, get voted on live, and win a cash prize. Winners make The Dean's List.",
   applicationName: "The Dean's List",
   openGraph: {
     type: "website",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     title: "The Dean's List | Global Talent Competition",
     description:
-      "Perform from home, get voted on live, and win a cash prize and a place on the Principal's Roll.",
+      "Perform from home, get voted on live, and win a cash prize. Winners make The Dean's List.",
     // The old site sets og:image to the site root — an HTML document, not an
     // image — which is exactly why its share previews never render. This points
     // at a real 1200x630 file; see scripts/make-og-image.mjs.
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "The Dean's List | Global Talent Competition",
     description:
-      "Perform from home, get voted on live, and win a cash prize and a place on the Principal's Roll.",
+      "Perform from home, get voted on live, and win a cash prize. Winners make The Dean's List.",
     images: ["/og.jpg"],
   },
   robots: { index: true, follow: true },

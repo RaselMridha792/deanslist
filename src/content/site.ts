@@ -21,7 +21,7 @@ export const SITE = {
   legalName: "Dean's List LTD",
   tagline: "Any talent. Big cash. Live from home.",
   description:
-    "A global online talent competition. Perform from home, get voted on live, and win a cash prize and a place on the Principal's Roll.",
+    "A global online talent competition. Perform from home, get voted on live, and win a cash prize. Winners make The Dean's List.",
   /**
    * Supplied by the client — see session.md. Supersedes the gmail address the
    * old site publishes.
@@ -55,8 +55,15 @@ export const SITE = {
     country: "USA",
   },
 
+  /**
+   * Dean's List Presents, the monetized channel the client wants linked
+   * everywhere (2026-09-11). The old @DeansList2025 channel is no longer
+   * linked. The id is what the Watch page reads each week's lives from.
+   */
+  youtubeChannelId: "UC8bhtLqyIJSvIkxN-99fOaQ",
+
   socials: {
-    youtube: "https://www.youtube.com/@DeansList2025",
+    youtube: "https://www.youtube.com/@deanslistllc",
     facebook: "https://www.facebook.com/Deanslistltd2025",
   },
 } as const;
@@ -116,10 +123,14 @@ export const SHOWS: ShowSeed[] = [
     tagline: "The only show where you control the cash.",
     description:
       "This is not just another talent show. On Drop That Mike, YOU decide who stays and who gets eliminated with Freeze or Pass. Perform from home. Compete for real cash. Every talent is welcome.",
-    /** Verbatim from the old homepage. The client's own words about their own format. */
+    /**
+     * Verbatim from the old homepage, the client's own words about their own
+     * format. One line is gone: "The prize pool is DRAINING in real time",
+     * which the rules sheet replaced. Rounds 1 and 2 build a money bank, and
+     * only the final drains it.
+     */
     pitch: [
       "DROP THAT MIKE. The only show where YOU control the cash!",
-      "The prize pool is DRAINING in real time, and the only thing standing between the money and zero is YOU. Hit FREEZE to lock the pot and save the performer's payday!",
       "The better they perform, the harder you fight to keep that money alive.",
       "Tune in LIVE. Drop a comment if you're ready to FREEZE!",
     ],
@@ -140,16 +151,16 @@ export const SHOWS: ShowSeed[] = [
     mechanic: [
       {
         name: "Freeze",
-        body: "Freeze means keep going. Every Freeze adds $5.00 to the performer's pot, up to $250.00 in the first round.",
+        body: "Freeze means keep going. Every Freeze adds $5.00 to the performer's money bank, up to $250.00 in the first round.",
       },
       {
         name: "Pass",
         body: "Pass is a strike against you. Rack up 20 Passes before your time is up and you are eliminated.",
       },
     ],
-    // The client's rules sheet, word for word. Two figures are blank in the
-    // PDF's text layer ("+$ .00"); the printed page and its own chips both read
-    // $5.00, so that is the figure used. The \u2060 after a minus is a word
+    // The client's rules sheet, word for word: "Drop That Mike - Competition
+    // Rules.pdf", revised 2026-09-11. The final clock is now 3 minutes, and the
+    // pot is called the money bank. The\u2060 after a minus is a word
     // joiner: without it a line can break between "−" and "$2.00", leaving a
     // stray minus at the end of one line and a positive-looking figure below.
     rounds: [
@@ -158,8 +169,8 @@ export const SHOWS: ShowSeed[] = [
         stage: "Showcase",
         title: "Freeze or get passed",
         body: [
-          "All 8 contestants perform, one at a time, for up to 5 minutes. While you perform, the audience votes Freeze or Pass in real time.",
-          "Every Freeze adds $5.00 to your money pot, up to a max of $250.00. Rack up 20 Passes before your time is up and you're eliminated. Finish your set with fewer than 20 Passes and you move on.",
+          "All contestants perform, one at a time, for up to 5 minutes. While you perform, the audience votes Freeze or Pass in real time.",
+          "Every Freeze adds $5.00 to your money bank, up to a max of $250.00. Rack up 20 Passes before your time is up and you're eliminated. Finish your set with fewer than 20 Passes and you move on.",
         ],
         terms: ["+$5.00 per Freeze", "Cap $250.00", "20 Passes = out"],
       },
@@ -168,8 +179,8 @@ export const SHOWS: ShowSeed[] = [
         stage: "Double down",
         title: "Grow it or guard it",
         body: [
-          "Advancing contestants carry over their Round 1 pot. You choose: freeze your earnings and sit out, or perform again to chase the max payout.",
-          "The stakes rise here. Every Freeze still earns +$5.00, but every Pass now costs you −\u2060$2.00. The contestant with the highest pot at the end of Round 2 advances to the final round.",
+          "Advancing contestants carry over their Round 1 money bank. You choose: freeze your earnings and sit out, or perform again to chase the max payout.",
+          "The stakes rise here. Every Freeze still earns +$5.00, but every Pass now costs you −\u2060$2.00. The contestant with the highest money bank at the end of Round 2 advances to the final round.",
         ],
         terms: ["+$5.00 per Freeze", "−$2.00 per Pass", "Top pot advances"],
       },
@@ -178,15 +189,15 @@ export const SHOWS: ShowSeed[] = [
         stage: "Final",
         title: "You vs. the clock",
         body: [
-          "The Round 2 winner performs solo against a 4-minute countdown clock, fighting to freeze their money before time runs out.",
-          "Every Freeze locks in your money for 5 seconds. Any stretch without a Freeze costs you −\u2060$1.00 per second as the clock ticks. When the clock hits zero, whatever remains in your pot is your cash prize.",
+          "The Round 2 winner performs solo against a 3-minute countdown clock, fighting to freeze their money before time runs out.",
+          "Every Freeze locks in your money for 5 seconds. Any stretch without a Freeze costs you −\u2060$1.00 per second as the clock ticks. When the clock hits zero, whatever remains in your bank is your cash prize.",
         ],
-        terms: ["4:00 on the clock", "Freeze = 5 sec locked", "−$1.00 / sec unfrozen"],
+        terms: ["3:00 on the clock","Freeze = 5 sec locked", "−$1.00 / sec unfrozen"],
       },
     ],
     prize: {
       title: "The pot you build",
-      body: "Every Freeze adds $5.00 to your pot. In the final, whatever remains in your pot when the clock hits zero is your cash prize.",
+      body: "Every Freeze adds $5.00 to your money bank. In the final, whatever remains in your bank when the clock hits zero is your cash prize.",
     },
     // The day and time are known now (above). What the client still announces
     // week by week is the entry deadline for each line-up.
@@ -197,7 +208,7 @@ export const SHOWS: ShowSeed[] = [
     title: "Crown the Sound",
     tagline: "One song. One stage. One crown.",
     description:
-      "Contestants perform an assigned song and the audience votes. Judges weigh creativity, stage presence and originality across the season. The winner takes a cash prize and a place on the Principal's Roll.",
+      "Contestants perform an assigned song and the audience votes. Judges weigh creativity, stage presence and originality across the season. The winner takes a cash prize and makes The Dean's List.",
     entryDeadline: null,
     startsAt: null,
     cadence: null,
@@ -418,7 +429,7 @@ export const CHANNEL_CONTENT = [
   },
   {
     title: "Winner spotlights",
-    body: "Celebrate each season's champion and their journey to the Principal's Roll.",
+    body: "Celebrate each season's champion and their journey onto The Dean's List.",
   },
   {
     title: "Behind the scenes",
@@ -445,12 +456,12 @@ export const HOW_IT_WORKS = [
   {
     step: "03",
     title: "Get voted",
-    body: "The audience decides live across YouTube and Facebook. On Drop That Mike they control the prize pool itself.",
+    body: "The audience decides live across YouTube and Facebook. On Drop That Mike every Freeze grows the performer's money bank.",
   },
   {
     step: "04",
     title: "Make the list",
-    body: "Win the cash prize and take a place on the Principal's Roll of the Dean's List.",
+    body: "Win the cash prize and make The Dean's List.",
   },
 ] as const;
 
@@ -495,7 +506,7 @@ export const SPONSOR_TIERS = [
 export const ABOUT_COPY = [
   "The Dean's List is more than just a name. It is a platform created to celebrate excellence and showcase worldwide musical talent. Designed as a stage where creativity meets recognition, The Dean's List invites contestants from around the globe to step forward and demonstrate their artistry. Contestants bring their wit, their creativity, and their presence to the stage as they compete for recognition that will set them apart in the music world.",
   "Each performance becomes part of the experience, highlighting the diversity of style, skill, and originality that exists in music today. The Dean's List not only honors performers for their ability, but also gives them the chance to inspire others and gain exposure in front of audiences who are searching for fresh, standout talent.",
-  "Every season builds anticipation as musicians bring their very best in pursuit of the ultimate prize. At the end of each season, the winner earns more than just applause. They secure a cash prize and, even more importantly, a coveted place on the Principal's Roll of the Dean's List. This honor cements their status as one of the standout talents in the world, ensuring their name is forever connected with excellence, creativity, and achievement.",
+  "Every season builds anticipation as musicians bring their very best in pursuit of the ultimate prize. At the end of each season, the winner earns more than just applause. They secure a cash prize and, even more importantly, they make The Dean's List. This honor cements their status as one of the standout talents in the world, ensuring their name is forever connected with excellence, creativity, and achievement.",
   "By combining recognition, reward, and the thrill of competition, The Dean's List continues to grow as the premier platform for celebrating the best in worldwide musical talent.",
 ] as const;
 
@@ -512,14 +523,17 @@ export const WINNERS_INTRO =
   "The Crown the Sound contest is a cornerstone of the Dean's List platform, designed to spotlight exceptional musical talent and reward artists who bring creativity, presence, and skill to the stage. Every season, one standout performer rises above the rest, earning the coveted title, the prize, and a place among our past winners.";
 
 /**
- * Closes the winners archive. Note the "$1,000" — it is the client's own
- * published figure for this contest, corroborated by the winner page, so it is
- * a stated fact rather than an invented one.
+ * Closes the winners archive.
+ *
+ * It used to promise "another chance to win $1,000". The client asked for
+ * "cash prize" instead (2026-09-11): the weekly prize is $250 today and will
+ * change once sponsors are involved, so no figure is promised here. The $1,000
+ * PJ Galloway won stays on his own page, because that one is a past fact.
  */
 export const NEXT_WINNER_COPY = {
   heading: "Want to be the next winner?",
   body: [
-    "If you missed your shot this time, don't worry. Another chance to win $1,000 is coming soon. This is more than just a contest; it's your moment to be recognised, celebrated, and remembered.",
+    "If you missed your shot this time, don't worry. Another chance to win a cash prize is coming soon. This is more than just a contest; it's your moment to be recognised, celebrated, and remembered.",
     "Whether you're a seasoned performer or a new artist ready to take the stage, this is your opportunity to showcase your talent to the world.",
     "Follow us on all platforms and stay locked in for updates on the next Crown the Sound competition. You could be next.",
   ],

@@ -9,12 +9,12 @@ import { PlaySquare } from "@/components/dl/PlayIcon";
 import { Reveal } from "@/components/dl/Reveal";
 import { SectionHeading } from "@/components/dl/SectionHeading";
 import { SITE } from "@/content/site";
-import { getEpisodes, getShows, type Episode } from "@/lib/queries";
+import { getDropThatMikeVideos, getShows, type Episode } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Watch",
   description:
-    "Full episodes and highlights from every season, pulled from the official channel and organised by show.",
+    "Every Drop That Mike live, pulled from the official Dean's List Presents channel as each week airs.",
 };
 
 export const dynamic = "force-dynamic";
@@ -37,14 +37,13 @@ type Props = { searchParams: Promise<{ play?: string }> };
  */
 export default async function WatchPage({ searchParams }: Props) {
   const { play } = await searchParams;
-  const [episodes, shows] = await Promise.all([getEpisodes(), getShows()]);
+  const [episodes, shows] = await Promise.all([getDropThatMikeVideos(), getShows()]);
 
   const showTitle = new Map(shows.map((s) => [s.slug, s.title]));
   const labelFor = (e: Episode) => (e.showSlug ? (showTitle.get(e.showSlug) ?? null) : null);
 
-  // "Every episode, by show": a stable grouping, so the order the dashboard
-  // returns is preserved inside each show rather than resorted around it.
-  const ordered = groupByShow(episodes);
+  // Drop That Mike only, newest first, as getDropThatMikeVideos returns it.
+  const ordered = episodes;
 
   const requested = play ? ordered.find((e) => e.videoId === play) : undefined;
   const featured = requested ?? ordered[0] ?? null;
@@ -80,8 +79,7 @@ export default async function WatchPage({ searchParams }: Props) {
             className="animate-dl-rise max-w-[44ch] text-pretty text-lede text-ground/85"
             style={{ animationDelay: "200ms" }}
           >
-            Full episodes and highlights from every season, pulled from the official channel and
-            organised by show.
+            Every Drop That Mike live, pulled from the official channel as each week airs.
           </p>
         </div>
       </section>
@@ -158,7 +156,7 @@ export default async function WatchPage({ searchParams }: Props) {
             */}
             <SectionHeading
               kicker="Library"
-              title={<span className="normal-case">Every episode, by show.</span>}
+              title={<span className="normal-case">Every Drop That Mike live.</span>}
               aside={<div />}
             />
 
@@ -208,8 +206,8 @@ export default async function WatchPage({ searchParams }: Props) {
 
           <Reveal index={1} className="flex flex-col gap-6 border-t-2 border-ground pt-6">
             <p className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] text-ground">
-              Entries are open. Four fields and one minute stand between you and the
-              Principal&apos;s Roll.
+              Entries are open. Four fields and one minute stand between you and
+              The Dean&apos;s List.
             </p>
             {/*
               A black button on the red field. Not one of the four variants —
@@ -257,13 +255,3 @@ function Thumbnail({ videoId, priority = false }: { videoId: string; priority?: 
   );
 }
 
-/**
- * Group episodes by show, preserving the order each show first appears in and
- * the order of the episodes inside it. Sorting on the show slug would reshuffle
- * the whole library alphabetically the first time a show is renamed.
- */
-function groupByShow(episodes: Episode[]): Episode[] {
-  const order: (string | null)[] = [];
-  for (const e of episodes) if (!order.includes(e.showSlug)) order.push(e.showSlug);
-  return order.flatMap((slug) => episodes.filter((e) => e.showSlug === slug));
-}

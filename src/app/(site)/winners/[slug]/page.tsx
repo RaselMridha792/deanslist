@@ -171,8 +171,8 @@ export default async function WinnerPage({ params }: Params) {
           <div className="animate-dl-rise">
             <Kicker onDark>
               {winner.showTitle
-                ? `Principal's Roll / ${winner.showTitle}`
-                : "Principal's Roll"}
+                ? `Made The Dean's List / ${winner.showTitle}`
+                : "Made The Dean's List"}
             </Kicker>
             <h1 className="mt-5 text-balance text-display-lg font-extrabold uppercase">
               {winner.name}.
@@ -334,7 +334,7 @@ export default async function WinnerPage({ params }: Params) {
             <div className="flex flex-col gap-6 border-t-2 border-ground pt-6">
               <p className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] opacity-90">
                 Entries are open. Four fields and one minute stand between you
-                and the Principal's Roll.
+                and The Dean's List.
               </p>
               {/* Black on red. No variant carries this pairing, so the fill is
                   set here from tokens rather than a new one-off in the CSS. */}

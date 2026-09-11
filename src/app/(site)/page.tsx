@@ -13,7 +13,7 @@ import {
   getShows,
   getStats,
   getLatestWinner,
-  getEpisodes,
+  getDropThatMikeVideos,
   getGallery,
 } from "@/lib/queries";
 
@@ -27,7 +27,8 @@ export default async function HomePage() {
     getShows(),
     getStats(),
     getLatestWinner(),
-    getEpisodes(),
+    // Drop That Mike only, including each week's live from the channel feed.
+    getDropThatMikeVideos(),
     getGallery(),
   ]);
 

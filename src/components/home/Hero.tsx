@@ -136,7 +136,7 @@ export function Hero({
             style={{ animationDelay: "400ms" }}
           >
             Perform from home. The audience votes Freeze or Pass live: every Freeze adds $5 to
-            your pot, and 20 Passes sends you home. One mic. One clock. One winner takes the pot.
+            your money bank, and 20 Passes sends you home. One winner takes home the cash.
           </p>
 
           <div

@@ -161,13 +161,13 @@ async function seedKnowledge() {
     {
       question: "What is the Dean's List?",
       answer:
-        "A global online talent competition. Contestants perform from home, the audience votes live across YouTube and Facebook, and the winner takes a cash prize and a place on the Principal's Roll.",
+        "A global online talent competition. Contestants perform from home, the audience votes live across YouTube and Facebook, and winners take a cash prize and make The Dean's List.",
       category: "general",
     },
     {
       question: "What is Drop That Mike?",
       answer:
-        "A show where the audience controls the prize. The pot drains in real time and viewers vote Freeze to lock it or Pass to eliminate the performer.",
+        "A live talent show every Tuesday at 7 PM ET. While each contestant performs, the audience votes Freeze or Pass. Every Freeze adds $5 to their money bank, and 20 Passes puts them out. The final is 3 minutes against the clock, and whatever is left in the winner's bank is their cash prize. The full rules are on the Rules page.",
       category: "shows",
     },
     {
@@ -185,18 +185,18 @@ async function seedKnowledge() {
     {
       question: "Does it cost anything to enter?",
       answer:
-        "That is confirmed in the official contest rules. Please check the Rules page or email the team.",
+        "No. Registering and performing are free, and no card details are taken at any point.",
       category: "entry",
     },
     {
       question: "How do I contact the team?",
-      answer: `Email ${SITE.email}. The team reads everything and replies directly.`,
+      answer: `Email ${SITE.email} about entries and performing, or ${SITE.businessEmail} about sponsorship and business. The team reads everything and replies directly.`,
       category: "contact",
     },
     {
       question: "When is the next show?",
       answer:
-        "Dates are announced on the official YouTube and Facebook channels, and to the email list first. I do not have a confirmed date to give you.",
+        "Drop That Mike is live every Tuesday at 7 PM ET on the official YouTube and Facebook channels. New shows are announced to the email list first.",
       category: "shows",
     },
   ];

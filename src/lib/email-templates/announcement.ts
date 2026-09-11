@@ -59,7 +59,7 @@ export const announcement: EmailTemplate = {
       step(1, "Enter", "Submit your details and a link to your performance. It takes two minutes."),
       step(2, "Get selected", "The team reviews every entry and emails you if you are through."),
       step(3, "Perform live", "You go out to the audience on YouTube and Facebook."),
-      step(4, "Get voted", "The audience decides. The winner takes the cash and a place on the Principal's Roll."),
+      step(4, "Get voted", "The audience decides. The winner takes the cash and makes The Dean's List."),
     ].join("");
   },
 

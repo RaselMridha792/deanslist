@@ -12,7 +12,7 @@ import { getShows, getWinners, type Show, type Winner } from "@/lib/queries";
 export const metadata: Metadata = {
   title: "Past Winners",
   description:
-    "Everyone who has taken the cash prize and a place on the Principal's Roll of the Dean's List.",
+    "Everyone who has taken the cash prize and made The Dean's List.",
   alternates: { canonical: "/winners" },
 };
 
@@ -21,7 +21,9 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 /*
-  /winners - the Principal's Roll.
+  /winners - everyone who made The Dean's List. The design called this "the
+  Principal's Roll"; the client dropped it on legal advice (trademark), and
+  "made The Dean's List" is the phrase that replaces it everywhere.
 
   Design: designs/Winners.dc.html. Four bands: dark hero, the spotlight cell
   pair, the "Season by season" archive table, and the closing red poster.
@@ -173,7 +175,7 @@ export default async function WinnersPage() {
           <div className="animate-dl-rise">
             <Kicker onDark>Past challenges and winners</Kicker>
             <h1 className="mt-5 text-balance text-hero font-extrabold uppercase">
-              The Principal&rsquo;s Roll.
+              Made The Dean&rsquo;s List.
             </h1>
           </div>
 
@@ -233,7 +235,7 @@ export default async function WinnersPage() {
                     }}
                   >
                     <div>
-                      <p className="kicker-dark">Principal&rsquo;s Roll</p>
+                      <p className="kicker-dark">Made The Dean&rsquo;s List</p>
                       <div className="divider-dark mt-4" />
                     </div>
 

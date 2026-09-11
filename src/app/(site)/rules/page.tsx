@@ -15,7 +15,8 @@ export const dynamic = "force-dynamic";
  * The contest rules. Two parts.
  *
  * First the format: Drop That Mike round by round, from the rules sheet the
- * client supplied on 2026-09-11 (Drop_That_Mike_updated.pdf). It lives in
+ * client supplied on 2026-09-11 ("Drop That Mike - Competition Rules.pdf",
+ * the revised sheet with the 3-minute final). It lives in
  * src/content/site.ts so the show page renders exactly the same rounds.
  *
  * Then the general clauses, lifted from the client's own design file
@@ -188,10 +189,9 @@ export default async function RulesPage() {
             </Reveal>
             <Reveal index={1}>
               <p className="max-w-[52ch] text-pretty text-lede text-neutral-800">
-                One mic. One clock. One winner takes the pot. Vote Freeze or
-                Pass live during every performance: the audience decides who
-                stays. Freeze means keep going; every Pass is a strike against
-                you.
+                Vote Freeze or Pass live during every performance: the audience
+                decides who stays. Freeze means keep going; every Pass is a
+                strike against you.
               </p>
             </Reveal>
           </div>
@@ -289,7 +289,7 @@ export default async function RulesPage() {
           <Reveal index={1} className="border-t-2 border-ground pt-6">
             <p className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] text-ground">
               Entries are open. Four fields and one minute stand between you and
-              the Principal&apos;s Roll.
+              The Dean&apos;s List.
             </p>
             <ButtonLink
               href="/enter"

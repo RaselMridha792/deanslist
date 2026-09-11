@@ -59,7 +59,7 @@ export default async function LivePage() {
   const mechanic = [
     {
       word: "FREEZE",
-      body: "Comment FREEZE while an act is on and $5 goes into their pot. The more of you, the more they take home.",
+      body: "Comment FREEZE while an act is on and $5 goes into their money bank. The more of you, the more they take home.",
     },
     {
       word: "PASS",

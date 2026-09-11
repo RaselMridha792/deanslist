@@ -19,7 +19,7 @@ import {
 export const metadata: Metadata = {
   title: "What is the Dean's List",
   description:
-    "A platform built to celebrate excellence and showcase worldwide talent. Perform, get voted on, win the prize, and take a place on the Principal's Roll.",
+    "A platform built to celebrate excellence and showcase worldwide talent. Perform, get voted on, win the prize, and make The Dean's List.",
 };
 
 // Show, winner and stats are dashboard-managed, so this renders per request
@@ -30,13 +30,13 @@ export const dynamic = "force-dynamic";
  * /about: "What is the Dean's List".
  *
  * Design: designs/About.dc.html. Five bands: dark hero, the platform (heading
- * plus one paragraph, then four cells), the Principal's Roll panel against a
+ * plus one paragraph, then four cells), the "Made The Dean's List" panel against a
  * photograph, a stats row, and the closing red poster.
  *
  * Three things are deliberately read from the data layer rather than typed in,
  * because each is a contest fact the client owns and edits:
  *
- *   the winner and show named in the Principal's Roll paragraph. site.ts
+ *   the winner and show named in that panel's paragraph. site.ts
  *     records that the old site names two different winners for the same
  *     challenge, so hardcoding one here would publish an unconfirmed name
  *   the prize sentence in cell 03. The current show's prize pool is still
@@ -99,7 +99,7 @@ export default async function AboutPage() {
    * and this sentence carries the confirmed number.
    */
   const platformBody =
-    "Dean's List LTD produces global music and talent contests such as Crown the Sound and Drop That Mike. Contestants submit performances from wherever they are, an audience of over 1.7 million subscribers votes live, and winners are rewarded with cash prizes and a place on the Principal's Roll.";
+    "Dean's List LTD produces global music and talent contests such as Crown the Sound and Drop That Mike. Contestants submit performances from wherever they are, an audience of over 1.7 million subscribers votes live, and winners are rewarded with cash prizes and make The Dean's List.";
 
   const prizeBody = [
     "Cash prizes, awarded per challenge.",
@@ -117,12 +117,14 @@ export default async function AboutPage() {
     },
     {
       title: "The vote",
-      body: "Every round is decided live across YouTube and Facebook. On Drop That Mike the audience controls the prize pool with Freeze or Pass.",
+      body: "Every round is decided live across YouTube and Facebook. On Drop That Mike the audience votes Freeze or Pass: every Freeze grows the performer's money bank, and every Pass is a strike.",
     },
     { title: "The prize", body: prizeBody },
     {
-      title: "The Roll",
-      body: "Winners take a permanent place on the Principal's Roll of the Dean's List, the honours list of the platform.",
+      // The client's wording (2026-09-11), replacing "The Roll" and the
+      // Principal's Roll, which they dropped for trademark reasons.
+      title: "The spotlight",
+      body: "Winners are spotlighted and acknowledged for their achievements and talents on the Dean's List platform.",
     },
   ];
 
@@ -151,11 +153,11 @@ export default async function AboutPage() {
       : BUILT_IN
   ).map((c, i) => ({ ...c, n: String(i + 1).padStart(2, "0") }));
 
-  /* ---------------------------------------- 02 / The Principal's Roll */
+  /* ------------------------------------------ 02 / Made The Dean's List */
 
-  const roll = ["The Roll is the record of every Dean's List winner."];
+  const roll = ["Every winner who made The Dean's List, spotlighted in one place."];
   if (winner?.showTitle)
-    roll.push(`${winner.name} joined it after ${winner.showTitle}.`);
+    roll.push(`${winner.name} made it after ${winner.showTitle}.`);
   if (show) roll.push(`${show.title} adds the next name.`);
 
   /* --------------------------------------------------------- the stats */
@@ -257,7 +259,7 @@ export default async function AboutPage() {
         </CellGrid>
       </section>
 
-      {/* --------------------------------- 02 / The Principal's Roll */}
+      {/* ----------------------------------- 02 / Made The Dean's List */}
       <section className="shell pt-section">
         <div className="grid gap-[2px] bg-rule min-[900px]:grid-cols-2">
           <Reveal>
@@ -276,7 +278,7 @@ export default async function AboutPage() {
             className="flex flex-col justify-between gap-8 bg-ink p-[clamp(28px,4vw,64px)] text-ground"
           >
             <div>
-              <Kicker onDark>02 / The Principal&apos;s Roll</Kicker>
+              <Kicker onDark>02 / Made The Dean&apos;s List</Kicker>
               <h2 className="mt-5 text-balance text-[clamp(32px,3.6vw,64px)] font-extrabold leading-[.95] tracking-[-.04em]">
                 One name at a time.
               </h2>
@@ -330,7 +332,7 @@ export default async function AboutPage() {
           >
             <p className="text-pretty text-[clamp(16px,1.2vw,19px)] leading-[1.5] text-ground">
               Entries are open. Four fields and one minute stand between you and
-              the Principal&apos;s Roll.
+              The Dean&apos;s List.
             </p>
             {/*
               A black button on the red field. Not a Button variant: the four in

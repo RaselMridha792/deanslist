@@ -11,7 +11,8 @@ import type { Winner } from "@/lib/queries";
  *
  * Two facts the design prints are not ours to print.
  *
- * The badge in the design reads "Principal's Roll 2025". The winner row carries
+ * The badge reads "Made The Dean's List". The design said "Principal's Roll
+ * 2025", which the client dropped for trademark reasons. The winner row carries
  * no announced date, so the year is rendered only when there is one to render.
  *
  * The design's second fact cell is the challenge song. There is no field for it
@@ -184,7 +185,7 @@ export function WinnerSpotlight({ winner }: { winner: Winner | null }) {
               video. The badge itself is not interactive. */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-b from-transparent to-ink/[.85] p-[clamp(20px,3vw,40px)]">
             <span className="inline-flex items-center bg-brand px-[14px] py-2 text-kicker font-semibold uppercase text-white">
-              Principal&apos;s Roll{year ? ` ${year}` : ""}
+              Made The Dean&apos;s List{year ? ` ${year}` : ""}
             </span>
           </div>
         </Reveal>

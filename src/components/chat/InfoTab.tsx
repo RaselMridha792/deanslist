@@ -15,7 +15,7 @@ import { SITE, SHOWS } from "@/content/site";
 const ROUTES = [
   { href: "/shows", label: "Shows and formats", note: "How each show works" },
   { href: "/watch", label: "Watch episodes", note: "Performances and highlights" },
-  { href: "/winners", label: "Winners", note: "The Principal's Roll" },
+  { href: "/winners", label: "Winners", note: "Who made The Dean's List" },
   { href: "/rules", label: "Contest rules", note: "Eligibility and prize terms" },
   { href: "/sponsors", label: "Sponsorship", note: "Brand and partner packages" },
   { href: "/join", label: "Join the team", note: "Judges, hosts and crew" },

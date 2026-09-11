@@ -49,7 +49,7 @@ const ROLES = [
   {
     n: "02",
     title: "Hosts",
-    body: "On-camera presence for live Tuesday broadcasts. Comfortable with a live chat and a draining prize pool.",
+    body: "On-camera presence for live Tuesday broadcasts. Comfortable with a live chat and a Freeze or Pass vote in real time.",
   },
   {
     n: "03",
