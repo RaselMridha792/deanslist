@@ -42,10 +42,10 @@ export const dynamic = "force-dynamic";
  *   the prize sentence in cell 03. The current show's prize pool is still
  *     unconfirmed (SHOWS.pending), so the sentence appears only once a figure
  *     exists rather than asserting $1,000 of a show that has not announced one
- *   the stats row. getStats() returns verified figures only. The design shows
- *     "700K+ YouTube subscribers"; that figure is flagged unverified (and the
- *     old site publishes 1.7M for the same thing), so its cell stays out until
- *     someone confirms it in the dashboard.
+ *   the stats row. getStats() returns verified figures only, so a number the
+ *     client has not confirmed never reaches this page. The subscriber cell
+ *     carries 369K, the count of the channel the site links to, which the
+ *     client confirmed on 2026-09-12.
  */
 /**
  * The editable half of this page.
