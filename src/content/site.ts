@@ -325,13 +325,15 @@ export const STATS: StatSeed[] = [
   {
     key: "youtube_subscribers",
     label: "YouTube subscribers",
-    value: 1_700_000,
+    value: 369_000,
     suffix: "+",
-    // Confirmed by the client: publish what their own live site publishes.
-    // Note it is 2.4x the figure in the signed proposal (700K+) and in the
-    // design file, so those two are the stale ones, not this.
+    // The channel the site actually links to. On 2026-09-11 the client moved
+    // every YouTube link to Dean's List Presents (@deanslistllc), which has
+    // 369K, and on 2026-09-12 asked for its figure rather than the old
+    // channel's. The 1.7M this used to carry matched neither: @DeansList2025
+    // has 1.07M, and the signed proposal said 700K+.
     verified: true,
-    note: "The figure the client's own live site publishes. Confirmed for use.",
+    note: "Subscribers of @deanslistllc, the channel the site links to. Client's instruction, 2026-09-12.",
   },
   {
     key: "facebook_followers",

@@ -92,14 +92,14 @@ export default async function AboutPage() {
   /*
    * The design's paragraph, with one figure corrected rather than excised.
    *
-   * The design writes "an audience of over 700,000 subscribers", which is the
-   * number in the signed proposal. The client's own live site publishes 1.7
-   * million for the same metric, and the client has confirmed the live figure
-   * is the one to use. So both the proposal and the design file are stale here,
-   * and this sentence carries the confirmed number.
+   * The figure is the subscriber count of the channel this site links to,
+   * Dean's List Presents. The design said 700,000 (the signed proposal) and
+   * this sentence carried 1.7 million for a while; neither matched that
+   * channel. The client settled it on 2026-09-12: use its own 369K. The same
+   * number is in the stats row below, from SiteStat.
    */
   const platformBody =
-    "Dean's List LTD produces global music and talent contests such as Crown the Sound and Drop That Mike. Contestants submit performances from wherever they are, an audience of over 1.7 million subscribers votes live, and winners are rewarded with cash prizes and make The Dean's List.";
+    "Dean's List LTD produces global music and talent contests such as Crown the Sound and Drop That Mike. Contestants submit performances from wherever they are, an audience of more than 369,000 subscribers votes live, and winners are rewarded with cash prizes and make The Dean's List.";
 
   const prizeBody = [
     "Cash prizes, awarded per challenge.",
