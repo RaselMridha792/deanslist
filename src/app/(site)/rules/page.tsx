@@ -4,23 +4,28 @@ import { env } from "@/lib/env";
 import { Kicker } from "@/components/dl/Kicker";
 import { Reveal } from "@/components/dl/Reveal";
 import { ButtonLink } from "@/components/dl/Button";
-import { SITE } from "@/content/site";
+import { FormatRounds } from "@/components/show/FormatRounds";
+import { SHOWS, SITE } from "@/content/site";
 
 // Reads PageSection at request time, so a rules change published from the
 // dashboard is live on the next request rather than at the next deploy.
 export const dynamic = "force-dynamic";
 
 /**
- * The contest rules, exactly as the client wrote them.
+ * The contest rules. Two parts.
  *
- * Nineteen clauses across six sections, lifted verbatim from the client's own
- * design file (designs/Rules.dc.html, 01.1 through 06.3). Nothing here is
- * drafted, extended, paraphrased or tidied on their behalf: these are the
- * published terms of a public prize competition, and the client's wording is
- * the only wording that is safe to put in front of an entrant.
+ * First the format: Drop That Mike round by round, from the rules sheet the
+ * client supplied on 2026-09-11 (Drop_That_Mike_updated.pdf). It lives in
+ * src/content/site.ts so the show page renders exactly the same rounds.
+ *
+ * Then the general clauses, lifted from the client's own design file
+ * (designs/Rules.dc.html). Nothing here is drafted on their behalf, with one
+ * exception: 03.3 described the old draining-pool mechanic, which the rules
+ * sheet replaced, so it now points at the rounds instead of contradicting them.
  *
  * A clause changes when the client changes it in the dashboard (PageSection,
- * page "rules"), which overrides this list wholesale. It does not change here.
+ * page "rules"), which overrides this list wholesale. The rounds change in
+ * site.ts.
  */
 const RULES: { heading: string; clauses: string[] }[] = [
   {
@@ -45,7 +50,7 @@ const RULES: { heading: string; clauses: string[] }[] = [
     clauses: [
       "The team reviews every entry and selects performers for broadcast.",
       "Broadcast rounds are decided by the live audience across YouTube and Facebook.",
-      "On Drop That Mike the audience controls the prize pool with Freeze or Pass. The pool amount at the end of a performance is the amount awarded.",
+      "On Drop That Mike the live audience votes Freeze or Pass during every performance, and the rounds set out at the top of this page decide who stays and what they win.",
       "Decisions announced on air are final.",
     ],
   },
@@ -75,12 +80,13 @@ const RULES: { heading: string; clauses: string[] }[] = [
 ];
 
 /**
- * The date of the wording above, not of the deploy. It is fixed because it
- * belongs to the text: a "last updated" that followed the clock would claim a
- * revision that never happened. Once the client publishes from the dashboard,
- * that row's own updatedAt replaces it.
+ * The date of the wording above, not of the deploy. A "last updated" that
+ * followed the clock would claim a revision that never happened. Once the
+ * client publishes from the dashboard, that row's own updatedAt replaces it.
  */
-const DESIGN_LAST_UPDATED = "September 2026";
+const LAST_UPDATED = "September 2026";
+
+const ROUNDS = SHOWS.find((s) => s.slug === "drop-that-mike")?.rounds ?? [];
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -115,39 +121,11 @@ async function getDashboardSections() {
   }
 }
 
-const BASE_METADATA: Metadata = {
+export const metadata: Metadata = {
   title: "Rules & Eligibility",
   description:
-    "How entry, judging, voting and prizes work on Dean's List challenges. The formal wording is with the client for sign-off.",
+    "How Drop That Mike is played round by round, and the eligibility, entry, judging and prize terms behind every Dean's List challenge.",
 };
-
-/**
- * Kept out of search until the wording is signed off, and out of the page's own
- * claim to be final.
- *
- * This is a public prize competition with cash payouts, so entrants can
- * reasonably rely on whatever is published here — and an ad campaign is sending
- * strangers to read it. Until the client supplies the real wording, an outline
- * indexed by Google and headed "The official rules" is a liability rather than
- * a helpful placeholder.
- *
- * `follow` stays on: the links out of this page are real pages and there is no
- * reason to waste them. The directive flips to index the moment the client
- * publishes sections from the dashboard, so nobody has to remember to.
- */
-
-export async function generateMetadata(): Promise<Metadata> {
-  // Sections published from the dashboard ARE the client's wording. Anything
-  // else is the outline this file ships with, and that must not be indexed.
-  const published = (await getDashboardSections()).length > 0;
-
-  return {
-    ...BASE_METADATA,
-    robots: published
-      ? { index: true, follow: true }
-      : { index: false, follow: true },
-  };
-}
 
 export default async function RulesPage() {
   const rows = await getDashboardSections();
@@ -187,49 +165,41 @@ export default async function RulesPage() {
           <div className="animate-dl-rise">
             <Kicker onDark>Rules and eligibility</Kicker>
             <h1 className="mt-5 text-balance text-hero font-extrabold uppercase">
-              {fromDashboard ? "The official rules." : "How it works."}
+              The official rules.
             </h1>
           </div>
           <p className="max-w-[44ch] animate-dl-rise text-pretty text-lede text-ground/85 [animation-delay:200ms]">
-            Eligibility, entry, judging and voting, prize terms and the legal
-            guardrails behind every Dean&apos;s List challenge.
+            How Drop That Mike is played, round by round, and the eligibility,
+            entry, judging and prize terms behind every Dean&apos;s List
+            challenge.
           </p>
         </div>
       </section>
 
-      {/*
-        Said out loud, where a reader will see it.
-        
-        This is a public prize competition with cash payouts, and entrants can
-        reasonably rely on what a page headed "rules" tells them. Until the
-        client's own wording lands, describing the process is useful and
-        presenting it as the binding terms is not. /privacy and /terms carry the
-        same notice for the same reason.
-      */}
-      {!fromDashboard && (
-        <section className="shell pt-section">
-          <div className="max-w-[68ch] border-l-4 border-brand bg-brand-tint p-6">
-            <p className="kicker">Pending legal review</p>
-            <p className="mt-3 text-pretty text-body text-neutral-800">
-              This describes how entry, judging and prizes work today. The
-              formal wording, the eligibility criteria and the prize terms are
-              being confirmed with Dean&apos;s List LTD, and this page is
-              updated the moment they are. Until then it is a guide rather than
-              the binding terms of the contest.
-            </p>
-            <p className="mt-3 text-[13px] leading-relaxed text-neutral-700">
-              Something unclear before you enter?{" "}
-              <a
-                href={`mailto:${SITE.email}`}
-                className="text-brand-onLight underline underline-offset-4"
-              >
-                {SITE.email}
-              </a>
-            </p>
+      {/* ------------------------------------------------------- the format */}
+      {ROUNDS.length > 0 && (
+        <section id="format" className="shell scroll-mt-[90px] pt-section">
+          <div className="grid gap-8 pb-[clamp(24px,3vw,40px)] min-[900px]:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] min-[900px]:items-end min-[900px]:gap-[clamp(32px,5vw,96px)]">
+            <Reveal>
+              <Kicker>Drop That Mike</Kicker>
+              <h2 className="mt-5 text-balance text-display-md font-extrabold">
+                Freeze it. Or lose it.
+              </h2>
+            </Reveal>
+            <Reveal index={1}>
+              <p className="max-w-[52ch] text-pretty text-lede text-neutral-800">
+                One mic. One clock. One winner takes the pot. Vote Freeze or
+                Pass live during every performance: the audience decides who
+                stays. Freeze means keep going; every Pass is a strike against
+                you.
+              </p>
+            </Reveal>
           </div>
+          <FormatRounds rounds={ROUNDS} />
         </section>
       )}
 
+      {/* ---------------------------------------------------------- clauses */}
       <section className="mx-auto grid max-w-shell gap-[clamp(32px,5vw,96px)] px-gutter pt-section min-[901px]:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] min-[901px]:items-start">
         {/* Sticky only where the two columns exist. Stacked above the rules on a
             phone, a sticky index would follow the reader down its own content. */}
@@ -250,13 +220,24 @@ export default async function RulesPage() {
             </a>
           ))}
 
-          <p className="py-4 text-[12px] leading-[1.5] text-neutral-600">
-            {lastUpdated
-              ? `Last updated ${lastUpdated.toLocaleDateString("en-US", {
-                  month: "long",
-                  year: "numeric",
-                })}.`
-              : `Last updated ${DESIGN_LAST_UPDATED}. Final wording to be confirmed by ${SITE.legalName}.`}
+          <p className="pt-4 text-[12px] leading-[1.5] text-neutral-600">
+            {`Last updated ${
+              lastUpdated
+                ? lastUpdated.toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })
+                : LAST_UPDATED
+            }.`}
+          </p>
+          <p className="pb-4 pt-2 text-[12px] leading-[1.5] text-neutral-600">
+            Something unclear before you enter?{" "}
+            <a
+              href={`mailto:${SITE.email}`}
+              className="text-brand-onLight underline underline-offset-4"
+            >
+              {SITE.email}
+            </a>
           </p>
         </nav>
 

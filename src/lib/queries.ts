@@ -6,7 +6,9 @@ import {
   EPISODES,
   STATS,
   GALLERY,
+  type Round,
   type ShowSeed,
+  type WeeklySlot,
   type WinnerSeed,
 } from "@/content/site";
 
@@ -64,6 +66,9 @@ export type Show = {
   mechanic?: { name: string; body: string }[];
   pitch?: string[];
   pending?: string[];
+  weekly?: WeeklySlot;
+  rounds?: Round[];
+  prize?: { title: string; body: string };
 };
 
 export type Winner = {
@@ -150,6 +155,9 @@ export async function getShows(): Promise<Show[]> {
       mechanic: seed?.mechanic,
       pitch: seed?.pitch,
       pending: seed?.pending,
+      weekly: seed?.weekly,
+      rounds: seed?.rounds,
+      prize: seed?.prize,
     };
   });
 }

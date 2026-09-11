@@ -116,14 +116,18 @@ jobs:
           docker logs noauth 2>&1 | tail -20
           echo "Still running after 60s without AUTH_SECRET"; exit 1
 
+      # With the same .env the server will have: the example file as it ships,
+      # secrets filled in, every optional value left exactly as it is. An
+      # optional value the app rejects when blank then fails here, not on the
+      # VPS in the middle of a deploy.
       - name: Start the app
         run: |
-          docker run -d --name app --network ci -p 3000:3000 \
-            -e DATABASE_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public \
-            -e DIRECT_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public \
-            -e AUTH_SECRET=$(openssl rand -hex 32) \
-            -e NEXT_PUBLIC_SITE_URL=${{ env.NEXT_PUBLIC_SITE_URL }} \
-            deanslist:ci
+          cp .env.docker.example ci.env
+          sed -i "s/^AUTH_SECRET=$/AUTH_SECRET=$(openssl rand -hex 32)/" ci.env
+          printf '%s\n' \
+            "DATABASE_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public" \
+            "DIRECT_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public" >> ci.env
+          docker run -d --name app --network ci -p 3000:3000 --env-file ci.env deanslist:ci
           for i in $(seq 1 45); do
             if curl -fsS http://127.0.0.1:3000/api/health; then echo; exit 0; fi
             sleep 2

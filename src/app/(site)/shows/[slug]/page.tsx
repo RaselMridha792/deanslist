@@ -7,8 +7,10 @@ import { Countdown } from "@/components/dl/Countdown";
 import { GrayscaleImage } from "@/components/dl/GrayscaleMedia";
 import { Kicker } from "@/components/dl/Kicker";
 import { Reveal } from "@/components/dl/Reveal";
+import { FormatRounds } from "@/components/show/FormatRounds";
 import { env } from "@/lib/env";
 import { getEpisodes, getShow } from "@/lib/queries";
+import { nextStart } from "@/lib/schedule";
 import {
   breadcrumbJsonLd,
   jsonLdGraph,
@@ -128,8 +130,9 @@ export default async function ShowPage({ params }: Params) {
       .join(" ") || "When it runs, and what is on the line.";
 
   const mechanic = show.mechanic ?? [];
-  const prizeBody =
-    mechanic.length >= 2
+  const prizeBody = show.prize
+    ? show.prize.body
+    : mechanic.length >= 2
       ? `Cash, controlled live by the audience with ${mechanic[0].name} or ${mechanic[1].name}. Full terms on the rules page.`
       : COPY.prizeFallback;
 
@@ -137,7 +140,7 @@ export default async function ShowPage({ params }: Params) {
 
   const lede = [
     show.tagline,
-    show.cadence ? `Live ${lowerFirst(show.cadence)} on YouTube and Facebook.` : null,
+    show.cadence ? `Live ${lowerFirst(show.cadence)}, on YouTube and Facebook.` : null,
     takingEntries ? "Entries are open now." : null,
   ]
     .filter(Boolean)
@@ -183,13 +186,13 @@ export default async function ShowPage({ params }: Params) {
 
       {/*
         Only while the show is actually taking entries. A countdown on a closed
-        season would be counting to nothing, and the fallback target (the show's
-        own stated Tuesday cadence) would read as a promise nobody made.
+        season would be counting to nothing. The target is a date set in the
+        Shows manager or, between those, the show's confirmed weekly slot.
       */}
       {takingEntries ? (
         <section className="bg-ink text-ground">
           <div className="mx-auto grid max-w-shell gap-6 px-gutter pb-[clamp(32px,4vw,56px)] min-[900px]:grid-cols-[minmax(0,4fr)_minmax(0,1fr)] min-[900px]:items-end min-[900px]:gap-[clamp(12px,2vw,24px)]">
-            <Countdown target={show.startsAt} onDark className="!max-w-none" />
+            <Countdown target={nextStart(show)} onDark className="!max-w-none" />
             <ButtonLink href={enterHref} size="lg" className="w-full">
               Enter this show
             </ButtonLink>
@@ -283,6 +286,14 @@ export default async function ShowPage({ params }: Params) {
             })}
           </div>
         )}
+
+        {/* The rounds, from the client's rules sheet. The same component and
+            data as /rules, so the two pages cannot describe different games. */}
+        {show.rounds && show.rounds.length > 0 && (
+          <div className="pt-[clamp(40px,5vw,72px)]">
+            <FormatRounds rounds={show.rounds} />
+          </div>
+        )}
       </section>
 
       {/* --------------------------------------- 02 / Schedule and prize */}
@@ -324,7 +335,9 @@ export default async function ShowPage({ params }: Params) {
             <p className="text-sm font-extrabold tracking-[.1em] text-brand">Prize</p>
             {/* Never a guessed figure: the pool is printed only once it exists. */}
             <h3 className="font-extrabold text-display-sm">
-              {show.prizeAmount ? `${money(show.prizeAmount)} pool` : COPY.tba}
+              {show.prizeAmount
+                ? `${money(show.prizeAmount)} pool`
+                : (show.prize?.title ?? COPY.tba)}
             </h3>
             <p className="mt-auto text-pretty text-neutral-700">{prizeBody}</p>
           </Cell>

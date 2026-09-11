@@ -4,6 +4,7 @@ import { PlayIcon } from "@/components/dl/PlayIcon";
 import { HeroEntryForm } from "@/components/home/HeroEntryForm";
 import { mediaImage, mediaVideo } from "@/lib/media";
 import type { Show, Winner } from "@/lib/queries";
+import { nextStart } from "@/lib/schedule";
 
 /**
  * The one screen the whole rebuild turns on: 7fr of copy, 5fr of lead capture,
@@ -108,7 +109,9 @@ export function Hero({
                 aria-hidden
                 className="inline-block h-[6px] w-[6px] bg-white motion-safe:animate-dl-pulse"
               />
-              Live every Tuesday
+              {/* Set in capitals by the row above, so the cadence reads as
+                  "LIVE EVERY TUESDAY, 7 PM ET" whatever its own case. */}
+              Live {show?.cadence ?? "every week"}
             </span>
             <span className="opacity-75">YouTube and Facebook</span>
           </div>
@@ -132,8 +135,8 @@ export function Hero({
             className="m-0 max-w-[44ch] text-lede opacity-85 motion-safe:animate-dl-rise"
             style={{ animationDelay: "400ms" }}
           >
-            Perform from home. The audience votes live and the $1,000 prize pool drains in real
-            time. Hit Freeze to lock the pot, or Pass and watch it fall.
+            Perform from home. The audience votes Freeze or Pass live: every Freeze adds $5 to
+            your pot, and 20 Passes sends you home. One mic. One clock. One winner takes the pot.
           </p>
 
           <div
@@ -152,7 +155,7 @@ export function Hero({
           </div>
 
           <div className="motion-safe:animate-dl-rise" style={{ animationDelay: "700ms" }}>
-            <Countdown target={show?.startsAt ?? null} onDark />
+            <Countdown target={nextStart(show)} onDark />
           </div>
         </div>
 

@@ -28,8 +28,9 @@ function partsUntil(target: number): Parts | null {
  * to the show. Somebody arriving as it hit zero would have missed the start.
  *
  * An absent countdown costs nothing. A confident wrong one costs an audience,
- * and this is the number the ads point people at. So the date comes from the
- * Shows manager or the component does not render.
+ * and this is the number the ads point people at. So the target comes from the
+ * Shows manager, or from the show's confirmed weekly slot worked out in the
+ * show's own time zone (src/lib/schedule.ts), or the component does not render.
  *
  * Hydration-safe: the server and the browser evaluate Date.now() at different
  * moments, so the first client render reproduces the server's dashes exactly

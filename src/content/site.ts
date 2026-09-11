@@ -31,6 +31,15 @@ export const SITE = {
    * deanslist.live fails that check and lands in spam.
    */
   email: "producer@deanslist.live",
+  /**
+   * Where business goes: sponsorship, partnerships, ownership or investment.
+   *
+   * The client's rule (2026-09-11): business deals and ownership questions go
+   * to the CEO and nowhere else; talent and referrals go to the producer.
+   * `email` above stays the talent address because that is what nearly every
+   * visitor is writing about.
+   */
+  businessEmail: "ceo@deanslist.live",
   location: "South Charleston, WV",
 
   /**
@@ -54,6 +63,25 @@ export const SITE = {
 
 /* ------------------------------------------------------------------ shows */
 
+/** A weekly broadcast slot, as wall-clock time in the show's own zone. */
+export type WeeklySlot = {
+  /** 0 = Sunday … 6 = Saturday, in `timeZone`. */
+  weekday: number;
+  hour: number;
+  minute: number;
+  timeZone: string;
+};
+
+/** One round of a show's format, as the client's rules sheet sets it out. */
+export type Round = {
+  number: string;
+  stage: string;
+  title: string;
+  body: string[];
+  /** The short terms the sheet prints under each round. */
+  terms: string[];
+};
+
 export type ShowSeed = {
   slug: string;
   title: string;
@@ -62,14 +90,20 @@ export type ShowSeed = {
   /** null until the client confirms. The UI must not print a guessed date. */
   entryDeadline: string | null;
   startsAt: string | null;
-  /** Cadence copy taken verbatim from the old site. */
+  /** The schedule line, as the client confirmed it. */
   cadence: string | null;
+  /** When it airs every week. What the countdown counts to between set dates. */
+  weekly?: WeeklySlot;
   prizeAmount: number | null;
   status: "OPEN" | "LIVE" | "CLOSED" | "DRAFT";
   heroVideo: string;
   heroPoster: string;
   keyArt: string;
   mechanic?: { name: string; body: string }[];
+  /** The format round by round. Rendered on the show page and on /rules. */
+  rounds?: Round[];
+  /** What the prize cell says for a show with no single pool figure. */
+  prize?: { title: string; body: string };
   /** The client's own pitch copy, kept verbatim. */
   pitch?: string[];
   pending?: string[];
@@ -91,25 +125,72 @@ export const SHOWS: ShowSeed[] = [
     ],
     entryDeadline: null,
     startsAt: null,
-    cadence: "Every Tuesday",
+    // Confirmed by the client on 2026-09-11: every Tuesday at 7pm Eastern.
+    // Written "ET", not "EST": the show stays at 7pm through daylight saving,
+    // when Eastern time is EDT. `weekly` is what the countdown counts to.
+    cadence: "Every Tuesday, 7 PM ET",
+    weekly: { weekday: 2, hour: 19, minute: 0, timeZone: "America/New_York" },
     prizeAmount: null,
     status: "OPEN",
     heroVideo: "/media/hero/mic",
     heroPoster: "/media/hero/mic.jpg",
     keyArt: "/media/shows/drop-that-mike-key-art",
+    // From the client's rules sheet (Drop_That_Mike_updated.pdf, 2026-09-11):
+    // "FREEZE = KEEP GOING", "PASS = STRIKE AGAINST YOU".
     mechanic: [
       {
         name: "Freeze",
-        body: "Lock the pot where it stands. The contestant survives the round and the prize money stops draining.",
+        body: "Freeze means keep going. Every Freeze adds $5.00 to the performer's pot, up to $250.00 in the first round.",
       },
       {
         name: "Pass",
-        body: "Send them home. The pot keeps falling and the next performer steps up against a smaller prize.",
+        body: "Pass is a strike against you. Rack up 20 Passes before your time is up and you are eliminated.",
       },
     ],
-    // Old site says "Show starts August 11" on the homepage while the winner
-    // story is dated August 28. Neither is safe to publish. See SITE-AUDIT.md §7.
-    pending: ["Next show date", "Entry deadline", "Prize pool for this season"],
+    // The client's rules sheet, word for word. Two figures are blank in the
+    // PDF's text layer ("+$ .00"); the printed page and its own chips both read
+    // $5.00, so that is the figure used. The \u2060 after a minus is a word
+    // joiner: without it a line can break between "−" and "$2.00", leaving a
+    // stray minus at the end of one line and a positive-looking figure below.
+    rounds: [
+      {
+        number: "01",
+        stage: "Showcase",
+        title: "Freeze or get passed",
+        body: [
+          "All 8 contestants perform, one at a time, for up to 5 minutes. While you perform, the audience votes Freeze or Pass in real time.",
+          "Every Freeze adds $5.00 to your money pot, up to a max of $250.00. Rack up 20 Passes before your time is up and you're eliminated. Finish your set with fewer than 20 Passes and you move on.",
+        ],
+        terms: ["+$5.00 per Freeze", "Cap $250.00", "20 Passes = out"],
+      },
+      {
+        number: "02",
+        stage: "Double down",
+        title: "Grow it or guard it",
+        body: [
+          "Advancing contestants carry over their Round 1 pot. You choose: freeze your earnings and sit out, or perform again to chase the max payout.",
+          "The stakes rise here. Every Freeze still earns +$5.00, but every Pass now costs you −\u2060$2.00. The contestant with the highest pot at the end of Round 2 advances to the final round.",
+        ],
+        terms: ["+$5.00 per Freeze", "−$2.00 per Pass", "Top pot advances"],
+      },
+      {
+        number: "03",
+        stage: "Final",
+        title: "You vs. the clock",
+        body: [
+          "The Round 2 winner performs solo against a 4-minute countdown clock, fighting to freeze their money before time runs out.",
+          "Every Freeze locks in your money for 5 seconds. Any stretch without a Freeze costs you −\u2060$1.00 per second as the clock ticks. When the clock hits zero, whatever remains in your pot is your cash prize.",
+        ],
+        terms: ["4:00 on the clock", "Freeze = 5 sec locked", "−$1.00 / sec unfrozen"],
+      },
+    ],
+    prize: {
+      title: "The pot you build",
+      body: "Every Freeze adds $5.00 to your pot. In the final, whatever remains in your pot when the clock hits zero is your cash prize.",
+    },
+    // The day and time are known now (above). What the client still announces
+    // week by week is the entry deadline for each line-up.
+    pending: ["Entry deadline"],
   },
   {
     slug: "crown-the-sound",
@@ -152,10 +233,10 @@ export const WINNERS: WinnerSeed[] = [
     prizeAwarded: 1000,
     story:
       "On August 28th, the latest Crown the Sound challenge brought incredible energy as contestants from around the world submitted video entries to perform the classic song “Happy Birthday.” With votes pouring in from viewers across the globe, one standout talent rose above the rest. Congratulations to PJ Galloway, the winner of this season's challenge, whose performance captured both the creativity of the contest and the hearts of the audience.",
-    // The old winner page carries no photograph of the winner at all, only the
-    // site logo. Substituting a gallery shot would publish an unidentified
-    // person's likeness under this name. The UI renders an initial instead.
-    photoUrl: null,
+    // Supplied by the client on 2026-09-11 as PJ Galloway's portrait. Until
+    // then the old site had none, and the page rendered his initials rather
+    // than put an unidentified gallery shot under his name.
+    photoUrl: "/media/winners/pj-galloway",
     // The winning performance, published by the client on their own Facebook
     // page. It is the reel the old site links to, and it is the only footage
     // of this winner that exists anywhere public.
@@ -256,6 +337,13 @@ export const STATS: StatSeed[] = [
     prefix: "$",
     verified: true,
     note: "Stated on the Crown the Sound winner page.",
+  },
+  {
+    key: "countries",
+    label: "Countries represented",
+    value: 10,
+    verified: true,
+    note: "Confirmed by the client on 2026-09-11: ten countries they can count accurately. Replaces the unconfirmed 30+.",
   },
 ];
 

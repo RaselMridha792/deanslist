@@ -44,11 +44,15 @@ type Entry = MetadataRoute.Sitemap[number];
 /**
  * Static public routes.
  *
- * Three public pages are deliberately absent:
- *   /rules and /terms  — noindex via their own metadata until the client
+ * Two public pages are deliberately absent:
+ *   /terms             — noindex via its own metadata until the client
  *                        supplies the real legal wording.
  *   /thank-you         — noindex, nofollow; a post-submission confirmation has
  *                        no business in search results.
+ *
+ * /rules was on that list until the client supplied the rules sheet
+ * (2026-09-11). It is the page an ad-driven entrant reads before entering, so
+ * it is now indexed and listed.
  *
  * Listing a noindex URL in a sitemap is a direct contradiction and Search
  * Console reports it as an error, so they are excluded here rather than
@@ -73,6 +77,7 @@ const STATIC_ROUTES: {
   { path: "/about", changeFrequency: "monthly", priority: 0.6 },
   { path: "/join", changeFrequency: "monthly", priority: 0.6 },
   { path: "/sponsors", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/rules", changeFrequency: "monthly", priority: 0.6 },
   { path: "/contact", changeFrequency: "monthly", priority: 0.5 },
   { path: "/privacy", changeFrequency: "yearly", priority: 0.2 },
 ];

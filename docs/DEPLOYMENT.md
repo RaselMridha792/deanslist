@@ -40,7 +40,8 @@ disabled in the dashboard rather than silently broken.
 | `RESEND_API_KEY` | Sending email | Campaigns compose and preview; a send is refused |
 | `RESEND_WEBHOOK_SECRET` | Bounce and complaint handling | Hard bounces never reach the suppression list |
 | `MAIL_FROM` | The From header | Defaults to `Dean's List <noreply@deanslist.live>` |
-| `TEAM_NOTIFY_EMAIL` | Internal notification of a new lead | Nobody is emailed; the row is still stored |
+| `TEAM_NOTIFY_EMAIL` | Internal notification of a new lead (the producer) | Nobody is emailed; the row is still stored |
+| `BUSINESS_NOTIFY_EMAIL` | Where sponsor leads are announced instead (the CEO) | Sponsor leads go to `TEAM_NOTIFY_EMAIL` |
 | `ANTHROPIC_API_KEY` | The assistant's free-text answers | The guided capture flow still works; questions fall back to the knowledge base |
 | `CHAT_DAILY_TOKEN_CAP` | The assistant's daily spend ceiling | Defaults to 2,000,000 |
 | `CRON_SECRET` | The scheduler | `/api/cron/tick` answers **503**, and in Docker the scheduler container idles and says so |

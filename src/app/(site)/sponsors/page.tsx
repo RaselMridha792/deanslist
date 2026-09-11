@@ -5,6 +5,7 @@ import { Kicker } from "@/components/dl/Kicker";
 import { Reveal } from "@/components/dl/Reveal";
 import { SectionHeading } from "@/components/dl/SectionHeading";
 import { LeadForm } from "@/components/forms/LeadForm";
+import { SITE } from "@/content/site";
 import { formatStat, getStats } from "@/lib/queries";
 
 export const metadata: Metadata = {
@@ -45,9 +46,10 @@ const EXPOSURE = [
 /**
  * Three tiers, described and never priced.
  *
- * Package pricing is unconfirmed (session.md, "Still unconfirmed"), so these
- * carry no figures at all — not a range, not a "from". A prospective sponsor
- * gets the shape of the deal and a way to ask for the deck.
+ * The client asked for "contact for pricing" (2026-09-11) until the audience
+ * numbers settle into something they can price against, so these carry no
+ * figures at all, not a range and not a "from". A prospective sponsor gets the
+ * shape of the deal and a way to ask what it costs.
  *
  * The top tier is the one red field on this page. Everywhere else red stays a
  * chip, a rule, a button or a word.
@@ -103,7 +105,7 @@ export default async function SponsorsPage() {
   const stats = await getStats();
   const reach = [
     ...stats.map((s) => ({ key: s.key, label: s.label, value: formatStat(s) })),
-    { key: "cadence", label: "Live broadcasts, every Tuesday", value: "Weekly" },
+    { key: "cadence", label: "Live every Tuesday, 7 PM ET", value: "Weekly" },
     { key: "reach", label: "Entries and votes from around the world", value: "Global" },
   ];
 
@@ -203,7 +205,7 @@ export default async function SponsorsPage() {
                 href="#inquiry"
                 className="block min-h-[44px] border-t-2 border-current pt-[14px] text-eyebrow font-semibold uppercase"
               >
-                Request the deck
+                Contact for pricing
               </a>
             </Reveal>
           ))}
@@ -218,9 +220,17 @@ export default async function SponsorsPage() {
             <h2 className="mt-5 text-[clamp(32px,3.6vw,64px)] font-extrabold leading-[.95] tracking-[-.04em] text-balance">
               Start the conversation.
             </h2>
+            {/* Business goes to the CEO and nowhere else: the client's rule. */}
             <p className="mt-5 max-w-[40ch] text-[16px] leading-relaxed text-neutral-700">
-              Sponsorship inquiries go straight to the producer. Expect a reply with the audience
-              deck within two working days.
+              Sponsorship and business inquiries go straight to the CEO. Expect a reply with
+              pricing and the audience deck within two working days, or write to{" "}
+              <a
+                href={`mailto:${SITE.businessEmail}`}
+                className="text-brand-onLight underline underline-offset-4"
+              >
+                {SITE.businessEmail}
+              </a>
+              .
             </p>
           </Reveal>
 

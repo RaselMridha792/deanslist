@@ -67,8 +67,14 @@ function handleOf(url: string): string {
   return url.replace(/\/+$/, "").split("/").pop() ?? url;
 }
 
+/**
+ * Two addresses, by the client's own rule: talent and referrals to the
+ * producer, business deals and ownership to the CEO and nowhere else. The
+ * Sponsorship route on the form below follows the same rule for notifications.
+ */
 const DETAILS: { label: string; value: string; href?: string }[] = [
-  { label: "Email", value: SITE.email, href: `mailto:${SITE.email}` },
+  { label: "Talent", value: SITE.email, href: `mailto:${SITE.email}` },
+  { label: "Business", value: SITE.businessEmail, href: `mailto:${SITE.businessEmail}` },
   {
     label: "Studio",
     value: `${SITE.address.line1}, ${SITE.address.city}, ${SITE.address.state} ${SITE.address.postalCode}`,

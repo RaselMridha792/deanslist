@@ -158,10 +158,16 @@ export function WinnerSpotlight({ winner }: { winner: Winner | null }) {
                   ratio="9/16"
                   className="h-full w-auto max-w-full"
                   poster={
-                    <WinnerPlate
-                      initials={initials}
-                      caption="The winning performance"
-                    />
+                    // Their portrait when the client has supplied one, so the
+                    // cell shows the person before anyone presses play.
+                    winner.photoUrl ? (
+                      <WinnerPhoto src={winner.photoUrl} alt={winner.name} />
+                    ) : (
+                      <WinnerPlate
+                        initials={initials}
+                        caption="The winning performance"
+                      />
+                    )
                   }
                 />
               </div>

@@ -4,6 +4,22 @@ import { leadSchema } from "@/lib/validation";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendMail, entryConfirmationEmail } from "@/lib/mail";
 
+/**
+ * Whatever a stranger typed into a public form, made safe to put inside the
+ * HTML of the team's notification email. A message reading <img src=x
+ * onerror=…> arrives as those characters, not as markup.
+ */
+function esc(value: string | null | undefined): string {
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  };
+  return (value ?? "").replace(/[&<>"']/g, (c) => map[c]);
+}
+
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const limit = rateLimit(`lead:${ip}`, 5, 60_000);
@@ -112,11 +128,18 @@ export async function POST(req: NextRequest) {
         subject: "We received your entry",
         html: entryConfirmationEmail(lead.firstName, show?.title),
       });
-      if (process.env.TEAM_NOTIFY_EMAIL) {
+      // The client's routing: business to the CEO, everything else to the
+      // producer. A sponsor lead falls back to the team address when no
+      // business address is configured, so it is never silently dropped.
+      const notifyTo =
+        lead.type === "SPONSOR"
+          ? process.env.BUSINESS_NOTIFY_EMAIL || process.env.TEAM_NOTIFY_EMAIL
+          : process.env.TEAM_NOTIFY_EMAIL;
+      if (notifyTo) {
         await sendMail({
-          to: process.env.TEAM_NOTIFY_EMAIL,
+          to: notifyTo,
           subject: `New ${lead.type.toLowerCase()} lead: ${lead.firstName} ${lead.lastName ?? ""}`,
-          html: `<p>${lead.email} ${lead.phone ?? ""}</p><p>${lead.performanceUrl ?? ""}</p><p>${lead.message ?? ""}</p>`,
+          html: `<p>${esc(lead.email)} ${esc(lead.phone)}</p><p>${esc(lead.performanceUrl)}</p><p>${esc(lead.message)}</p>`,
           replyTo: lead.email,
         });
       }

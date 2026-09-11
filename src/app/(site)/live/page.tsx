@@ -9,6 +9,7 @@ import { Reveal } from "@/components/dl/Reveal";
 import { VideoPlayer } from "@/components/dl/VideoPlayer";
 import { SITE } from "@/content/site";
 import { getCurrentShow, getLatestWinner } from "@/lib/queries";
+import { nextStart } from "@/lib/schedule";
 
 export const metadata: Metadata = {
   title: "Watch live",
@@ -33,7 +34,8 @@ export const revalidate = 0;
  * decides:
  *
  *   LIVE            the stream, and how the voting works
- *   OPEN or DRAFT   a countdown, but only if a real date exists
+ *   OPEN or DRAFT   a countdown to a date set in the dashboard or, between
+ *                   those, to the show's confirmed weekly slot
  *   anything else   the last winner and where to watch the replay
  *
  * The FREEZE and PASS explanation is on this page and not only on the show page
@@ -48,18 +50,20 @@ export default async function LivePage() {
   ]);
 
   const isLive = show?.status === "LIVE";
-  const startsAt = show?.startsAt ? new Date(show.startsAt) : null;
-  const upcoming =
-    !isLive && startsAt !== null && startsAt.getTime() > Date.now();
+  const next = isLive ? null : nextStart(show);
+  const startsAt = next ? new Date(next) : null;
+  const upcoming = startsAt !== null && startsAt.getTime() > Date.now();
 
+  // In the words of the client's rules sheet: Freeze = keep going, Pass = a
+  // strike against you. The full rounds are on /rules.
   const mechanic = [
     {
       word: "FREEZE",
-      body: "Comment FREEZE while an act is on and the prize money goes up. The more of you, the more they take home.",
+      body: "Comment FREEZE while an act is on and $5 goes into their pot. The more of you, the more they take home.",
     },
     {
       word: "PASS",
-      body: "Comment PASS and the pot stops climbing. Enough of them and the act is over.",
+      body: "Comment PASS and it counts as a strike. Twenty Passes before their time is up and the act is over.",
     },
   ];
 
@@ -165,7 +169,10 @@ export default async function LivePage() {
             <Reveal className="border-2 border-rule-dark p-[clamp(24px,4vw,56px)]">
               <Kicker onDark>Starts in</Kicker>
               <div className="mt-6">
-                <Countdown target={startsAt.toISOString()} />
+                {/* onDark: this panel sits on ink. Without it the labels are
+                    neutral-600 on ink, 2.76:1, which the contrast audit caught
+                    the first time a weekly slot made this branch render. */}
+                <Countdown target={startsAt.toISOString()} onDark />
               </div>
               <div className="mt-8 flex flex-wrap gap-3">
                 <ButtonLink href="/register" size="lg">

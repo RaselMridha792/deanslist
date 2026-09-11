@@ -56,7 +56,13 @@ const schema = z.object({
   RESEND_API_KEY: z.string().optional(),
   RESEND_WEBHOOK_SECRET: z.string().optional(),
   MAIL_FROM: z.string().default("Dean's List <noreply@deanslist.live>"),
-  TEAM_NOTIFY_EMAIL: z.string().email().optional(),
+  // Who hears about a new lead: talent and entries to the producer, sponsor
+  // leads to the CEO (the client's routing). Blank is accepted as blank rather
+  // than failing boot: an .env line left empty arrives as "", not as unset, and
+  // a container that refuses to start over an optional address is worse than
+  // one that simply does not send that email.
+  TEAM_NOTIFY_EMAIL: z.string().email().optional().or(z.literal("")),
+  BUSINESS_NOTIFY_EMAIL: z.string().email().optional().or(z.literal("")),
 
   // Chatbot (Phase 8). Absent means the widget serves knowledge base answers only.
   ANTHROPIC_API_KEY: z.string().optional(),
