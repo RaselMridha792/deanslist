@@ -1,193 +1,196 @@
-# What the client has to hand over
+# What the client still has to hand over
 
-Every account, key and permission still needed to hand `deanslist.live` over.
-Each item is listed with the thing that stops working until it arrives.
+Every account, key, permission and decision still outstanding on
+`deanslist.live`. Each item is listed with the thing that stops working, or
+stays unfinished, until it arrives.
 
-Grouped by consequence rather than by service, because "we need Cloudinary" means
-nothing to a client and "your site's images stop loading" means something.
+Grouped by consequence rather than by service, because "we need a Resend key"
+means nothing to a client and "your campaigns compose but never send" means
+something.
+
+**Status as of 12 September 2026.** The site is live on the client's own
+Hostinger VPS, on the real domain, with a certificate. Everything in the old
+version of this page about Vercel, Neon, Cloudinary and Cloudflare R2 is gone:
+there are no third-party hosting accounts left to transfer, because there are no
+third-party hosting accounts. The site, its database, its images and its uploads
+all sit on one machine in the client's name.
 
 | | Count |
 |---|---|
-| Blocks the launch | 3 |
-| Blocks a feature | 3 |
-| Ownership to transfer | 5 |
+| Blocks a feature | 2 |
+| The client enters these without us | 3 |
+| Decisions we are waiting on | 5 |
 | The client's own property, currently elsewhere | 3 |
+| Ownership to transfer | 1 |
 
 **On sending credentials.** Nothing here should arrive by email or chat message.
 Every service below supports inviting a person by email address, which is better
-than sharing a password because it can be revoked without changing anything else.
-Where an invite is not possible, use a password manager's share link with an
-expiry.
+than sharing a password because it can be revoked without changing anything
+else. Where an invite is not possible, use a password manager's share link with
+an expiry. The three values in section 2 need no sending at all — the client
+types them into their own dashboard.
 
 ---
 
-## 1. Blocks the launch
+## 1. Blocks a feature
 
-Without these the new site cannot appear at `deanslist.live`, no matter how
-finished it is. They also depend on a third party rather than on the client
-alone, which is why they are worth starting first.
+The site runs without these. Each switches on one capability, and the dashboard
+says plainly which are missing rather than failing quietly — that is deliberate,
+not a gap.
 
-### 1.1 DNS control for deanslist.live
+### 1.1 Email authentication records (SPF, DKIM, DMARC)
 
-- **Who has it.** The website manager. The domain answers from a GoDaddy address
-  (`107.180.116.5`) with nameservers at Google Cloud DNS, so whoever holds the
-  nameservers is who has to make the change — not whoever holds the hosting.
-- **What we need.** Either an account on the DNS provider, or the manager's
-  agreement to make three changes on a scheduled day: lower the TTL, repoint the
-  `A` record, add a `www` alias.
-- **Without it.** The site can never go live on the real domain. It stays at the
-  preview URL indefinitely.
+- **Who has it.** Whoever holds the DNS for `deanslist.live`, which is at
+  Squarespace Domains. The client reached these records for the cutover, so the
+  access exists.
+- **What we need.** Three records published on the domain. The values come from
+  Resend once its account exists, which is why this and 1.2 travel together.
+- **Without it.** Every campaign lands in spam. The domain publishes no SPF
+  record at all today, and DMARC is set to `p=none`.
 
-> The TTL has to be lowered **at least a day before** the cutover. Records already
-> cached at the old value keep sending visitors to the old site for that long, and
-> lowering it on the day does not help.
+> Sender reputation is far harder to repair than to establish. One bulk send
+> from an unauthenticated domain can put the list in the spam folder for months,
+> and that list is the asset this rebuild exists to create.
+>
+> The mail records for Google Workspace (the `MX` entries) must not be touched.
+> `producer@` and `ceo@` depend on them.
 
-### 1.2 Email authentication records (SPF, DKIM, DMARC)
-
-- **Who has it.** The same DNS access as above. This is why the two travel
-  together.
-- **What we need.** Permission to publish three DNS records on `deanslist.live`.
-  The values come from the email provider once its account exists.
-- **Without it.** Every campaign lands in spam. The domain currently publishes no
-  SPF record at all, and DMARC is set to `p=none`.
-
-> Sender reputation is far harder to repair than to establish. One bulk send from
-> an unauthenticated domain can put the list in the spam folder for months, and
-> the list is the asset this rebuild exists to create.
-
-### 1.3 producer@deanslist.live mailbox
-
-- **Who has it.** The client. Mail for the domain is on Google Workspace, so the
-  mailbox exists already.
-- **What we need.** Confirmation that this address is monitored, and access for
-  whoever will answer it. It is the address on the contact page, in the site
-  footer, and in the required postal footer of every campaign.
-- **Without it.** Enquiries arrive nowhere. Form submissions still reach the
-  dashboard, but the reply address on the public site is unattended.
-
-> This replaces `deanslistltd@gmail.com`, which the old site publishes. A gmail
-> address cannot pass DMARC alignment for deanslist.live, so it cannot be the
-> sending address for campaigns.
-
----
-
-## 2. Blocks a feature
-
-The site runs without these. Each one switches on a specific capability, and the
-dashboard says plainly which are missing rather than failing quietly — that is
-deliberate, not a gap.
-
-### 2.1 Resend account — email sending
-
-- **Who has it.** Nobody yet. The account has to be created in the client's name.
-- **What we need.** An account on the client's own billing, and an API key. The
-  free tier covers 3,000 emails a month, well beyond the current list.
-- **Without it.** Campaigns compose and preview but never send. A send is refused
-  outright rather than reported as successful.
-
-### 2.2 Anthropic API key — the site assistant
+### 1.2 Anthropic API key — the site assistant
 
 - **Who has it.** A development key is in use now. It is on the developer's
-  billing, not the client's, so it is not a key that can be handed over.
-- **What we need.** An account in the client's name and a key. Spend is capped in
-  the application itself, so the ceiling is set in code and not left to the
-  invoice.
-- **Without it.** The assistant answers only from its written knowledge base. The
-  guided entry flow — the part that captures a lead — keeps working either way.
-
-### 2.3 Object storage — file uploads
-
-- **Who has it.** Nobody yet. Cloudflare R2 is the intended provider; its free
-  tier is 10 GB.
-- **What we need.** A bucket, an endpoint, and a read/write key pair. Five
-  settings in total, all named `STORAGE_*`.
-- **Without it.** Contestants cannot upload a file. The entry form's upload
-  control renders disabled and says so, and entries come in as links instead.
-
-> The client's own existing entry form asks for a professional headshot. Matching
-> that means somewhere to put the file.
+  billing, not the client's, so it is not a key that can simply be handed over.
+- **What we need.** An account in the client's name and a key. Spend is capped
+  in the application itself, so the ceiling is set in code rather than left to
+  the invoice.
+- **Without it.** The assistant answers only from its written knowledge base.
+  The guided entry flow — the part that captures a lead — keeps working either
+  way.
 
 ---
 
-## 3. Ownership to transfer
+## 2. The client enters these without us
 
-These are working today, in the developer's accounts. Nothing breaks on handover
-day, but until they move, the client's website depends on someone else's login —
-including the ability to take it offline.
+New since the last version of this page. These three used to require a
+developer, a code change and a deploy. They are now fields on
+**Dashboard → Settings**, which only the owner account can open. Type a value,
+press Save, and the public site changes. Leave a field empty and the site falls
+back to what it uses today.
 
-For each: create a free account and send the email address you signed up with.
-Ownership transfers across.
+### 2.1 The Resend API key — email sending
 
-### 3.1 Vercel — where the site is served
-An account in the client's name; the project transfers into it, or the client is
-added as an owner. Free tier is sufficient for current traffic. If the Hostinger
-VPS route is taken, this item disappears and is replaced by 3.5.
+Create the account at resend.com in the client's own name (the free tier covers
+3,000 emails a month, well beyond the current list), verify `deanslist.live`,
+then paste the key into Settings. Nothing else is needed from us.
 
-### 3.2 Neon — the database
-**The important one.** It holds every lead, entry and subscriber. Of everything
-on this page it is the one asset that cannot be rebuilt from the code, so it
-should not sit in a third party's account.
+The key is encrypted before it is stored, so a copy of the database is not a
+copy of the mail account, and the screen shows only `re_…4f9a` afterwards —
+never the key itself. Until a key exists, campaigns compose and preview but a
+send is refused outright rather than reported as successful.
 
-### 3.3 Cloudinary — images and video
-Every photograph and clip on the site is served from it. If that account ever
-lapses, the site's imagery stops loading even though the site itself is fine.
+### 2.2 The Instagram link
 
-### 3.4 GitHub — the source code
-Whoever maintains the site next needs it. Without it the client owns a running
-website and no way to change it.
+The site shows Facebook and YouTube today. Paste an Instagram profile URL into
+Settings and the link appears in the footer, on the contact page, in the chat
+panel and in the markup search engines read. Leave it empty and no Instagram
+link is shown anywhere.
 
-### 3.5 Hostinger VPS — only if self-hosting
-Root or sudo access, in the client's Hostinger account. Only needed if the site
-moves off Vercel. Self-hosting puts the site and its database on one machine the
-client owns outright; it also makes backups, updates and uptime someone's job
-rather than the platform's.
+### 2.3 The Meta Pixel ID
+
+Optional, and only useful if the client intends to run Facebook or Instagram
+advertising. With an ID saved, the pixel loads — but only for visitors who
+accept the consent banner, which is what the privacy page promises. Decline, and
+nothing is requested from Facebook at all. The privacy page rewrites its own
+Cookies section as soon as an ID exists, so it always describes what the site is
+actually doing.
+
+> The YouTube and Facebook links are on the same screen, so the client can
+> change those without us as well.
+
+---
+
+## 3. Decisions we are waiting on
+
+These need an answer rather than a login. Each is currently withheld from the
+public site rather than guessed at.
+
+- **Sign-off on the general rules.** The official rules PDF is published. The
+  shorter summary shown on the site is ours, written from that PDF, and a public
+  prize competition's rules should be approved by the person legally responsible
+  for them.
+- **The weekly entry deadline.** The show time is settled — Tuesdays at 7:00 PM
+  ET. What is not settled is the moment entries close each week. The site
+  currently avoids stating one.
+- **Terms and Privacy wording.** Both pages exist and are honest about what the
+  site does. Neither has been read by the client's attorney.
+- **Sponsorship pricing.** The tiers are described and the page says "contact
+  for pricing", as asked. Figures go in whenever there are figures.
+- **Somewhere off this server to keep the backups.** The database and the
+  uploaded images are backed up every night on the VPS itself, kept for
+  fourteen days, and a restore has been tested. What that does not survive is
+  losing the machine. Any destination works — a Backblaze B2 bucket, a Google
+  Drive folder, another server.
 
 ---
 
 ## 4. The client's own property, currently elsewhere
 
-Not needed to launch. Worth doing regardless of this project, because each one is
+Not needed for anything to work. Worth doing regardless, because each is
 something the client already owns and does not currently hold.
 
 ### 4.1 Existing contestant data on ggnform.com
-Two forms — `88574` and `95824` — collecting entries and talent pool signups on a
-third party's server. We need a login or an export; the records import into the
-new dashboard so past entrants are on the same list as new ones.
+Two forms — `88574` and `95824` — collecting entries and talent pool signups on
+a third party's server. We need a login or an export; the records import into
+the new dashboard so past entrants sit on the same list as new ones.
 
-**This is the client's own contact data sitting on someone else's system.** It
-should be retrieved whether or not it is imported.
+**This is the client's own contact data on someone else's system.** It should be
+retrieved whether or not it is ever imported.
 
-### 4.2 Squarespace subscription
-The client pays for Squarespace, but the live site is served through GoDaddy — so
-it appears to be paying for nothing already. Confirm who owns the subscription
-and whether to cancel after cutover.
+### 4.2 The old GoDaddy hosting
+The domain used to answer from `107.180.116.5`. It does not any more, and
+nothing on the new site touches it. If that hosting is still being paid for, it
+is now being paid for nothing — confirm who owns the subscription before
+cancelling it, and keep the domain registration itself well clear of the
+cancellation.
 
-### 4.3 YouTube and Facebook admin
-Nothing technical: the site only links out and embeds public posts. What is needed
-is confirmation that the client controls `@DeansList2025` and `Deanslistltd2025`,
-since the site's audience figures and the winner's video both come from them.
+### 4.3 The Squarespace subscription
+Separate from Squarespace Domains, which holds the DNS and must stay. If a
+Squarespace *website* plan is also being paid for, it serves nothing now.
 
 ---
 
-## 5. Answers, not accounts
+## 5. Ownership to transfer
 
-These need a decision rather than a login. Each is currently withheld from the
-public site rather than guessed at, because publishing an unverified figure to a
-sponsor is worse than publishing nothing.
+### 5.1 GitHub — the source code
+The one remaining account in the developer's name. The running site does not
+depend on it — the server keeps working whatever happens to the repository —
+but whoever maintains the site next needs it. Without it the client owns a
+running website and no way to change it.
 
-- **A photograph of the winner.** The old site carries none, and no unconfirmed
-  face will be published under a winner's name.
-- **The next show date and entry deadline.** The old site gives two conflicting
-  dates. The countdown appears as soon as one is confirmed. (See
-  `SITE-AUDIT-IMPROVEMENTS.md` 3.1 — the countdown is currently guessing.)
-- **The official contest rules and eligibility.** A legal document for a public
-  prize competition, not something to draft on the client's behalf.
-- **Sponsorship pricing.** The tiers are described; no figures are published.
-- **The "30+ countries" claim.** Flagged as a placeholder in the design with no
-  source behind it.
+The VPS itself is already in the client's Hostinger account, and the database,
+the images and the uploads are all on it.
+
+---
+
+## What has been answered since this page was written
+
+Kept as a record, so nothing is asked for twice.
+
+- DNS control, and the cutover itself. Done on 11 September 2026; the domain and
+  `www` both answer from the VPS over HTTPS.
+- The `producer@` and `ceo@` mailboxes. Confirmed and in use — talent referrals
+  to the producer, ownership and business matters to the CEO only.
+- Show time: Tuesdays at 7:00 PM ET.
+- The official rules, as a PDF.
+- A photograph of PJ Galloway.
+- The countries figure: 10, replacing the unsourced "30+".
+- Sponsorship: "contact for pricing" for now.
+- File uploads. No object storage account is needed — dashboard uploads are
+  written to the VPS's own disk and served from it, and contestant video still
+  arrives as a link rather than a file.
+- The YouTube channel: `@deanslistllc`, 369K subscribers.
 
 ---
 
 Every item above was checked against the running site and the live domain rather
-than assumed. Where a fact is stated — a nameserver, an IP, a form id, a missing
-DNS record — it was looked up.
+than assumed. Where a fact is stated — an IP, a form id, a missing DNS record —
+it was looked up.
