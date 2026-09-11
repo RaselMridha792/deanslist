@@ -59,13 +59,19 @@ here because another agent may be editing that file:
 ## What has to be true before they pass
 
 - **A server is running** at `BASE_URL` (default `http://localhost:3000`).
-- **The database is reachable and seeded.** `npm run db:seed` creates the OWNER
-  account the admin tests sign in with. Note that `src/lib/queries.ts` falls back
-  to `src/content/site.ts` when Postgres is unreachable in development, so the
-  public pages will still render — but every form test will fail, correctly,
+- **The database is reachable.** `src/lib/queries.ts` falls back to
+  `src/content/site.ts` when Postgres is unreachable in development, so the
+  public pages will still render. Every form test will still fail, correctly,
   because `/api/leads` has no such fallback.
-- **Admin credentials.** Defaults are the seed's `admin@deanslist.live` /
-  `ChangeMe123!`. Override with `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD`.
+- **Dashboard accounts.** Against localhost the suite brings its own. Global
+  setup creates `e2e-owner@deanslist.test` (OWNER) and
+  `e2e-reviewer@deanslist.test` (REVIEWER) with random passwords, and global
+  teardown deletes them. See `tests/support/accounts.ts`. No real account is
+  used, and none is needed. It used to sign in as the client's own accounts,
+  and every signed-in test broke when those passwords were rotated at launch.
+  Against a deployment there is no database to create them in, so export
+  `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` and `E2E_REVIEWER_EMAIL` /
+  `E2E_REVIEWER_PASSWORD` yourself. A variable set by hand always wins.
 - **`AUTH_SECRET`** — only for the one test that mints a REVIEWER session.
   `playwright.config.ts` loads `.env` automatically when the target is
   localhost. Against a remote deployment, export `AUTH_SECRET` yourself or that

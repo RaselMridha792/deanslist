@@ -51,6 +51,14 @@ export default defineConfig({
   outputDir: "./test-results",
 
   /**
+   * The suite signs in with dashboard accounts it creates for the run and
+   * deletes afterwards (local targets only), never the client's own. See
+   * tests/support/accounts.ts for why.
+   */
+  globalSetup: "./tests/support/global-setup.ts",
+  globalTeardown: "./tests/support/global-teardown.ts",
+
+  /**
    * Generous. A cold Next dev server compiles each route on first request, and
    * the first hit on a heavy page can take tens of seconds. A tight timeout here
    * would show up as flake and teach the team to ignore red.
