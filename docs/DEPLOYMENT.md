@@ -405,6 +405,33 @@ three `PASS` lines.
 
 ## 5. DNS cutover — client approval first
 
+**Done on 2026-09-11.** DNS for the domain is at Squarespace Domains
+(`ns-cloud-d*.googledomains.com`). Only the `A` record for `@` was changed,
+from 107.180.116.5 (the old GoDaddy hosting) to 2.24.79.44. `www` is a CNAME to
+the apex and followed it. The Google Workspace MX records and the TXT records
+were not touched.
+
+The order, which mattered:
+
+1. DNS resolved to the VPS at the authoritative servers.
+2. `SITE_ADDRESS` was set to both names. Caddy had both Let's Encrypt
+   certificates within seconds.
+3. The test suite, which writes to Neon, finished. Its leads were purged.
+4. `restore-from-neon.sh fresh` ran as the final sync, and all 14 tables
+   matched.
+5. The dashboard passwords were rotated. This had to come after the sync, or
+   the sync would have restored the public seed password. The admin password
+   went to the owner, and `reviewer@` got an unknown random one.
+6. `CRON_SECRET` was set, and the first scheduler tick answered 200.
+7. `.neon-service.conf` was deleted.
+8. Admin sign-in was checked over https. The session cookie is Secure, the
+   old password is refused, and `/admin` redirects when signed out.
+
+The Vercel cron is gone from `vercel.json` and the GitHub `scheduler`
+workflow is disabled, so the VPS is the only thing that sends. The Vercel
+preview still builds from `main` against Neon, which is now a stale copy.
+Retire both once the client is settled.
+
 Everything above can be done while the old site is still live. This step is the
 one the public sees.
 
