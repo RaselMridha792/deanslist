@@ -41,24 +41,31 @@ console.log(`${total} leads in the database, ${doomed.length} of them synthetic.
 for (const l of doomed.slice(0, 10)) console.log("   ", l.email);
 if (doomed.length > 10) console.log(`    and ${doomed.length - 10} more`);
 
-// A conversation the chat suite created holds transcript rows and may point at
-// a lead it captured. Those leads are already matched above; the conversations
-// are matched by their captured lead so a real visitor's chat is never touched.
+// A conversation the chat suite created may point at a lead it captured. Those
+// leads are matched above, so their conversations are matched through them.
+//
+// A conversation with NO lead is a visitor who chatted and left no details.
+// Nothing here can tell a test session from a real one, so those are counted
+// and left alone. (This used to match `leadId: null` as well, which would have
+// deleted every real anonymous chat along with the fixtures.)
 const convos = await prisma.conversation.findMany({
-  where: { OR: [{ leadId: { in: doomed.map((d) => d.id) } }, { leadId: null }] },
+  where: { leadId: { in: doomed.map((d) => d.id) } },
   select: { id: true },
 });
-console.log(`${convos.length} conversations to remove.`);
+const anonymous = await prisma.conversation.count({ where: { leadId: null } });
+console.log(`${convos.length} conversations to remove (${anonymous} without a lead, left alone).`);
 
 if (!apply) {
   console.log("\nDry run. Pass --delete to apply.");
 } else {
-  // LeadTag, CampaignRecipient and ChatMessage cascade. ChatEvent and
-  // Conversation set null, so conversations go first and explicitly.
-  const m = await prisma.chatMessage.deleteMany({ where: { conversationId: { in: convos.map((c) => c.id) } } });
+  // Conversations first. Lead -> Conversation is SET NULL, so deleting the
+  // leads first would orphan these and they could no longer be found. Their
+  // messages go with them (Message -> Conversation cascades). There is no
+  // `chatMessage` model: the old explicit delete named one and would have
+  // thrown before deleting anything.
   const c = await prisma.conversation.deleteMany({ where: { id: { in: convos.map((c) => c.id) } } });
   const l = await prisma.lead.deleteMany({ where: WHERE });
-  console.log(`\nDeleted ${l.count} leads, ${c.count} conversations, ${m.count} chat messages.`);
+  console.log(`\nDeleted ${l.count} leads and ${c.count} conversations (their messages cascade).`);
   console.log(`${await prisma.lead.count()} leads remain.`);
 }
 
