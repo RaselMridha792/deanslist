@@ -10,6 +10,7 @@ import { VideoPlayer } from "@/components/dl/VideoPlayer";
 import { SITE } from "@/content/site";
 import { getCurrentShow, getLatestWinner } from "@/lib/queries";
 import { nextStart } from "@/lib/schedule";
+import { getSiteLinks } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Watch live",
@@ -44,9 +45,10 @@ export const revalidate = 0;
  * the show.
  */
 export default async function LivePage() {
-  const [show, winner] = await Promise.all([
+  const [show, winner, links] = await Promise.all([
     getCurrentShow(),
     getLatestWinner(),
+    getSiteLinks(),
   ]);
 
   const isLive = show?.status === "LIVE";
@@ -150,14 +152,14 @@ export default async function LivePage() {
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <ButtonAnchor
-                  href={SITE.socials.facebook}
+                  href={links.facebook}
                   variant="outline-dark"
                   size="lg"
                 >
                   Watch on Facebook
                 </ButtonAnchor>
                 <ButtonAnchor
-                  href={SITE.socials.youtube}
+                  href={links.youtube}
                   variant="outline-dark"
                   size="lg"
                 >
@@ -179,7 +181,7 @@ export default async function LivePage() {
                   Register to perform
                 </ButtonLink>
                 <ButtonAnchor
-                  href={SITE.socials.facebook}
+                  href={links.facebook}
                   variant="outline-dark"
                   size="lg"
                 >

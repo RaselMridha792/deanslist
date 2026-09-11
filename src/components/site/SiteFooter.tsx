@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { mediaImage } from "@/lib/media";
 import { SITE } from "@/content/site";
+import { getSiteLinks } from "@/lib/settings";
 
 const COLUMNS = [
   {
@@ -37,7 +38,11 @@ const COLUMNS = [
  * Every href resolves to a real page. The old site ships 42 dead `href="#"`
  * links and six `skype:#?chat` links; a smoke test asserts zero here.
  */
-export function SiteFooter() {
+export async function SiteFooter() {
+  // Dashboard first, then the links the site shipped with. Instagram exists
+  // only if someone has set it, so the button appears with it and not before.
+  const links = await getSiteLinks();
+
   return (
     <footer className="bg-ink text-ground">
       <div className="shell py-section">
@@ -55,7 +60,7 @@ export function SiteFooter() {
 
             <div className="mt-7 flex flex-wrap gap-3">
               <a
-                href={SITE.socials.youtube}
+                href={links.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-outline-dark"
@@ -63,13 +68,23 @@ export function SiteFooter() {
                 YouTube
               </a>
               <a
-                href={SITE.socials.facebook}
+                href={links.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-outline-dark"
               >
                 Facebook
               </a>
+              {links.instagram && (
+                <a
+                  href={links.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-outline-dark"
+                >
+                  Instagram
+                </a>
+              )}
             </div>
           </div>
 

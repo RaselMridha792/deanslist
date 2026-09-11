@@ -4,6 +4,8 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Launcher } from "@/components/site/Launcher";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { TrackingConsent } from "@/components/site/TrackingConsent";
+import { getMetaPixelId, getSiteLinks } from "@/lib/settings";
 
 /**
  * The public site's shell.
@@ -15,8 +17,14 @@ import { ChatWidget } from "@/components/chat/ChatWidget";
  *
  * Launcher owns where and when the widget appears: hidden on /enter and
  * /thank-you, and on the homepage only after the hero has scrolled past.
+ *
+ * The channel links and the Meta Pixel id are read here, once per render, and
+ * handed down. Both are set in the dashboard (/admin/settings), so the client
+ * can change a link or turn ad measurement on without a deploy.
  */
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const [links, pixelId] = await Promise.all([getSiteLinks(), getMetaPixelId()]);
+
   return (
     <>
       <a
@@ -35,8 +43,17 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <main id="main">{children}</main>
       <SiteFooter />
       <Launcher>
-        <ChatWidget />
+        <ChatWidget links={links} />
       </Launcher>
+
+      {/* No pixel id, no banner and no tracking code at all. MetaPixel reads
+          the search params to count client-side navigations, so it needs a
+          Suspense boundary of its own. */}
+      {pixelId && (
+        <Suspense fallback={null}>
+          <TrackingConsent pixelId={pixelId} />
+        </Suspense>
+      )}
     </>
   );
 }

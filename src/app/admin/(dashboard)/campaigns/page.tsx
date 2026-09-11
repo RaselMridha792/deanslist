@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { env, mailEnabled } from "@/lib/env";
+import { env } from "@/lib/env";
+import { mailConfigured } from "@/lib/settings";
 import {
   AdminPageHeader,
   AdminTable,
@@ -34,6 +35,10 @@ const STATUS_TONE: Record<string, "good" | "warn" | "mute"> = {
 export default async function CampaignsPage() {
   await requireRole("EDITOR");
 
+  // The key can be in the dashboard or in .env, so this is a question for the
+  // settings layer rather than a constant read at import.
+  const mailReady = await mailConfigured();
+
   const [campaigns, pendingJobs, failedJobs, lastDoneJob] = await Promise.all([
     prisma.campaign.findMany({
       orderBy: [{ createdAt: "desc" }],
@@ -65,13 +70,17 @@ export default async function CampaignsPage() {
         }
       />
 
-      {!mailEnabled && (
+      {!mailReady && (
         <p className="notice mt-6 p-4 text-sm text-admin-text">
           <span className="font-semibold text-brand-onDark">
             No email provider is connected.
           </span>{" "}
           Campaigns can be composed and previewed, but a send will be refused rather than
-          quietly reporting success it did not achieve. Set <code>RESEND_API_KEY</code>.
+          quietly reporting success it did not achieve. Add a Resend API key on{" "}
+          <Link href="/admin/settings" className="underline underline-offset-4">
+            Site settings
+          </Link>
+          .
         </p>
       )}
 

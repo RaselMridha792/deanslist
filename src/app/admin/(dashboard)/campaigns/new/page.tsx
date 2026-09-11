@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { mailEnabled } from "@/lib/env";
+import { mailConfigured } from "@/lib/settings";
 import { TEMPLATE_KEYS } from "@/lib/email-templates";
 import {
   LEAD_TYPES,
@@ -42,6 +42,8 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 export default async function NewCampaignPage({ searchParams }: Props) {
   await requireRole("EDITOR");
 
+  const mailReady = await mailConfigured();
+
   const sp = await searchParams;
   const prefill = parseLeadFilter(sp);
   const prefilledSegmentId = typeof sp.segmentId === "string" ? sp.segmentId : undefined;
@@ -75,10 +77,14 @@ export default async function NewCampaignPage({ searchParams }: Props) {
         }
       />
 
-      {!mailEnabled && (
+      {!mailReady && (
         <p className="notice mt-6 p-4 text-sm text-admin-text">
           No email provider is connected yet. You can compose and preview; sending is
-          refused until <code>RESEND_API_KEY</code> is set.
+          refused until a Resend API key is saved on{" "}
+          <Link href="/admin/settings" className="underline underline-offset-4">
+            Site settings
+          </Link>
+          .
         </p>
       )}
 

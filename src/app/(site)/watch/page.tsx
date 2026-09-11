@@ -10,6 +10,7 @@ import { Reveal } from "@/components/dl/Reveal";
 import { SectionHeading } from "@/components/dl/SectionHeading";
 import { SITE } from "@/content/site";
 import { getDropThatMikeVideos, getShows, type Episode } from "@/lib/queries";
+import { getSiteLinks } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Watch",
@@ -37,7 +38,11 @@ type Props = { searchParams: Promise<{ play?: string }> };
  */
 export default async function WatchPage({ searchParams }: Props) {
   const { play } = await searchParams;
-  const [episodes, shows] = await Promise.all([getDropThatMikeVideos(), getShows()]);
+  const [episodes, shows, links] = await Promise.all([
+    getDropThatMikeVideos(),
+    getShows(),
+    getSiteLinks(),
+  ]);
 
   const showTitle = new Map(shows.map((s) => [s.slug, s.title]));
   const labelFor = (e: Episode) => (e.showSlug ? (showTitle.get(e.showSlug) ?? null) : null);
@@ -89,7 +94,7 @@ export default async function WatchPage({ searchParams }: Props) {
           <p className="max-w-[60ch] text-lede text-neutral-800">
             No episodes here yet. Everything goes live on{" "}
             <a
-              href={SITE.socials.youtube}
+              href={links.youtube}
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-brand-onLight underline underline-offset-4"
@@ -137,7 +142,7 @@ export default async function WatchPage({ searchParams }: Props) {
                   {featured.title}
                 </h2>
               </div>
-              <ButtonAnchor href={SITE.socials.youtube} variant="outline" size="lg">
+              <ButtonAnchor href={links.youtube} variant="outline" size="lg">
                 Subscribe on YouTube
               </ButtonAnchor>
             </div>

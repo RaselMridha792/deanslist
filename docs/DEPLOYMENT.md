@@ -37,7 +37,7 @@ disabled in the dashboard rather than silently broken.
 | Variable | Switches on | Unset means |
 |---|---|---|
 | `DIRECT_URL` | Prisma migrations against a pooled Postgres | `migrate deploy` may fail against a pooler. In Docker it is built for you. |
-| `RESEND_API_KEY` | Sending email | Campaigns compose and preview; a send is refused |
+| `RESEND_API_KEY` | Sending email | Campaigns compose and preview; a send is refused. **Optional now**: the owner can paste the key on `/admin/settings` instead, where it is stored encrypted. A key saved there wins over this one. |
 | `RESEND_WEBHOOK_SECRET` | Bounce and complaint handling | Hard bounces never reach the suppression list |
 | `MAIL_FROM` | The From header | Defaults to `Dean's List <noreply@deanslist.live>` |
 | `TEAM_NOTIFY_EMAIL` | Internal notification of a new lead (the producer) | Nobody is emailed; the row is still stored |
@@ -48,6 +48,21 @@ disabled in the dashboard rather than silently broken.
 | `UPLOAD_DIR` | Where dashboard uploads are written | `./uploads` beside the app. The Docker image sets `/app/uploads` itself. |
 | `NEXT_PUBLIC_MEDIA_IMAGE_BASE` / `..._VIDEO_BASE` | Serving `/public/media` from a CDN instead | Media is served by this server. **Leave empty on the VPS.** |
 | `CLOUDINARY_URL` | `scripts/upload-media.mjs` only | Nothing. The site never reads it. |
+
+### Settings the owner changes, not a deploy
+
+`/admin/settings` (OWNER only) holds the values the client asked to own:
+
+| Setting | Where it shows | Empty means |
+|---|---|---|
+| YouTube, Facebook, Instagram links | Footer, contact page, chat panel, `sameAs` in the Organization markup | The built-in links in `src/content/site.ts`; no Instagram button at all |
+| Meta Pixel ID | The public pages, behind the consent banner | No pixel, no banner, no request to Facebook |
+| Resend API key | Every email the site sends | `RESEND_API_KEY` from `.env`, or no sending |
+
+The Resend key is encrypted with a key derived from `AUTH_SECRET`, so a copied
+database or a stolen backup does not carry the mail account with it. **Changing
+`AUTH_SECRET` makes the saved key unreadable**; it has to be entered again on
+that screen. Nothing else in `Setting` is secret.
 
 **A note on `CRON_SECRET`.** It fails closed on purpose. An unconfigured
 scheduler that returned 200 would look healthy while sending nothing, and an

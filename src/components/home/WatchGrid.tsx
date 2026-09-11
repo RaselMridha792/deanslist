@@ -21,9 +21,12 @@ import type { Episode } from "@/lib/queries";
 export function WatchGrid({
   episodes,
   showTitles,
+  youtubeUrl,
 }: {
   episodes: Episode[];
   showTitles: Record<string, string>;
+  /** The channel link, from the dashboard. Falls back to the built-in one. */
+  youtubeUrl?: string;
 }) {
   if (episodes.length === 0) return null;
   const shown = episodes.slice(0, 6);
@@ -39,7 +42,7 @@ export function WatchGrid({
         </Reveal>
         <Reveal index={1}>
           <ButtonAnchor
-            href={SITE.socials.youtube}
+            href={youtubeUrl ?? SITE.socials.youtube}
             variant="outline"
             className="px-5 py-[14px]"
           >

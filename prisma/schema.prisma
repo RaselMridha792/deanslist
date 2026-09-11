@@ -697,6 +697,27 @@ model Asset {
   @@index([leadId])
 }
 
+// --------------------------------------------------------------- settings
+
+/// Configuration the client owns, one row per setting.
+///
+/// Social links, the Meta Pixel id and the Resend key used to live in the code
+/// and in .env, so changing one meant a developer, a commit and a deploy. They
+/// are here so the owner can change them in the dashboard. Anything absent
+/// falls back to .env or to src/content/site.ts, so nothing breaks when a row
+/// does not exist.
+///
+/// A secret value is stored encrypted (see src/lib/settings.ts). The key comes
+/// from AUTH_SECRET, which lives on the server and never in the database, so a
+/// stolen dump or a leaked backup does not hand over the mail account.
+model Setting {
+  key       String   @id
+  value     String
+  /// Who last changed it, for the audit trail the dashboard shows.
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+}
+
 // ---------------------------------------------------------------- audit
 
 /// Who changed what. Roles are only meaningful if their use is recorded.

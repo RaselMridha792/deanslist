@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/site/PageHero";
 import { SITE } from "@/content/site";
+import { getMetaPixelId } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -75,7 +76,28 @@ const SECTIONS = [
   },
 ];
 
-export default function PrivacyPage() {
+/**
+ * What the Cookies section says once ad measurement is switched on in the
+ * dashboard. The promise in the paragraph above is kept literally: the pixel
+ * loads on consent and not before, so this page describes what is actually
+ * happening rather than what might.
+ */
+const COOKIES_WITH_PIXEL = [
+  "This site sets one cookie, and only for signed-in administrators: a session cookie that keeps them logged in to the dashboard.",
+  "For advertising we use the Meta Pixel, which tells us which ads bring performers here. It loads only if you choose Allow on the banner. Choose No thanks and nothing is loaded: no pixel, no request to Facebook, no advertising cookie.",
+  "Your choice is remembered in your own browser. Clearing your browsing data asks you again.",
+  "The pixel reports page views. It is never given your name, email or anything you type into a form, and we do not sell or share your details with advertisers.",
+];
+
+export default async function PrivacyPage() {
+  // The Cookies section describes the site as it is configured right now: with
+  // a Meta Pixel id saved in the dashboard, it says so; without one, it says
+  // there is no advertising cookie, which is then true.
+  const pixelOn = Boolean(await getMetaPixelId());
+  const sections = SECTIONS.map((s) =>
+    s.heading === "Cookies" && pixelOn ? { ...s, body: COOKIES_WITH_PIXEL } : s,
+  );
+
   return (
     <>
       <PageHero
@@ -99,7 +121,7 @@ export default function PrivacyPage() {
             </div>
 
             <div className="divider mt-14 space-y-12 pt-12">
-              {SECTIONS.map((s) => (
+              {sections.map((s) => (
                 <section key={s.heading}>
                   <h2 className="text-display-sm font-extrabold">
                     {s.heading}

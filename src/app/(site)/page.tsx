@@ -16,13 +16,14 @@ import {
   getDropThatMikeVideos,
   getGallery,
 } from "@/lib/queries";
+import { getSiteLinks } from "@/lib/settings";
 
 // Content is dashboard-managed, so the page is rendered per request rather than
 // baked at build time. Swap to a revalidate window once traffic justifies it.
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [show, shows, stats, winner, episodes, gallery] = await Promise.all([
+  const [show, shows, stats, winner, episodes, gallery, links] = await Promise.all([
     getCurrentShow(),
     getShows(),
     getStats(),
@@ -30,6 +31,7 @@ export default async function HomePage() {
     // Drop That Mike only, including each week's live from the channel feed.
     getDropThatMikeVideos(),
     getGallery(),
+    getSiteLinks(),
   ]);
 
   // The watch cells label each video with its show. Resolving the title here
@@ -44,7 +46,7 @@ export default async function HomePage() {
     <>
       {/* Organization markup, so search engines resolve the brand and its real
           social profiles rather than guessing. */}
-      <script {...jsonLdScriptProps(organizationJsonLd())} />
+      <script {...jsonLdScriptProps(organizationJsonLd(links))} />
 
       <Hero show={show} winner={winner} statusLabel={statusLabel} />
       <Ticker />
@@ -52,7 +54,7 @@ export default async function HomePage() {
       <HowItWorks />
       <WinnerSpotlight winner={winner} />
       <ClipReel />
-      <WatchGrid episodes={episodes} showTitles={showTitles} />
+      <WatchGrid episodes={episodes} showTitles={showTitles} youtubeUrl={links.youtube} />
       <GalleryMarquee images={gallery} />
       <NewsletterPoster />
     </>

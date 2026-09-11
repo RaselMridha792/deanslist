@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { mailEnabled } from "@/lib/env";
+import { mailConfigured } from "@/lib/settings";
 import { TEMPLATE_KEYS } from "@/lib/email-templates";
 import {
   LEAD_TYPES,
@@ -325,7 +325,7 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
               people.
             </p>
             <div className="mt-4">
-              {mailEnabled ? (
+              {(await mailConfigured()) ? (
                 <DeleteButton
                   action={sendCampaignNow.bind(null, campaign.id)}
                   name={campaign.name}
@@ -333,7 +333,8 @@ export default async function CampaignDetailPage({ params, searchParams }: Props
                 />
               ) : (
                 <p className="error-text">
-                  No email provider is connected. Set RESEND_API_KEY first.
+                  No email provider is connected. Save a Resend API key on Site settings
+                  first.
                 </p>
               )}
             </div>

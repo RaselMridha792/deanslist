@@ -1,7 +1,23 @@
 import { Resend } from "resend";
-import { env, mailEnabled } from "@/lib/env";
+import { env } from "@/lib/env";
+import { getResendApiKey } from "@/lib/settings";
 
-const resend = mailEnabled ? new Resend(env.RESEND_API_KEY) : null;
+/**
+ * The key is read per send, not at import.
+ *
+ * It can now come from the dashboard (/admin/settings) as well as from .env,
+ * and the client can add or replace it while the server is running. Reading it
+ * once at module load would have meant a restart before the first email ever
+ * sent, which is exactly the kind of thing nobody remembers at 8pm on a show
+ * night. The Resend client is still reused between sends, and rebuilt only
+ * when the key changes.
+ */
+let cached: { key: string; client: Resend } | null = null;
+
+function clientFor(key: string): Resend {
+  if (!cached || cached.key !== key) cached = { key, client: new Resend(key) };
+  return cached.client;
+}
 
 type SendArgs = {
   to: string | string[];
@@ -11,13 +27,16 @@ type SendArgs = {
 };
 
 export async function sendMail({ to, subject, html, replyTo }: SendArgs) {
-  if (!resend) {
-    // No key configured yet (free tier not connected). Log instead of failing.
-    console.warn("[mail] RESEND_API_KEY missing, skipped sending:", subject);
+  const key = await getResendApiKey();
+  if (!key) {
+    // No key yet, in the dashboard or in .env. Log instead of failing: the lead
+    // is already saved, and losing the record over a missing email would be the
+    // worse outcome.
+    console.warn("[mail] no Resend key configured, skipped sending:", subject);
     return { skipped: true as const };
   }
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await clientFor(key).emails.send({
     from: env.MAIL_FROM,
     to,
     subject,

@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 import { EntryTab } from "@/components/chat/EntryTab";
 import { ChatTab } from "@/components/chat/ChatTab";
 import { InfoTab } from "@/components/chat/InfoTab";
+import type { SiteLinks } from "@/lib/settings";
 
 /**
  * The engagement centre: one floating launcher, three tabs.
@@ -56,7 +57,14 @@ function getSessionId(): string {
   }
 }
 
-export function ChatWidget({ showSlug }: { showSlug?: string }) {
+export function ChatWidget({
+  showSlug,
+  links,
+}: {
+  showSlug?: string;
+  /** The channel links, from the dashboard. Passed down from the site layout. */
+  links?: SiteLinks;
+}) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<TabKey>("entry");
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -216,7 +224,7 @@ export function ChatWidget({ showSlug }: { showSlug?: string }) {
             hidden={tab !== "info"}
             className="h-full overflow-y-auto px-5 py-5"
           >
-            <InfoTab />
+            <InfoTab links={links} />
           </div>
         </div>
       </div>

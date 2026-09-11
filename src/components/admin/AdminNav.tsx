@@ -40,7 +40,10 @@ const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
   },
   {
     title: "Settings",
-    items: [{ href: "/admin/team", label: "Team & Roles", minRole: "OWNER" }],
+    items: [
+      { href: "/admin/settings", label: "Site settings", minRole: "OWNER" },
+      { href: "/admin/team", label: "Team & Roles", minRole: "OWNER" },
+    ],
   },
 ];
 

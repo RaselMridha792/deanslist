@@ -6,6 +6,7 @@ import { Kicker } from "@/components/dl/Kicker";
 import { SITE } from "@/content/site";
 import { absoluteUrl } from "@/lib/seo";
 import { getCurrentShow, getGallery } from "@/lib/queries";
+import { getSiteLinks } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Thank you",
@@ -102,10 +103,11 @@ export default async function ThankYouPage({
 }: {
   searchParams: Promise<{ from?: string }>;
 }) {
-  const [{ from }, show, gallery] = await Promise.all([
+  const [{ from }, show, gallery, links] = await Promise.all([
     searchParams,
     getCurrentShow(),
     getGallery(),
+    getSiteLinks(),
   ]);
 
   const copy = COPY[isFrom(from) ? from : "general"];
@@ -170,10 +172,10 @@ export default async function ThankYouPage({
           ))}
 
           <div className="flex flex-wrap gap-3 bg-ink px-6 py-5">
-            <ButtonAnchor href={SITE.socials.youtube} variant="primary" size="lg">
+            <ButtonAnchor href={links.youtube} variant="primary" size="lg">
               Subscribe on YouTube
             </ButtonAnchor>
-            <ButtonAnchor href={SITE.socials.facebook} variant="outline-dark" size="lg">
+            <ButtonAnchor href={links.facebook} variant="outline-dark" size="lg">
               Follow on Facebook
             </ButtonAnchor>
             <ButtonAnchor href={shareHref} variant="outline-dark" size="lg">

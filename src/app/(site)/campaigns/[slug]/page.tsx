@@ -10,6 +10,7 @@ import { Reveal } from "@/components/dl/Reveal";
 import { CampaignEntryForm } from "@/components/forms/CampaignEntryForm";
 import { getPromotion } from "@/lib/promotions";
 import { mediaImage } from "@/lib/media";
+import { getSiteLinks } from "@/lib/settings";
 import {
   breadcrumbJsonLd,
   jsonLdGraph,
@@ -64,6 +65,8 @@ export default async function CampaignPage({ params }: Params) {
    * all. Returns null when the campaign has no dates, rather than inventing
    * one to satisfy a validator.
    */
+  const links = await getSiteLinks();
+
   const jsonLd = jsonLdGraph(
     breadcrumbJsonLd([
       { name: "Campaigns", path: "/campaigns" },
@@ -80,7 +83,7 @@ export default async function CampaignPage({ params }: Params) {
       status: promotion.status,
       startsAt: promotion.startsAt,
       endsAt: promotion.endsAt,
-    }),
+    }, links),
   );
 
   return (

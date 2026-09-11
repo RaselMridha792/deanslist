@@ -1,7 +1,8 @@
 import { Prisma } from "@prisma/client";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
-import { env, mailEnabled } from "@/lib/env";
+import { env } from "@/lib/env";
+import { getResendApiKey, mailConfigured } from "@/lib/settings";
 import { leadWhere, parseLeadFilter, type LeadFilter } from "@/lib/admin/leads";
 import {
   renderTemplate,
@@ -48,18 +49,22 @@ import {
  * `sendMail()` and calling it from here is the better long-term shape; that file
  * was outside this task's scope.
  */
-let client: Resend | null = null;
-function provider(): Resend | null {
-  if (!mailEnabled) return null;
-  if (!client) client = new Resend(env.RESEND_API_KEY);
-  return client;
+let client: { key: string; resend: Resend } | null = null;
+async function provider(): Promise<Resend | null> {
+  // The key can come from the dashboard now, so it is read per send and the
+  // client is rebuilt when it changes. See src/lib/settings.ts.
+  const key = await getResendApiKey();
+  if (!key) return null;
+  if (!client || client.key !== key) client = { key, resend: new Resend(key) };
+  return client.resend;
 }
 
-export function assertMailReady() {
-  if (!mailEnabled) {
+export async function assertMailReady() {
+  if (!(await mailConfigured())) {
     throw new Error(
-      "Email is not configured. Set RESEND_API_KEY before sending a campaign — " +
-        "a bulk send must never report success it did not achieve.",
+      "Email is not configured. Add a Resend API key on /admin/settings, or set " +
+        "RESEND_API_KEY, before sending a campaign — a bulk send must never " +
+        "report success it did not achieve.",
     );
   }
 }
@@ -270,7 +275,7 @@ async function deliver({
   unsubscribeHeaders,
   refId,
 }: DeliverArgs) {
-  const resend = provider();
+  const resend = await provider();
   if (!resend) throw new Error("Email provider is not configured");
 
   const headers: Record<string, string> = { ...unsubscribeHeaders };
@@ -372,7 +377,7 @@ export function isSkip(error: string | null | undefined) {
  * rows still marked QUEUED, and the audience is frozen the first time it runs.
  */
 export async function sendCampaign(campaignId: string): Promise<SendSummary> {
-  assertMailReady();
+  await assertMailReady();
 
   if (inFlight.has(campaignId)) {
     // Not an error. A tick that arrives while "Send now" is still draining the
@@ -634,7 +639,7 @@ function previewUnsubscribeUrl() {
  * A test that takes a different code path proves nothing.
  */
 export async function sendCampaignTest(campaignId: string, to: string) {
-  assertMailReady();
+  await assertMailReady();
 
   const campaign = await loadCampaign(campaignId);
   if (!campaign) throw new Error("Campaign not found");

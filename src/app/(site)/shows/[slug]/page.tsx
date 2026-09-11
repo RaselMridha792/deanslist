@@ -11,6 +11,7 @@ import { FormatRounds } from "@/components/show/FormatRounds";
 import { env } from "@/lib/env";
 import { getEpisodes, getShow } from "@/lib/queries";
 import { nextStart } from "@/lib/schedule";
+import { getSiteLinks } from "@/lib/settings";
 import {
   breadcrumbJsonLd,
   jsonLdGraph,
@@ -102,11 +103,13 @@ export default async function ShowPage({ params }: Params) {
   const takingEntries = show.status === "OPEN" || show.status === "LIVE";
   const enterHref = takingEntries ? `/enter?show=${show.slug}` : "/enter";
 
+  const links = await getSiteLinks();
+
   // showEventJsonLd returns null when the show has no confirmed startDate —
   // Event markup without one is invalid and Google penalises it, and inventing
   // a date to satisfy a schema would be worse than shipping no schema.
   const jsonLd = jsonLdGraph(
-    showEventJsonLd(show),
+    showEventJsonLd(show, links),
     breadcrumbJsonLd([
       { name: "Shows", path: "/shows" },
       { name: show.title, path: `/shows/${show.slug}` },

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SITE, SHOWS } from "@/content/site";
+import type { SiteLinks } from "@/lib/settings";
 
 /**
  * Direct info. No form, no model, no waiting — the tab for someone who already
@@ -22,7 +23,13 @@ const ROUTES = [
   { href: "/contact", label: "Press and media", note: "Interviews, assets, coverage" },
 ];
 
-export function InfoTab() {
+export function InfoTab({ links }: { links?: SiteLinks }) {
+  // The dashboard's links when the layout passed them down, otherwise the ones
+  // the site ships with.
+  const youtube = links?.youtube ?? SITE.socials.youtube;
+  const facebook = links?.facebook ?? SITE.socials.facebook;
+  const instagram = links?.instagram ?? null;
+
   return (
     <div className="space-y-8">
       <section>
@@ -33,7 +40,7 @@ export function InfoTab() {
         </p>
         <div className="mt-4 grid grid-cols-2 gap-3">
           <a
-            href={SITE.socials.youtube}
+            href={youtube}
             target="_blank"
             rel="noopener noreferrer"
             className="card-interactive px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-ink"
@@ -41,13 +48,23 @@ export function InfoTab() {
             YouTube
           </a>
           <a
-            href={SITE.socials.facebook}
+            href={facebook}
             target="_blank"
             rel="noopener noreferrer"
             className="card-interactive px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-ink"
           >
             Facebook
           </a>
+          {instagram && (
+            <a
+              href={instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="card-interactive col-span-2 px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-ink"
+            >
+              Instagram
+            </a>
+          )}
         </div>
       </section>
 

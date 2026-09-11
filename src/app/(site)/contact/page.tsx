@@ -1,13 +1,22 @@
-"use client";
+import type { Metadata } from "next";
 
-import { useId, useState } from "react";
-
-import { Button, ButtonLink } from "@/components/dl/Button";
+import { ButtonLink } from "@/components/dl/Button";
 import { Kicker } from "@/components/dl/Kicker";
 import { Reveal } from "@/components/dl/Reveal";
 import { SITE } from "@/content/site";
 import { cn } from "@/lib/cn";
-import { readAttribution } from "@/lib/attribution";
+import { getSiteLinks } from "@/lib/settings";
+import { ContactForm } from "./ContactForm";
+
+export const metadata: Metadata = {
+  title: "Contact",
+  description:
+    "General questions, press, sponsorship and support. Talent goes to the producer, business to the CEO.",
+  alternates: { canonical: "/contact" },
+};
+
+// The channel links come from the dashboard, so this renders per request.
+export const dynamic = "force-dynamic";
 
 /**
  * Contact — the routed inquiry page.
@@ -15,86 +24,51 @@ import { readAttribution } from "@/lib/attribution";
  * The old site's "Contact Us" is one of 42 `href="#"` links and goes nowhere.
  * This is the page that has to exist for the rebuild to mean anything.
  *
- * WHY THIS FILE IS A CLIENT COMPONENT, and what it costs
- * ------------------------------------------------------
- * The page's whole job is in its first control: four routes that decide who
- * reads the message. "General / Press / Sponsorship / Support" are not decoration
- * on one generic form — each maps to a different LeadType, so /api/leads files
- * the lead in the right queue and the dashboard can filter it. The shared
- * LeadForm takes `type` as a fixed prop and cannot do that, and its field set is
- * a different form to the one this design specifies (no subject line, a split
- * first/last name, a select in place of the segmented control). So the form is
- * built here, against the design, and needs state for the selected route and the
- * success panel.
- *
- * The cost is `export const metadata`, which Next.js disallows in a "use client"
- * module: /contact falls back to the root layout's default title and description
- * rather than carrying its own. That is recoverable in one move by whoever owns
- * src/components/forms — lift everything from `INQUIRY_ROUTES` down to the end
- * of ContactForm into src/components/forms/ContactForm.tsx, drop the directive
- * from this file, and the page becomes a Server Component with its metadata
- * back. It is not done here only because this task owns this file alone.
- *
- * Every field lands in the client's own database through the existing
- * /api/leads route — rate limited, honeypotted and Zod validated there.
+ * The whole page used to be a Client Component, which cost it its own title
+ * and description, and made the channel links impossible to read from the
+ * dashboard. Only the form needs state, so only the form is a client module
+ * now (./ContactForm). Both came back with the split.
  */
-
-/**
- * The four routes, in the design's order and wording.
- *
- * `leadType` is the mapping to the LeadType enum. Support is CONTESTANT, which
- * is the same mapping INQUIRY_TYPES already makes for "Contest support": someone
- * asking for help with an entry belongs with the contestant team. It shares that
- * type with the entry funnel, so the chosen route is written into the message
- * body as well and nothing about the request is ambiguous in the dashboard.
- */
-const INQUIRY_ROUTES = [
-  { label: "General", leadType: "GENERAL" },
-  { label: "Press", leadType: "PRESS" },
-  { label: "Sponsorship", leadType: "SPONSOR" },
-  { label: "Support", leadType: "CONTESTANT" },
-] as const;
-
-type Route = (typeof INQUIRY_ROUTES)[number];
 
 /**
  * The handle a social URL ends in: "@deanslistllc", "Deanslistltd2025".
  *
  * Derived rather than typed out twice, so the label cannot drift from the link
- * it points at when the client edits the URL.
+ * it points at when the client edits it in the dashboard.
  */
 function handleOf(url: string): string {
   return url.replace(/\/+$/, "").split("/").pop() ?? url;
 }
 
-/**
- * Two addresses, by the client's own rule: talent and referrals to the
- * producer, business deals and ownership to the CEO and nowhere else. The
- * Sponsorship route on the form below follows the same rule for notifications.
- */
-const DETAILS: { label: string; value: string; href?: string }[] = [
-  { label: "Talent", value: SITE.email, href: `mailto:${SITE.email}` },
-  { label: "Business", value: SITE.businessEmail, href: `mailto:${SITE.businessEmail}` },
-  {
-    label: "Studio",
-    value: `${SITE.address.line1}, ${SITE.address.city}, ${SITE.address.state} ${SITE.address.postalCode}`,
-  },
-  {
-    label: "YouTube",
-    value: handleOf(SITE.socials.youtube),
-    href: SITE.socials.youtube,
-  },
-  {
-    label: "Facebook",
-    value: handleOf(SITE.socials.facebook),
-    href: SITE.socials.facebook,
-  },
-];
+/** Shared by the detail rows. One clamp, declared once. */
+const DETAIL_VALUE =
+  "font-extrabold leading-[1.3] tracking-[-.02em] text-[clamp(16px,1.3vw,20px)]";
 
-/** Shared by the four detail rows. One clamp, declared once. */
-const DETAIL_VALUE = "font-extrabold leading-[1.3] tracking-[-.02em] text-[clamp(16px,1.3vw,20px)]";
+export default async function ContactPage() {
+  const links = await getSiteLinks();
 
-export default function ContactPage() {
+  /**
+   * Two addresses, by the client's own rule: talent and referrals to the
+   * producer, business deals and ownership to the CEO and nowhere else. The
+   * Sponsorship route on the form follows the same rule for notifications.
+   *
+   * Instagram appears only once it is set in the dashboard. A button linking
+   * nowhere is worse than no button.
+   */
+  const details: { label: string; value: string; href?: string }[] = [
+    { label: "Talent", value: SITE.email, href: `mailto:${SITE.email}` },
+    { label: "Business", value: SITE.businessEmail, href: `mailto:${SITE.businessEmail}` },
+    {
+      label: "Studio",
+      value: `${SITE.address.line1}, ${SITE.address.city}, ${SITE.address.state} ${SITE.address.postalCode}`,
+    },
+    { label: "YouTube", value: handleOf(links.youtube), href: links.youtube },
+    { label: "Facebook", value: handleOf(links.facebook), href: links.facebook },
+    ...(links.instagram
+      ? [{ label: "Instagram", value: handleOf(links.instagram), href: links.instagram }]
+      : []),
+  ];
+
   return (
     <>
       {/* ------------------------------------------------------------- hero */}
@@ -127,7 +101,7 @@ export default function ContactPage() {
             row carries no trailing rule and needs no override.
           */}
           <Reveal className="flex flex-col gap-[2px] border-t-2 border-rule bg-rule">
-            {DETAILS.map((d) => (
+            {details.map((d) => (
               <div key={d.label} className="grid grid-cols-[100px_minmax(0,1fr)] gap-4 bg-ground py-5">
                 <span className="pt-1 text-eyebrow uppercase text-neutral-600">{d.label}</span>
                 {d.href ? (
@@ -179,208 +153,5 @@ export default function ContactPage() {
         </div>
       </section>
     </>
-  );
-}
-
-/* -------------------------------------------------------------------- form */
-
-function ContactForm() {
-  const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
-  const fieldId = (name: string) => `contact-${uid}-${name}`;
-
-  const [route, setRoute] = useState<Route>(INQUIRY_ROUTES[0]);
-  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [error, setError] = useState<string | null>(null);
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setStatus("loading");
-    setError(null);
-
-    const fd = new FormData(e.currentTarget);
-
-    /*
-      The design asks for one "Your name" field; the schema stores first and last
-      separately, and firstName is the required one. Splitting on the first space
-      keeps the dashboard's name columns useful without making a visitor fill in
-      two boxes. A single-word name stays entirely in firstName.
-    */
-    const fullName = String(fd.get("name") ?? "").trim().replace(/\s+/g, " ");
-    const [firstName, ...rest] = fullName.split(" ");
-
-    /*
-      Subject and the chosen route have no column of their own, so they ride at
-      the top of `message` — the same thing LeadForm does with its extras, so
-      nothing a visitor typed is silently dropped.
-    */
-    const subject = String(fd.get("subject") ?? "").trim();
-    const message = [
-      `Inquiry: ${route.label}`,
-      ...(subject ? [`Subject: ${subject}`] : []),
-      "",
-      String(fd.get("message") ?? "").trim(),
-    ].join("\n");
-
-    try {
-      const res = await fetch("/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...readAttribution(),
-          type: route.leadType,
-          firstName: firstName || fullName,
-          lastName: rest.join(" "),
-          email: String(fd.get("email") ?? ""),
-          message,
-          // No consent checkbox on this design, so nothing is opted in. A reply
-          // to an inquiry is not marketing and does not need one.
-          marketingOptIn: false,
-          website: String(fd.get("website") ?? ""),
-        }),
-      });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) throw new Error(data.error ?? "Something went wrong. Please try again.");
-      setStatus("done");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-      setStatus("error");
-    }
-  }
-
-  if (status === "done") {
-    return (
-      <div className="border-t-[6px] border-brand pt-6">
-        <p className="success-panel text-body font-semibold" role="status">
-          Message received. The right person will reply by email.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4 border-t-[6px] border-brand pt-6">
-      {/* Honeypot. The route answers 200 and writes nothing when it is filled. */}
-      <input
-        type="text"
-        name="website"
-        tabIndex={-1}
-        autoComplete="off"
-        aria-hidden="true"
-        className="absolute h-0 w-0 overflow-hidden opacity-0"
-      />
-
-      {/* A fieldset so the group carries its own accessible name. `legend` takes
-          phrasing content, so the kicker is the class rather than the component. */}
-      <fieldset className="min-w-0 border-0 p-0">
-        <legend className="kicker mb-5 p-0">Inquiry type</legend>
-        {/*
-          A real radio group, visually a segmented control: the input is
-          sr-only rather than absent, so arrow keys move between routes and a
-          screen reader announces which one is selected.
-        */}
-        <div className="grid grid-cols-2 gap-[2px] border-2 border-rule bg-rule sm:grid-cols-4">
-          {INQUIRY_ROUTES.map((r) => {
-            const active = r.label === route.label;
-            return (
-              <label key={r.label} className="grid cursor-pointer">
-                <input
-                  type="radio"
-                  name="type"
-                  value={r.label}
-                  checked={active}
-                  onChange={() => setRoute(r)}
-                  className="peer sr-only"
-                />
-                <span
-                  className={cn(
-                    "flex min-h-[44px] items-center px-[14px] py-3 text-btn font-semibold uppercase",
-                    "transition-colors duration-200 ease-dl",
-                    "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-[-2px]",
-                    active
-                      ? "bg-brand text-white peer-focus-visible:outline-white"
-                      : "bg-ground hover:bg-surface peer-focus-visible:outline-brand",
-                  )}
-                >
-                  {r.label}
-                </span>
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="label" htmlFor={fieldId("name")}>
-            Your name
-          </label>
-          <input
-            id={fieldId("name")}
-            name="name"
-            type="text"
-            required
-            autoComplete="name"
-            placeholder="Full name"
-            className="field min-h-[48px]"
-          />
-        </div>
-        <div>
-          <label className="label" htmlFor={fieldId("email")}>
-            Email
-          </label>
-          <input
-            id={fieldId("email")}
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            placeholder="you@example.com"
-            className="field min-h-[48px]"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="label" htmlFor={fieldId("subject")}>
-          Subject
-        </label>
-        <input
-          id={fieldId("subject")}
-          name="subject"
-          type="text"
-          required
-          placeholder="What is this about"
-          className="field min-h-[48px]"
-        />
-      </div>
-
-      <div>
-        <label className="label" htmlFor={fieldId("message")}>
-          Message
-        </label>
-        <textarea
-          id={fieldId("message")}
-          name="message"
-          required
-          placeholder="Tell us what you need"
-          className="field min-h-[140px] resize-y"
-        />
-      </div>
-
-      {error && (
-        <p className="error-text" role="alert">
-          {error}
-        </p>
-      )}
-
-      <Button
-        type="submit"
-        size="lg"
-        disabled={status === "loading"}
-        className="w-full disabled:opacity-50"
-      >
-        {status === "loading" ? "Sending" : "Send message"}
-      </Button>
-    </form>
   );
 }

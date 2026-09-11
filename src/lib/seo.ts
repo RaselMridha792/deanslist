@@ -102,11 +102,22 @@ function stripContext(node: JsonLd): JsonLd {
 /* ---------------------------------------------------------- organization */
 
 /**
- * The publisher. `sameAs` carries only the two profiles verified as live in
- * docs/SITE-AUDIT.md — the old footer links several more that are dead, and
- * pointing a search engine at a 404 to look busy is worse than listing two.
+ * The channels, as the dashboard holds them. Structural on purpose: seo.ts
+ * stays free of the settings module, which reads the database.
  */
-export function organizationJsonLd(): JsonLd {
+export type SocialLinks = {
+  youtube: string;
+  facebook: string;
+  instagram?: string | null;
+};
+
+/**
+ * The publisher. `sameAs` carries only profiles that exist — the old footer
+ * links several that are dead, and pointing a search engine at a 404 to look
+ * busy is worse than listing two. Instagram appears once the client sets it in
+ * the dashboard, and not before.
+ */
+export function organizationJsonLd(links?: SocialLinks): JsonLd {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -126,7 +137,11 @@ export function organizationJsonLd(): JsonLd {
       addressRegion: "WV",
       addressCountry: "US",
     },
-    sameAs: [SITE.socials.youtube, SITE.socials.facebook],
+    sameAs: [
+      links?.youtube ?? SITE.socials.youtube,
+      links?.facebook ?? SITE.socials.facebook,
+      links?.instagram,
+    ].filter((u): u is string => Boolean(u)),
   };
 }
 
@@ -150,7 +165,7 @@ export function organizationJsonLd(): JsonLd {
  * breadcrumb and the site-wide Organization. Once the client confirms a date and
  * it lands on `Show.startsAt`, this starts emitting with no code change.
  */
-export function showEventJsonLd(show: Show): JsonLd | null {
+export function showEventJsonLd(show: Show, links?: SocialLinks): JsonLd | null {
   const startDate = isoDate(show.startsAt);
   if (!startDate) return null;
 
@@ -167,7 +182,7 @@ export function showEventJsonLd(show: Show): JsonLd | null {
     eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
     location: {
       "@type": "VirtualLocation",
-      url: SITE.socials.youtube,
+      url: links?.youtube ?? SITE.socials.youtube,
     },
     organizer: { "@id": ORGANIZATION_ID },
     performer: { "@id": ORGANIZATION_ID },
@@ -214,7 +229,7 @@ export function promotionEventJsonLd(promotion: {
   status: string;
   startsAt: string | null;
   endsAt: string | null;
-}): JsonLd | null {
+}, links?: SocialLinks): JsonLd | null {
   const startDate = isoDate(promotion.startsAt);
   if (!startDate) return null;
 
@@ -230,7 +245,7 @@ export function promotionEventJsonLd(promotion: {
     eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
     location: {
       "@type": "VirtualLocation",
-      url: SITE.socials.facebook,
+      url: links?.facebook ?? SITE.socials.facebook,
     },
     organizer: { "@id": ORGANIZATION_ID },
   };
