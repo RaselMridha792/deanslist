@@ -10,6 +10,7 @@ import {
   Select,
   TextArea,
 } from "@/components/admin/crud";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { savePromotion, deletePromotion } from "@/app/admin/promotion-actions";
 
 export type PromotionRow = {
@@ -178,11 +179,12 @@ The audience votes before the end of the show.`}
         help="What the prize does not cover. Room accommodations only, winner covers travel and taxes."
       />
 
-      <Field
+      <ImageUploadField
         name="imagePath"
         label="Poster"
         defaultValue={promotion?.imagePath ?? ""}
-        help="A media path with no file extension, like /media/campaigns/watch-party-contest, or a full https:// URL."
+        placeholder="/media/campaigns/watch-party-contest"
+        help="Or type a media path with no file extension, like /media/campaigns/watch-party-contest."
       />
 
       <Select

@@ -12,6 +12,7 @@ import {
   Select,
   TextArea,
 } from "@/components/admin/crud";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { deleteWinner, updateWinner } from "@/app/admin/winners-actions";
 
 export const dynamic = "force-dynamic";
@@ -104,13 +105,12 @@ export default async function EditWinnerPage({ params }: Props) {
 
             <MediaPathHelp />
 
-            <Field
-              label="Portrait path"
+            <ImageUploadField
+              label="Portrait"
               name="photoUrl"
-              span
               defaultValue={winner.photoUrl}
               placeholder="/media/winners/pj-galloway"
-              help="Site path with NO file extension. Blank renders the designed stand-in shown on the right."
+              help="Or a site path with NO file extension. Blank renders the designed stand-in shown on the right."
             />
 
             <Field

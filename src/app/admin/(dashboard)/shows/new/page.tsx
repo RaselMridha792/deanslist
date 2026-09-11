@@ -8,6 +8,7 @@ import {
   Select,
   TextArea,
 } from "@/components/admin/crud";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 
 export const dynamic = "force-dynamic";
 
@@ -162,12 +163,11 @@ export default async function NewShowPage() {
             help="When the show goes on air."
           />
 
-          <Field
+          <ImageUploadField
             label="Hero image"
             name="heroImageUrl"
-            span
             placeholder="/media/shows/drop-that-mike-key-art"
-            help="A path under /media, or a full https:// link."
+            help="Or a path under /media with no file extension."
           />
 
           <Field

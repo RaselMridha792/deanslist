@@ -1,0 +1,182 @@
+# The whole site on one machine.
+#
+#   db         Postgres 18, the same major version Neon runs, so a dump from
+#              there restores here. The only thing here that cannot be rebuilt.
+#   migrate    Applies prisma/migrations, then exits. The app waits for it.
+#   app        The Next.js server.
+#   caddy      TLS and the reverse proxy. The only service with a public port.
+#   scheduler  Calls /api/cron/tick every five minutes.
+#   backup     pg_dump and the uploads, once a day into ./backups, 14 days kept.
+#
+# Uploaded files live in the `uploads` volume on this machine's disk, written by
+# the app and served by Caddy straight from disk. There is no third-party
+# storage account to hand over, lapse, or be billed for.
+#
+# Everything is configured from .env beside this file. See .env.docker.example.
+#
+#   docker compose pull && docker compose up -d     deploy or update
+#   docker compose logs -f app                      watch the app
+#   docker compose exec db psql -U deanslist        a database shell
+#
+# ONE app replica, deliberately. The rate limiter keeps its counters in memory,
+# so two replicas would each keep their own and the effective limit on logins
+# and forms would double. Move the limiter to a shared store before scaling out.
+
+name: deanslist
+
+# The app image and the settings every container that runs it shares.
+x-app: &app
+  image: ${APP_IMAGE:-ghcr.io/raselmridha792/deanslist:latest}
+  environment: &app-env
+    # Built here from the parts below rather than written in .env, so the
+    # connection string cannot drift from the database it points at.
+    DATABASE_URL: postgresql://${POSTGRES_USER:-deanslist}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-deanslist}?schema=public
+    # No pooler in front of a local Postgres, so the direct URL is the same one.
+    DIRECT_URL: postgresql://${POSTGRES_USER:-deanslist}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-deanslist}?schema=public
+
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-deanslist}
+      POSTGRES_USER: ${POSTGRES_USER:-deanslist}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      # /var/lib/postgresql, NOT .../data. From 18 the image keeps its files in
+      # a per-version directory beneath this one, and refuses to start on a
+      # volume mounted at the old path.
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    # No published port. The database is reachable only on this compose
+    # network, so it is never exposed to the internet by a firewall slip.
+    # For a shell: docker compose exec db psql -U deanslist
+
+  migrate:
+    <<: *app
+    command: ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    <<: *app
+    # Built here only when the VPS builds for itself; normally the image is
+    # pulled from GHCR, already built by GitHub Actions. A one-core VPS can
+    # build it, slowly, but only with swap — see docs/DEPLOYMENT.md.
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://deanslist.live}
+        NEXT_PUBLIC_MEDIA_IMAGE_BASE: ${NEXT_PUBLIC_MEDIA_IMAGE_BASE:-}
+        NEXT_PUBLIC_MEDIA_VIDEO_BASE: ${NEXT_PUBLIC_MEDIA_VIDEO_BASE:-}
+    restart: unless-stopped
+    # Everything else the app reads — AUTH_SECRET, CRON_SECRET, the mail and
+    # AI keys — comes straight from .env. `environment` above wins over this
+    # file, so a stale DATABASE_URL left in .env cannot override the real one.
+    env_file: .env
+    volumes:
+      # Written by the upload route. Mounted read-only into caddy, which serves
+      # it, and into backup, which archives it.
+      - uploads:/app/uploads
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-deanslist.live, www.deanslist.live}
+      ACME_EMAIL: ${ACME_EMAIL:-producer@deanslist.live}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Certificates live here. Losing this volume means re-issuing them, and
+      # Let's Encrypt rate-limits re-issues, so it is not thrown away on update.
+      - caddy-data:/data
+      - caddy-config:/config
+      # Read-only: the web server can hand uploaded files out, never change them.
+      - uploads:/srv/uploads:ro
+    depends_on:
+      - app
+
+  scheduler:
+    image: curlimages/curl:8.11.1
+    restart: unless-stopped
+    environment:
+      CRON_SECRET: ${CRON_SECRET:-}
+    # Talks to the app directly on the compose network, not through Caddy, so a
+    # certificate problem cannot also stop the campaign sender.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ -z "$$CRON_SECRET" ]; then
+          echo "CRON_SECRET is not set, so the scheduler is idle and scheduled campaigns will not send."
+          while true; do sleep 3600; done
+        fi
+        sleep 60
+        while true; do
+          code=$$(curl -s -o /dev/null -w '%{http_code}' --max-time 300 \
+            -H "Authorization: Bearer $$CRON_SECRET" http://app:3000/api/cron/tick)
+          echo "$$(date -u +%FT%TZ) tick $$code"
+          sleep 300
+        done
+    depends_on:
+      - app
+
+  backup:
+    # Same major as the server: pg_dump refuses to dump a newer one.
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-deanslist}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB:-deanslist}
+    volumes:
+      # A bind mount rather than a volume so the dumps are ordinary files on the
+      # host, where they can be copied somewhere else. A backup on the same disk
+      # as the database survives a mistake and nothing more; get them off-box.
+      - ./backups:/backups
+      - uploads:/uploads:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          f=/backups/deanslist-$$(date -u +%F-%H%M).dump
+          if pg_dump --format=custom --no-owner -f "$$f"; then
+            echo "$$(date -u +%FT%TZ) backup written $$f"
+          else
+            echo "$$(date -u +%FT%TZ) BACKUP FAILED"
+            rm -f "$$f"
+          fi
+          # The uploads are the other thing that cannot be rebuilt: a
+          # contestant's photo exists nowhere else once it is here.
+          u=/backups/uploads-$$(date -u +%F-%H%M).tar.gz
+          if tar -czf "$$u" -C /uploads .; then
+            echo "$$(date -u +%FT%TZ) uploads archived $$u"
+          else
+            echo "$$(date -u +%FT%TZ) UPLOADS ARCHIVE FAILED"
+            rm -f "$$u"
+          fi
+          find /backups \( -name 'deanslist-*.dump' -o -name 'uploads-*.tar.gz' \) -mtime +14 -delete
+          sleep 86400
+        done
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:
+  uploads:

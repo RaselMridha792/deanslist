@@ -8,7 +8,7 @@ import { GrayscaleImage } from "@/components/dl/GrayscaleMedia";
 import { Kicker } from "@/components/dl/Kicker";
 import { Reveal } from "@/components/dl/Reveal";
 import { CampaignEntryForm } from "@/components/forms/CampaignEntryForm";
-import { getPromotion, getPromotionSlugs } from "@/lib/promotions";
+import { getPromotion } from "@/lib/promotions";
 import { mediaImage } from "@/lib/media";
 import {
   breadcrumbJsonLd,
@@ -325,8 +325,3 @@ export default async function CampaignPage({ params }: Params) {
   );
 }
 
-/** Slugs are dashboard-managed; this only helps the crawler find them. */
-export async function generateStaticParams() {
-  const slugs = await getPromotionSlugs().catch(() => []);
-  return slugs.map((slug) => ({ slug }));
-}

@@ -1,6 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  /**
+   * A self-contained server for the Docker image.
+   *
+   * `standalone` traces what the server actually imports and copies only that
+   * into .next/standalone, with its own minimal node_modules and a server.js.
+   * The image ships that instead of the whole dependency tree, which is the
+   * difference between roughly 250 MB and well over a gigabyte on a VPS with a
+   * 50 GB disk. Vercel builds with it just as happily.
+   */
+  output: "standalone",
+
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "i.ytimg.com" },

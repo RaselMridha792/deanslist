@@ -42,9 +42,15 @@ const schema = z.object({
   NEXT_PUBLIC_MEDIA_IMAGE_BASE: z.string().url().optional().or(z.literal("")),
   NEXT_PUBLIC_MEDIA_VIDEO_BASE: z.string().url().optional().or(z.literal("")),
 
-  // Upload credentials. Server-side only, never sent to the browser.
+  // Credentials for scripts/upload-media.mjs only, which pushes /public/media
+  // to Cloudinary if a CDN is ever wanted again. The site itself never uses it.
   // Format: cloudinary://<api_key>:<api_secret>@<cloud_name>
   CLOUDINARY_URL: z.string().optional(),
+
+  // Where dashboard uploads are written. Unset: ./uploads beside the app. The
+  // Docker image sets /app/uploads, which is the `uploads` volume. See
+  // src/lib/uploads.ts.
+  UPLOAD_DIR: z.string().optional(),
 
   // Email. Absent in development: src/lib/mail.ts no-ops with a warning.
   RESEND_API_KEY: z.string().optional(),
@@ -58,16 +64,39 @@ const schema = z.object({
 
   // Scheduled campaigns and reminder sequences (Phase 7.6).
   CRON_SECRET: z.string().optional(),
-
-  // S3-compatible storage for uploads (Phase 1 Asset model).
-  STORAGE_ENDPOINT: z.string().optional(),
-  STORAGE_BUCKET: z.string().optional(),
-  STORAGE_ACCESS_KEY_ID: z.string().optional(),
-  STORAGE_SECRET_ACCESS_KEY: z.string().optional(),
-  STORAGE_PUBLIC_URL: z.string().optional(),
 });
 
-const parsed = schema.safeParse(process.env);
+/**
+ * Build-time escape hatch, and only that.
+ *
+ * `next build` runs with NODE_ENV=production and imports this module, so the
+ * production rules above would fail a Docker build: there is no AUTH_SECRET and
+ * no DATABASE_URL inside the build, and there must not be. An image is a file
+ * that gets cached, copied and pushed to a registry, and a secret baked into
+ * one is a secret published.
+ *
+ * So the Dockerfile's builder stage sets SKIP_ENV_VALIDATION=1. The two
+ * required values get inert placeholders for the length of the build, every
+ * other rule and default still applies, and real validation runs when the
+ * container starts — which is when a missing secret should fail.
+ *
+ * It is honoured ONLY during the build phase. Set by mistake on a running
+ * server it would mean a placeholder AUTH_SECRET, which means anyone who has
+ * read this file can forge an admin session; so outside `next build` the flag
+ * is ignored and the strict schema applies regardless.
+ */
+const buildOnlySkip =
+  process.env.SKIP_ENV_VALIDATION === "1" &&
+  process.env.NEXT_PHASE === "phase-production-build";
+
+const parsed = (
+  buildOnlySkip
+    ? schema.extend({
+        DATABASE_URL: z.string().default("postgresql://build:build@localhost:5432/build"),
+        AUTH_SECRET: z.string().default("build-phase-placeholder-not-valid-at-runtime-0000"),
+      })
+    : schema
+).safeParse(process.env);
 
 if (!parsed.success) {
   const issues = parsed.error.issues
@@ -83,8 +112,3 @@ export const mailEnabled = Boolean(env.RESEND_API_KEY);
 
 /** True once an AI provider is wired up. */
 export const chatEnabled = Boolean(env.ANTHROPIC_API_KEY);
-
-/** True once object storage is wired up, so entry forms can accept file uploads. */
-export const uploadsEnabled = Boolean(
-  env.STORAGE_ENDPOINT && env.STORAGE_BUCKET && env.STORAGE_ACCESS_KEY_ID,
-);

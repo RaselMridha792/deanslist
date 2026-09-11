@@ -1,5 +1,11 @@
 # Hosting media on Cloudinary
 
+> **Not used on the VPS.** Since the move to the Hostinger VPS, every photo and
+> clip is served from the Docker image and every dashboard upload from the
+> server's own disk (see `docs/DEPLOYMENT.md`, section 3.8). The media bases are
+> left empty and no Cloudinary account is needed. This guide stays only for
+> anyone who later wants a CDN in front of `/public/media` again.
+
 Written for someone who has never used Cloudinary. Follow it top to bottom once.
 
 **What this does:** moves the 113 media files (32 images × 3 formats, 17 videos ×

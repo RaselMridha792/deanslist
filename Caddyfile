@@ -1,0 +1,65 @@
+# The front door: TLS, compression, and the hand-off to the app.
+#
+# Caddy rather than nginx plus certbot, because it obtains and renews the
+# Let's Encrypt certificate by itself. On a single VPS that is one fewer thing
+# that can quietly expire at 3am — a certbot timer that stopped running is found
+# out when the site starts showing a browser warning to every visitor.
+#
+# SITE_ADDRESS comes from docker-compose.yml. For a test before DNS points here,
+# set SITE_ADDRESS=:80 in .env and the site is served plainly by IP.
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$SITE_ADDRESS} {
+	# One canonical host. Two hosts serving the same pages split the search
+	# ranking between them, so www answers with a permanent redirect.
+	@www host www.deanslist.live
+	redir @www https://deanslist.live{uri} permanent
+
+	encode zstd gzip
+
+	header {
+		# Remove what advertises the stack.
+		-Server
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "SAMEORIGIN"
+	}
+
+	# Uploaded files, straight off the volume. Caddy is faster at this than
+	# Node, and it cannot execute anything it serves.
+	#
+	# The headers are defence in depth for a folder the public writes into. The
+	# upload route already refuses anything that is not an image and names every
+	# file itself, but if something ever slipped past it, `nosniff` stops a
+	# browser guessing a type, and the CSP sandbox stops a file that turned out
+	# to be HTML from running script or reaching the site's cookies.
+	handle_path /uploads/* {
+		root * /srv/uploads
+		header {
+			Cache-Control "public, max-age=31536000, immutable"
+			X-Content-Type-Options "nosniff"
+			Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox"
+		}
+		file_server
+	}
+
+	# Everything else is the app. Inside `handle` so it and the uploads block
+	# above are mutually exclusive: a request is served by one, never both.
+	#
+	# Caddy sets X-Forwarded-For from the real client and ignores whatever the
+	# client claimed, since no proxy in front of it is trusted. That matters
+	# here: the login and form rate limits key on that header, and a spoofable
+	# value would let one bot give itself a fresh bucket per request.
+	handle {
+		reverse_proxy app:3000 {
+			# A scheduler tick holds the connection while a campaign sends.
+			transport http {
+				read_timeout 300s
+			}
+		}
+	}
+}

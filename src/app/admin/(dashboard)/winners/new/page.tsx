@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 import { AdminPageHeader, CrudForm, Field, Select, TextArea } from "@/components/admin/crud";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { createWinner } from "@/app/admin/winners-actions";
 
 export const dynamic = "force-dynamic";
@@ -71,12 +72,11 @@ export default async function NewWinnerPage() {
 
           <MediaPathHelp />
 
-          <Field
-            label="Portrait path"
+          <ImageUploadField
+            label="Portrait"
             name="photoUrl"
-            span
             placeholder="/media/winners/pj-galloway"
-            help="Site path with NO file extension. Blank is a valid answer: the page then renders a designed stand-in instead of a broken image."
+            help="Or a site path with NO file extension. Blank is a valid answer: the page then renders a designed stand-in instead of a broken image."
           />
 
           <Field

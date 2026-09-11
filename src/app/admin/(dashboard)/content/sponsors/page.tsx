@@ -17,6 +17,7 @@ import {
   StatusPill,
   TextArea,
 } from "@/components/admin/crud";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 
 export const dynamic = "force-dynamic";
 
@@ -117,13 +118,13 @@ export default async function SponsorsAdminPage({ searchParams }: Props) {
                 help="Leave blank to build one from the name. Lowercase, dashes only."
               />
 
-              <Field
-                label="Logo URL"
+              <ImageUploadField
+                label="Logo"
                 name="logoUrl"
+                output="webp"
                 defaultValue={editing?.logoUrl}
                 placeholder="/media/sponsors/acme.webp"
-                span
-                help="A full https:// link or a path inside /public. Without a logo the strip falls back to the sponsor's name in display type, which still looks intentional."
+                help="Or a full https:// link, or a path inside /public. Without a logo the strip falls back to the sponsor's name in display type, which still looks intentional."
               />
 
               <Field

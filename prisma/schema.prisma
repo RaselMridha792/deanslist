@@ -678,9 +678,10 @@ model Job {
 
 // ---------------------------------------------------------------- uploads
 
-/// Files accepted from the public site. Never stored on the app VPS disk — url
-/// points at S3-compatible object storage. Absent storage config, entry forms
-/// accept video links only (see uploadsEnabled in src/lib/env.ts).
+/// Uploaded files. Images uploaded in the dashboard are written to the server's
+/// own disk (the `uploads` Docker volume) by src/lib/uploads.ts; `url` is the
+/// extensionless public path and `key` the same path without the leading slash.
+/// Contestant performance videos are still taken as links, not stored here.
 model Asset {
   id           String   @id @default(cuid())
   leadId       String?

@@ -33,6 +33,9 @@ function resolve(base: string, path: string): string {
   if (!path) return path;
   // Already absolute (an external thumbnail, a full CDN URL): leave it alone.
   if (/^https?:\/\//i.test(path)) return path;
+  // Dashboard uploads live on this server's disk, never on a CDN, so they are
+  // served from here whatever the bases say. See src/lib/uploads.ts.
+  if (path.startsWith("/uploads/")) return path;
   if (!base) return path;
   return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
 }

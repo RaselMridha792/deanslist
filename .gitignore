@@ -32,6 +32,10 @@ coverage
 # deploy
 .vercel
 
+# dashboard uploads in development (src/lib/uploads.ts). On the server they
+# live in a Docker volume, never in the repository.
+/uploads
+
 # misc
 *.log
 npm-debug.log*

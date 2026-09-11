@@ -1,57 +1,56 @@
 # Deployment
 
-Two targets, and they are not alternatives. Vercel is where the site runs today
-and where the client reviews it. The Hostinger VPS is the destination in the
-signed scope, and moving there also moves the database off Neon and into
-Postgres on the same box.
+Two targets. Vercel is where the site runs today and where the client reviewed
+it. The Hostinger VPS is where it is moving, in Docker, with the database moved
+off Neon into Postgres on the same box and every image, clip and upload served
+from that box's own disk.
 
-This document is the runbook for both. It was written before the VPS existed,
-so every command here is derived from this repository — the scripts in
-`package.json`, the schema in `prisma/`, the variables `src/lib/env.ts`
-validates — rather than from a generic Next.js guide. **Sections marked
-UNVERIFIED have not been executed against a real server.** Correct them in place
-the first time they are run; a runbook that was never corrected is a runbook
-nobody has followed.
+Every command here comes from this repository (`Dockerfile`,
+`docker-compose.yml`, `Caddyfile`, `.env.docker.example`, the variables
+`src/lib/env.ts` validates). It does not come from a generic guide. **Sections
+marked UNVERIFIED have not been run against the real server yet.** Correct them
+in place the first time they are run. A runbook nobody has corrected is a
+runbook nobody has followed.
 
 ---
 
 ## 1. Environment variables
 
-`src/lib/env.ts` validates these at boot and **refuses to start** on a bad set,
-which is deliberate: a site that boots without `AUTH_SECRET` is a site with a
-forgeable session cookie.
+`src/lib/env.ts` validates these at boot and **refuses to start** on a bad set.
+In Docker that is a container that exits with the bad variable named on the
+last line of `docker compose logs app`, rather than a server that starts and
+fails on its first visitor.
 
 ### Required
 
 | Variable | Notes |
 |---|---|
-| `DATABASE_URL` | Postgres connection string. On Neon this is the **pooled** URL. |
-| `AUTH_SECRET` | 32+ characters in production, and the loader rejects anything containing `change-me` or `dev-only`. Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
-| `NEXT_PUBLIC_SITE_URL` | The public origin, no trailing slash. Used for canonical URLs, OG images and the sitemap. Wrong here means wrong in every share preview. |
+| `DATABASE_URL` | Postgres connection string. On Neon this is the **pooled** URL. In Docker it is built by `docker-compose.yml` from the `POSTGRES_*` values, so do not write it in `.env` there. |
+| `AUTH_SECRET` | 32+ characters in production. The loader rejects anything containing `change-me` or `dev-only`. Generate: `openssl rand -hex 32` |
+| `NEXT_PUBLIC_SITE_URL` | The public origin, no trailing slash. Canonical URLs, OG images and the sitemap are built from it, so a wrong value shows up in every share preview. |
 
 ### Required for a feature, optional for boot
 
 Each of these switches a feature on. Left unset, the feature is **visibly**
-disabled in the dashboard rather than silently broken — the campaigns screen
-says so in as many words. That is the intended behaviour, not a gap.
+disabled in the dashboard rather than silently broken.
 
 | Variable | Switches on | Unset means |
 |---|---|---|
-| `DIRECT_URL` | Prisma migrations against a pooled Postgres | `migrate deploy` may fail against a pooler |
+| `DIRECT_URL` | Prisma migrations against a pooled Postgres | `migrate deploy` may fail against a pooler. In Docker it is built for you. |
 | `RESEND_API_KEY` | Sending email | Campaigns compose and preview; a send is refused |
 | `RESEND_WEBHOOK_SECRET` | Bounce and complaint handling | Hard bounces never reach the suppression list |
 | `MAIL_FROM` | The From header | Defaults to `Dean's List <noreply@deanslist.live>` |
 | `TEAM_NOTIFY_EMAIL` | Internal notification of a new lead | Nobody is emailed; the row is still stored |
 | `ANTHROPIC_API_KEY` | The assistant's free-text answers | The guided capture flow still works; questions fall back to the knowledge base |
 | `CHAT_DAILY_TOKEN_CAP` | The assistant's daily spend ceiling | Defaults to 2,000,000 |
-| `CRON_SECRET` | The scheduler endpoint | `/api/cron/tick` answers **503**, so scheduled campaigns never fire |
-| `CLOUDINARY_URL` | Uploading media with `scripts/upload-media.mjs` | Delivery still works; only the upload script needs it |
-| `NEXT_PUBLIC_MEDIA_IMAGE_BASE` / `..._VIDEO_BASE` | Serving media from Cloudinary | Media is served from `/public` |
-| `STORAGE_*` (5 vars) | File uploads on the public forms | The upload control renders disabled and says so |
+| `CRON_SECRET` | The scheduler | `/api/cron/tick` answers **503**, and in Docker the scheduler container idles and says so |
+| `UPLOAD_DIR` | Where dashboard uploads are written | `./uploads` beside the app. The Docker image sets `/app/uploads` itself. |
+| `NEXT_PUBLIC_MEDIA_IMAGE_BASE` / `..._VIDEO_BASE` | Serving `/public/media` from a CDN instead | Media is served by this server. **Leave empty on the VPS.** |
+| `CLOUDINARY_URL` | `scripts/upload-media.mjs` only | Nothing. The site never reads it. |
 
 **A note on `CRON_SECRET`.** It fails closed on purpose. An unconfigured
 scheduler that returned 200 would look healthy while sending nothing, and an
-open one is "send every scheduled campaign now" exposed to the internet.
+open one would let anyone on the internet trigger every scheduled campaign.
 
 ---
 
@@ -62,16 +61,16 @@ The deployment at `deanslist-one.vercel.app` builds from `main` on push.
 ### Set the variables
 
 Project → Settings → Environment Variables. Add every variable from section 1
-to **Production**, then redeploy — Vercel does not apply new variables to an
+to **Production**, then redeploy. Vercel does not apply new variables to an
 existing build.
 
-To check what is actually live rather than what you believe is live, sign in to
+To check what is actually live, rather than what you believe is live, sign in to
 `/admin/campaigns`. It names each missing piece.
 
 ### The scheduler
 
-`vercel.json` declares a daily cron. Daily and not hourly because the free plan
-rejects a more frequent schedule and a rejected cron fails the whole
+`vercel.json` declares a daily cron. It is daily and not hourly because the free
+plan rejects a more frequent schedule, and a rejected cron fails the whole
 deployment. Vercel sends `Authorization: Bearer $CRON_SECRET` automatically
 once that variable exists, which is the header `/api/cron/tick` expects.
 
@@ -79,45 +78,63 @@ Daily is too coarse for "send at 10am Tuesday", so the real scheduler is
 `.github/workflows/scheduler.yml`, every fifteen minutes. It needs two
 repository secrets under Settings → Secrets and variables → Actions:
 
-- `CRON_SECRET` — the same value as on the deployment
-- `SITE_URL` — the origin, no trailing slash
+- `CRON_SECRET`: the same value as on the deployment
+- `SITE_URL`: the origin, no trailing slash
 
 Running both is safe. `claimNextJob` takes each job with a conditional update
 and proceeds only when exactly one row changed, so overlapping ticks cannot
 claim the same job.
 
-### Verifying it
-
-```bash
-# 503 = CRON_SECRET is not set on the deployment
-# 401 = set, but this secret is wrong
-# 200 = working
-curl -s -o /dev/null -w '%{http_code}\n' \
-  -H "Authorization: Bearer $CRON_SECRET" \
-  https://YOUR-DOMAIN/api/cron/tick
-```
-
 ---
 
-## 3. Hostinger VPS (KVM 1) — UNVERIFIED
+## 3. Hostinger VPS (KVM 1), Docker — UNVERIFIED
 
-One core and limited RAM. Two things follow from that and both bite before
-anything else does.
+### 3.0 What runs, and where the image comes from
 
-### 3.1 Swap, before the first build
+The server never builds anything. `.github/workflows/docker.yml` builds the
+image on every push to `main`. It then tests it against a real Postgres:
 
-`next build` on a 1-core KVM box will OOM without it. Do this first.
+- migrations apply to an empty database;
+- the container refuses to start without `AUTH_SECRET`;
+- every public page answers 200;
+- media and uploads are served;
+- the Caddyfile and compose file validate.
+
+Only then does it push the image to `ghcr.io/raselmridha792/deanslist`. A
+one-core VPS can build the image, but slowly and only with swap. A build that
+runs out of memory halfway leaves the site on whatever was there before.
+
+`docker compose up -d` on the server starts six containers:
+
+| Service | Does | Persistent state |
+|---|---|---|
+| `db` | Postgres **18**, the same major version as Neon | volume `deanslist_db-data` |
+| `migrate` | `prisma migrate deploy`, then exits. `app` waits for it. | none |
+| `app` | The Next.js server, as a non-root user | volume `deanslist_uploads` |
+| `caddy` | TLS (Let's Encrypt, automatic), compression, `/uploads` from disk, proxy to `app` | volumes `deanslist_caddy-data` and `caddy-config` |
+| `scheduler` | Calls `/api/cron/tick` every five minutes | none |
+| `backup` | A daily `pg_dump` and uploads archive into `./backups`, 14 days kept | `./backups` on the host |
+
+Only Caddy publishes ports (80 and 443). The database has no published port at
+all, so a firewall mistake cannot expose it.
+
+### 3.1 Swap
+
+Postgres, Node and Caddy fit in 4 GB with room to spare, and no build runs
+here. Swap is still cheap insurance against a memory spike taking the database
+down with it.
 
 ```bash
-sudo fallocate -l 2G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
+sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
 echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 free -h
 ```
 
 ### 3.2 User, SSH and firewall
+
+Log in with an SSH key, never a password. Add the public key in the Hostinger
+panel (VPS → Settings → SSH keys) before the first login.
 
 ```bash
 adduser deploy && usermod -aG sudo deploy
@@ -127,204 +144,194 @@ rsync --archive --chown=deploy:deploy ~/.ssh /home/deploy
 sudo systemctl restart ssh
 
 sudo ufw default deny incoming && sudo ufw default allow outgoing
-sudo ufw allow 22 && sudo ufw allow 80 && sudo ufw allow 443
+sudo ufw allow 22 && sudo ufw allow 80 && sudo ufw allow 443 && sudo ufw allow 443/udp
 sudo ufw enable && sudo ufw status
 ```
 
-Confirm the key works in a **second** terminal before closing the first. Locking
-yourself out of a fresh box is recoverable; locking yourself out of a running
-one is not.
+Confirm the key works in a **second** terminal before closing the first.
 
-### 3.3 Node and Postgres
+A Docker caveat worth knowing: ports a container publishes are opened by
+Docker's own firewall rules, **around** ufw. That is harmless here, because
+the only published ports are 80 and 443 on Caddy, which are meant to be public.
+It is the reason the database publishes none.
 
-Node 20 LTS or newer. Next 15 requires 18.18+; this was developed on 24.
+### 3.3 Docker
 
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-. ~/.nvm/nvm.sh && nvm install 22 && nvm alias default 22
-
-sudo apt install -y postgresql postgresql-contrib
-sudo -u postgres psql <<'SQL'
-CREATE USER deanslist WITH PASSWORD 'GENERATE-A-REAL-ONE';
-CREATE DATABASE deanslist OWNER deanslist;
-SQL
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker deploy     # log out and back in for it to apply
+docker version && docker compose version
 ```
 
-`DATABASE_URL` becomes
-`postgresql://deanslist:PASSWORD@localhost:5432/deanslist?schema=public`, and
-`DIRECT_URL` is the same value — there is no pooler in front of a local
-Postgres.
+### 3.4 Pulling the image
 
-### 3.4 Deploy
+GHCR packages start private even when the repository is public. Pick one:
+
+- **Make the package public.** GitHub → the repository → Packages →
+  `deanslist` → Package settings → Change visibility → Public. The image holds
+  no secrets (see the `Dockerfile` header), so nothing in it needs protecting.
+  With this option the server needs no credentials.
+- **Keep it private** and log the server in once, with a token that has only
+  `read:packages`:
+  `echo "$TOKEN" | docker login ghcr.io -u RaselMridha792 --password-stdin`
+
+### 3.5 The files on the server
+
+The server needs three files, not the repository:
 
 ```bash
-git clone https://github.com/RaselMridha792/deanslist.git ~/app && cd ~/app
-cp .env.example .env   # then fill it in, per section 1
-npm ci                 # postinstall runs prisma generate
-npx prisma migrate deploy
-npm run build
+mkdir -p ~/deanslist && cd ~/deanslist
+for f in docker-compose.yml Caddyfile .env.docker.example; do
+  curl -fsSLO "https://raw.githubusercontent.com/RaselMridha792/deanslist/main/$f"
+done
+cp .env.docker.example .env && chmod 600 .env
 ```
 
-**`migrate deploy`, never `db push`.** `db push` diffs the schema against the
-database and applies whatever it decides, which on a database holding real
-leads can mean a silent destructive change. `migrate deploy` applies the five
-committed migrations in order and nothing else.
+Fill in `.env`. Generate every secret with `openssl rand -hex 32`. Use **hex
+only** for `POSTGRES_PASSWORD`, because a `/`, `@` or `:` would break the
+database URL that compose builds from it. Set `SEED_ADMIN_PASSWORD` even if you
+never seed, so the value in the repository is never valid here.
 
-Seed only on a genuinely empty database:
+For a first look before DNS points at the server, set `SITE_ADDRESS=:80` and
+browse to the server's IP over plain http. Put the real names back before
+cutover, and Caddy fetches the certificates by itself on the next start.
+
+### 3.6 Moving the data off Neon (before the first full start)
+
+Do this before DNS changes, and before `docker compose up -d` brings up
+`migrate`. Restoring into an empty database is simple. Restoring on top of
+tables `migrate` has already created is not.
+
+1. **Purge the test data first**, from a development machine whose `.env`
+   points at Neon: `npm run db:purge-test` (dry run), then
+   `npm run db:purge-test:apply`. Otherwise the Playwright fixtures move
+   across with the real rows.
+2. On the server:
 
 ```bash
-npm run db:seed
-```
+cd ~/deanslist
+docker compose up -d db          # the database alone
 
-### 3.5 Migrating the data off Neon
+# Neon's DIRECT (unpooled) connection string: the host without "-pooler".
+# The client is Postgres 18 because pg_dump refuses to dump a newer server.
+docker run --rm -v "$PWD:/work" postgres:18-alpine \
+  pg_dump --no-owner --no-privileges --format=custom \
+  -d "postgresql://USER:PASSWORD@HOST/DB?sslmode=require" -f /work/neon.dump
 
-Do this before DNS, not after.
+docker compose exec -T db pg_restore --no-owner --no-privileges \
+  -U deanslist -d deanslist < neon.dump
 
-```bash
-# On a machine that can reach both
-pg_dump --no-owner --no-privileges --format=custom "$NEON_DATABASE_URL" -f neon.dump
-pg_restore --no-owner --no-privileges -d "$VPS_DATABASE_URL" neon.dump
-
-# Then confirm the row counts match, rather than assuming
-psql "$VPS_DATABASE_URL" -c 'SELECT
+# Compare with the same query run against Neon. Do not assume they match.
+docker compose exec db psql -U deanslist -c 'SELECT
   (SELECT count(*) FROM "Lead") AS leads,
   (SELECT count(*) FROM "User") AS users,
+  (SELECT count(*) FROM "Promotion") AS campaigns,
   (SELECT count(*) FROM "Winner") AS winners;'
+
+docker compose up -d             # everything; migrate finds nothing to apply
+rm neon.dump                     # it holds every contact record
 ```
 
-**Run `npm run db:purge-test:apply` before the dump.** Otherwise the test rows
-the Playwright suite wrote into the shared database migrate along with the real
-ones. See section 7.
+The dump carries `_prisma_migrations`, so `migrate` recognises the schema as
+current and applies nothing.
 
-### 3.6 PM2 — single instance
+**A fresh database instead** (no Neon data): `docker compose up -d` creates the
+schema. The seed script needs `tsx`, which the production image does not ship,
+so run it from a checkout on the same Docker network:
 
 ```bash
-npm i -g pm2
-pm2 start npm --name deanslist -- run start   # NOT -i max
-pm2 save
-pm2 startup    # run the command it prints
+git clone https://github.com/RaselMridha792/deanslist.git ~/src
+set -a && . ~/deanslist/.env && set +a     # for $POSTGRES_PASSWORD below
+docker run --rm --network deanslist_default -v ~/src:/src -w /src \
+  --env-file ~/deanslist/.env \
+  -e DATABASE_URL="postgresql://deanslist:$POSTGRES_PASSWORD@db:5432/deanslist?schema=public" \
+  node:22-bookworm-slim sh -c 'npm ci && npx tsx prisma/seed.ts'
 ```
 
-**Not cluster mode.** The rate limiter is in-memory (`src/lib/rate-limit.ts`),
-so across workers each process keeps its own counters and the effective limit
-becomes the configured one multiplied by the worker count. Login throttling and
-form abuse protection both silently weaken. Move to a shared store before ever
-scaling out.
-
-### 3.7 Nginx
-
-```nginx
-server {
-  listen 80;
-  server_name deanslist.live www.deanslist.live;
-
-  # 500 MB is the entry form's stated video ceiling. Nginx defaults to 1 MB and
-  # rejects anything larger with a 413 before Next.js ever sees it.
-  client_max_body_size 500M;
-
-  gzip on;
-  gzip_types text/css application/javascript application/json image/svg+xml;
-
-  location /_next/static/ {
-    proxy_pass http://127.0.0.1:3000;
-    add_header Cache-Control "public, max-age=31536000, immutable";
-  }
-
-  location / {
-    proxy_pass http://127.0.0.1:3000;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-
-    # The app reads the client IP from this for rate limiting. Without it every
-    # visitor shares one bucket, which means one bot can lock out the world.
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_cache_bypass $http_upgrade;
-
-    # A tick that picks up a campaign holds the connection while it sends.
-    proxy_read_timeout 300s;
-  }
-}
-```
+### 3.7 Checking it
 
 ```bash
-sudo nginx -t && sudo systemctl reload nginx
+docker compose ps                      # app "healthy", migrate "exited (0)"
+docker compose logs --tail=50 app
+docker compose logs --tail=20 caddy    # certificate obtained, or why not
+curl -fsS https://deanslist.live/api/health    # {"ok":true,"db":"up"}
 ```
 
-### 3.8 TLS
+### 3.8 Media and uploads
+
+- **Site media** (`/public/media`: photos in `.avif`, `.webp` and `.jpg`, clips
+  in `.webm` and `.mp4`) is inside the image, and the app serves it. There is
+  no Cloudinary account to keep. `docs/CLOUDINARY-SETUP.md` is kept only for
+  anyone who wants a CDN back later.
+- **Dashboard uploads** (campaign posters, winner portraits, show key art,
+  sponsor logos) are written to the `uploads` volume. Caddy serves them from
+  disk at `/uploads/...` with `nosniff` and a sandboxing CSP. Each upload is
+  re-encoded into the three formats, resized to 2400 px at most, and stripped
+  of camera metadata, including GPS. The limit is 15 MB per image.
+- **Contestant videos are still taken as links**, not files. A season of
+  500 MB entries would fill a 50 GB disk shared with the database.
+
+Watch the disk: `df -h /` and `docker system df`. After updates,
+`docker image prune -f` clears the old images.
+
+### 3.9 Updating
+
+Push to `main`. When the `docker` workflow is green:
 
 ```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d deanslist.live -d www.deanslist.live
-sudo systemctl status certbot.timer      # renewal is a timer, confirm it exists
-sudo certbot renew --dry-run
+cd ~/deanslist
+docker compose pull && docker compose up -d
+docker image prune -f
 ```
 
-### 3.9 The scheduler, on the VPS
+`migrate` runs first on every `up`, so a release that adds a migration applies
+it before the new app starts. Take a dump before any release that migrates
+(section 3.11); migrations do not roll back.
 
-GitHub Actions still works and needs no change beyond `SITE_URL`. If you would
-rather the box drive itself:
+### 3.10 The scheduler
 
-`/etc/systemd/system/deanslist-tick.service`
+The `scheduler` container calls the app every five minutes over the internal
+network, not through Caddy, so a certificate problem cannot also stop campaign
+sends. It idles, and logs why, until `CRON_SECRET` is set.
+`.github/workflows/scheduler.yml` can keep running alongside it, since ticks
+are safe to overlap, or it can be disabled once the VPS is live.
 
-```ini
-[Unit]
-Description=Dean's List scheduler tick
-[Service]
-Type=oneshot
-Environment=CRON_SECRET=THE-SECRET
-ExecStart=/usr/bin/curl --silent --show-error --fail --max-time 300 \
-  -H "Authorization: Bearer ${CRON_SECRET}" \
-  https://deanslist.live/api/cron/tick
-```
+### 3.11 Backups, with a restore that has been run
 
-`/etc/systemd/system/deanslist-tick.timer`
-
-```ini
-[Unit]
-Description=Run the Dean's List scheduler every 5 minutes
-[Timer]
-OnBootSec=2min
-OnUnitActiveSec=5min
-[Install]
-WantedBy=timers.target
-```
+The `backup` container writes `backups/deanslist-<date>.dump` and
+`backups/uploads-<date>.tar.gz` once a day and keeps 14 days of each. A backup
+on the same disk as the database only protects against mistakes, not against
+losing the disk, so copy the backups off the server, from another machine:
 
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now deanslist-tick.timer
-sudo systemctl list-timers deanslist-tick.timer
+rsync -a deploy@SERVER_IP:~/deanslist/backups/ ./deanslist-backups/
 ```
 
-### 3.10 Backups, with a restore that has been run
-
-A backup nobody has restored is a hope, not a backup.
-
-`/etc/cron.daily/deanslist-backup`, `chmod +x`:
+Take a dump by hand before a migrating release:
 
 ```bash
-#!/bin/bash
-set -euo pipefail
-DEST=/var/backups/deanslist
-mkdir -p "$DEST"
-pg_dump --no-owner --format=custom deanslist \
-  -f "$DEST/deanslist-$(date +%F).dump"
-find "$DEST" -name 'deanslist-*.dump' -mtime +14 -delete
+docker compose exec -T db pg_dump -U deanslist --format=custom deanslist > backups/pre-release.dump
 ```
 
 Restore, tested once into a scratch database and not into production:
 
 ```bash
-sudo -u postgres createdb restore_test
-pg_restore --no-owner -d restore_test /var/backups/deanslist/deanslist-YYYY-MM-DD.dump
-psql restore_test -c 'SELECT count(*) FROM "Lead";'
-sudo -u postgres dropdb restore_test
+docker compose exec db createdb -U deanslist restore_test
+docker compose exec -T db pg_restore --no-owner -U deanslist -d restore_test \
+  < backups/deanslist-YYYY-MM-DD-HHMM.dump
+docker compose exec db psql -U deanslist -d restore_test -c 'SELECT count(*) FROM "Lead";'
+docker compose exec db dropdb -U deanslist restore_test
 ```
 
-Get the dumps off the box as well. A backup on the same disk as the database
-survives a mistake and nothing else.
+Uploads restore:
+
+```bash
+docker run --rm -v deanslist_uploads:/u -v "$PWD/backups:/b:ro" alpine \
+  tar -xzf /b/uploads-YYYY-MM-DD-HHMM.tar.gz -C /u
+```
+
+**The database volume is tied to Postgres 18.** A later move to 19 is a dump
+and restore into a new volume, not an image tag change.
 
 ---
 
@@ -334,15 +341,15 @@ This gates every bulk send and depends on DNS, so start it before it is needed.
 
 In Resend, add `deanslist.live` and publish the records it gives you:
 
-- **SPF** — a TXT record authorising Resend to send for the domain
-- **DKIM** — the CNAME or TXT records Resend generates
-- **DMARC** — start at `v=DMARC1; p=none; rua=mailto:...` to collect reports,
+- **SPF**: a TXT record authorising Resend to send for the domain
+- **DKIM**: the CNAME or TXT records Resend generates
+- **DMARC**: start at `v=DMARC1; p=none; rua=mailto:...` to collect reports,
   and tighten to `quarantine` once the reports are clean
 
 `MAIL_FROM` must be on the authenticated domain. Sending as
-`noreply@deanslist.live` while only a different domain is authenticated is how
-a list ends up in spam on its first send, and reputation is much harder to
-recover than to establish.
+`noreply@deanslist.live` while only a different domain is authenticated sends
+the list's first campaign to spam, and a damaged sender reputation is much
+harder to recover than to build.
 
 Verify with `dig TXT deanslist.live`, `dig TXT _dmarc.deanslist.live`, and by
 sending one real message to a Gmail address and reading **Show original** for
@@ -353,23 +360,22 @@ three `PASS` lines.
 ## 5. DNS cutover — client approval first
 
 Everything above can be done while the old site is still live. This step is the
-one that is visible to the public.
+one the public sees.
 
 Before it: section 7's checklist, all of it, on the new server rather than on
 Vercel.
 
 1. Lower the TTL on the existing records to 300 seconds, **at least a day
-   ahead**. A record cached at 24 hours will keep sending people to the old
-   site for a day after the change, and lowering the TTL at cutover time does
-   not help — the old TTL is what is already cached.
-2. Point the A record at the VPS. Add `www` as a CNAME to the apex.
-3. Watch `pm2 logs deanslist` and the Nginx access log for the first hour.
-4. Raise the TTL back to 3600 once traffic has settled.
-
-**The blocker as of writing.** The domain is registered through GoDaddy while
-the site is on Squarespace, and it is the client's website manager who holds
-the controls. See `session.md`, "Hosting". Nothing here can proceed without
-either access or that person's cooperation.
+   ahead**. A record cached at 24 hours keeps sending people to the old site
+   for a day after the change. Lowering the TTL at cutover time does not help,
+   because the old TTL is what is already cached.
+2. Point the `A` records for `deanslist.live` and `www` at the VPS IP. Remove
+   any `AAAA` record that points elsewhere.
+3. Make sure `SITE_ADDRESS` in `.env` is `deanslist.live, www.deanslist.live`
+   and run `docker compose up -d`. Caddy obtains both certificates as soon as
+   DNS resolves to it. `docker compose logs -f caddy` shows it happen.
+4. Watch `docker compose logs -f app caddy` for the first hour.
+5. Raise the TTL back to 3600 once traffic has settled.
 
 ---
 
@@ -377,42 +383,40 @@ either access or that person's cooperation.
 
 Vercel: Deployments → the last good one → Promote to Production. Seconds.
 
-VPS:
+VPS: every build is also tagged `sha-<commit>`. Pin the last good one:
 
 ```bash
-cd ~/app
-git log --oneline -5
-git checkout <last-good-sha>
-npm ci && npm run build && pm2 restart deanslist
+cd ~/deanslist
+# .env:  APP_IMAGE=ghcr.io/raselmridha792/deanslist:sha-abc1234
+docker compose up -d
 ```
 
+Set it back to `:latest` once the fix is out.
+
 **Database changes do not roll back with the code.** `prisma migrate deploy` is
-forward-only. If a release includes a migration, the rollback is: restore the
-dump taken before the migration, then deploy the old code. That is why section
-3.10 says to take one before every migrating release.
+forward-only. If the bad release included a migration, restore the dump taken
+before it (section 3.11), then pin the old image.
 
 ---
 
 ## 7. Before handing it to the client
 
-- [ ] `npm run db:purge-test:apply` — the Playwright suite writes leads into
-      whatever database it points at, and the dashboard should open at zero
-      rather than at a few hundred fixtures
-- [ ] The admin password is not the seeded one. Better than changing it after:
-      set `SEED_ADMIN_PASSWORD` **before** running the seed, so `ChangeMe123!`
-      is never valid on that server at all. It is in the repository and
-      therefore public; the Team screen warns while any account still uses it
-- [ ] `AUTH_SECRET` is a real 32-byte value, not the development default
-- [ ] `NEXT_PUBLIC_SITE_URL` is the live origin — every OG image, canonical URL
-      and sitemap entry is built from it
+- [ ] `npm run db:purge-test:apply` has been run **before** the Neon dump, so
+      the dashboard opens with real rows only
+- [ ] The admin password is not the seeded one. `SEED_ADMIN_PASSWORD` was set
+      before any seed, and the Team screen shows no warning
+- [ ] `AUTH_SECRET`, `POSTGRES_PASSWORD` and `CRON_SECRET` are real
+      `openssl rand -hex 32` values, and `.env` is `chmod 600`
+- [ ] `NEXT_PUBLIC_SITE_URL` is `https://deanslist.live`
+- [ ] `docker compose ps` shows `app` healthy and `migrate` exited 0
 - [ ] `/admin/campaigns` shows no configuration warnings
-- [ ] `/api/cron/tick` returns 200 to a correct secret
+- [ ] `docker compose logs scheduler` shows `tick 200` lines
+- [ ] One image uploaded in the dashboard shows on the public page
 - [ ] One real submission through each public form appears in the dashboard
 - [ ] One real email send lands in an inbox, not in spam
-- [ ] `npm run audit:contrast` is clean
-- [ ] `npx playwright test` passes against the live origin:
-      `BASE_URL=https://deanslist.live npx playwright test`
-- [ ] A backup has been taken **and restored** into a scratch database
+- [ ] `BASE_URL=https://deanslist.live npx playwright test` passes. It also
+      covers every old Joomla redirect in `next.config.ts`
+- [ ] A database dump **and** an uploads archive have been restored, into a
+      scratch database and a scratch volume
+- [ ] The backups are being copied off the server
 - [ ] `robots.txt` and `/sitemap.xml` resolve on the live domain
-- [ ] The old Joomla URLs redirect — the suite covers every entry in
-      `next.config.ts`, so the run above proves it

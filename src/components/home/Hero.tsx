@@ -35,6 +35,15 @@ function localMedia(path: string | null | undefined): string | null {
   return path.replace(/\.[a-z0-9]+$/i, "");
 }
 
+/**
+ * The poster may also be a dashboard upload, which is always a still image
+ * with .webp and .jpg beside it. The clip may not: uploads are images only.
+ */
+function localPoster(path: string | null | undefined): string | null {
+  if (path?.startsWith("/uploads/")) return path.replace(/\.[a-z0-9]+$/i, "");
+  return localMedia(path);
+}
+
 export function Hero({
   show,
   winner,
@@ -45,7 +54,7 @@ export function Hero({
   statusLabel: string;
 }) {
   const clip = localMedia(show?.heroVideo) ?? DEFAULT_CLIP;
-  const poster = localMedia(show?.heroPoster) ?? clip;
+  const poster = localPoster(show?.heroPoster) ?? clip;
   const posterBase = mediaImage(poster);
   const clipBase = mediaVideo(clip);
 

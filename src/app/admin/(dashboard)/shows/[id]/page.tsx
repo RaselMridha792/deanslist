@@ -17,6 +17,7 @@ import {
   TextArea,
   toLocalInput,
 } from "@/components/admin/crud";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import {
   deleteEpisode,
   deleteShow,
@@ -447,12 +448,11 @@ export default async function ShowEditPage({ params, searchParams }: Props) {
             help={show.startsAt ? `Stored as ${show.startsAt.toISOString()}` : "When it airs."}
           />
 
-          <Field
+          <ImageUploadField
             label="Hero image"
             name="heroImageUrl"
             defaultValue={show.heroImageUrl}
-            span
-            help="A path under /media, or a full https:// link."
+            help="Or a path under /media with no file extension."
           />
 
           <Field

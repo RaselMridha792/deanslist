@@ -1,0 +1,37 @@
+# What never goes into the build context.
+#
+# Two reasons for every line here: the image should be small, and it must not
+# contain a secret. The second one is the one that matters. An image is cached,
+# copied and pushed to a registry, and anything COPY . . picks up is in it.
+
+# Secrets. The real .env stays on the machine it was written on.
+.env
+.env.*
+!.env.example
+!.env.docker.example
+
+# Rebuilt inside the image; copying them in would only be stale and large.
+node_modules
+.next
+out
+
+# Version control and CI.
+.git
+.github
+
+# Test output, screenshots and local logs.
+test-results
+playwright-report
+snapshots
+*.log
+coverage
+
+# Local-only notes.
+CLAUDE.md
+session.md
+
+# Runtime state on the server, which the app never reads from the image.
+# Uploads belong in the volume; a local ./uploads baked in would be shadowed by
+# it anyway, and could carry a developer's test images into production.
+backups
+uploads

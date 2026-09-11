@@ -1,0 +1,251 @@
+# Build the production image, prove it runs, then publish it.
+#
+# The VPS is one core. It can build this image, but slowly and only with swap,
+# and a build that runs out of memory halfway leaves the site on whatever was
+# there before — or on nothing, if the old container was already stopped. So
+# the image is built here, on GitHub's machines, and the server only ever pulls
+# a finished one.
+#
+# Nothing is pushed until the image has passed a smoke test against a real
+# Postgres: migrations apply, the server refuses to start without its secret,
+# the health check goes green, and every page a visitor can land on answers
+# 200. A broken image never reaches the registry, so `docker compose pull` on
+# the server can only ever fetch one that worked.
+#
+# Tags: `latest`, and `sha-<commit>` for every build. Pin the sha tag in the
+# server's .env to roll back.
+
+name: docker
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - "tests/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+# A newer push supersedes an older build still running.
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      # Public values: they end up in every page's JavaScript regardless.
+      # Repository variables override them without editing this file.
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://deanslist.live' }}
+      # Empty on purpose: the VPS serves the site's photos and clips from the
+      # image itself, not from Cloudinary, so there is no media account to hand
+      # over. Every photo carries its .avif and .webp beside the .jpg for that
+      # reason. Set these repository variables to put a CDN back in front.
+      NEXT_PUBLIC_MEDIA_IMAGE_BASE: ${{ vars.NEXT_PUBLIC_MEDIA_IMAGE_BASE || '' }}
+      NEXT_PUBLIC_MEDIA_VIDEO_BASE: ${{ vars.NEXT_PUBLIC_MEDIA_VIDEO_BASE || '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # GHCR rejects upper case, and the account name has it.
+      - name: Image name
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: deanslist:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ env.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_MEDIA_IMAGE_BASE=${{ env.NEXT_PUBLIC_MEDIA_IMAGE_BASE }}
+            NEXT_PUBLIC_MEDIA_VIDEO_BASE=${{ env.NEXT_PUBLIC_MEDIA_VIDEO_BASE }}
+
+      - name: Image size
+        run: docker image ls deanslist:ci --format '{{.Repository}}:{{.Tag}}  {{.Size}}'
+
+      # ------------------------------------------------------ smoke test
+      - name: Start Postgres
+        run: |
+          docker network create ci
+          docker run -d --name db --network ci \
+            -e POSTGRES_USER=deanslist -e POSTGRES_PASSWORD=ci -e POSTGRES_DB=deanslist \
+            postgres:18-alpine
+          for i in $(seq 1 30); do
+            docker exec db pg_isready -U deanslist -d deanslist && exit 0
+            sleep 2
+          done
+          echo "Postgres never became ready"; exit 1
+
+      - name: Migrations apply to an empty database
+        run: |
+          docker run --rm --network ci \
+            -e DATABASE_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public \
+            -e DIRECT_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public \
+            deanslist:ci node node_modules/prisma/build/index.js migrate deploy
+
+      # The property that matters most about the image: a container missing its
+      # session secret must refuse to start, not start and fail on a visitor.
+      - name: Refuses to start without AUTH_SECRET
+        run: |
+          docker run -d --name noauth --network ci \
+            -e DATABASE_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public \
+            -e DIRECT_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public \
+            deanslist:ci
+          for i in $(seq 1 30); do
+            if [ "$(docker inspect -f '{{.State.Running}}' noauth)" = "false" ]; then
+              code=$(docker inspect -f '{{.State.ExitCode}}' noauth)
+              docker logs noauth 2>&1 | tail -5
+              if [ "$code" != "0" ]; then echo "Refused to start, exit $code — correct"; exit 0; fi
+              echo "Stopped with exit 0, which hides the failure"; exit 1
+            fi
+            sleep 2
+          done
+          docker logs noauth 2>&1 | tail -20
+          echo "Still running after 60s without AUTH_SECRET"; exit 1
+
+      - name: Start the app
+        run: |
+          docker run -d --name app --network ci -p 3000:3000 \
+            -e DATABASE_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public \
+            -e DIRECT_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public \
+            -e AUTH_SECRET=$(openssl rand -hex 32) \
+            -e NEXT_PUBLIC_SITE_URL=${{ env.NEXT_PUBLIC_SITE_URL }} \
+            deanslist:ci
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:3000/api/health; then echo; exit 0; fi
+            sleep 2
+          done
+          docker logs app 2>&1 | tail -40
+          echo "Health check never went green"; exit 1
+
+      # Against an EMPTY database, deliberately: a fresh deploy starts that way
+      # until data is migrated in, and a page that crashes on no rows is a page
+      # that crashes on the first night.
+      - name: Every public landing page answers
+        run: |
+          fail=0
+          for path in / /about /shows /winners /campaigns /live /watch /enter /register \
+                      /join /sponsors /rules /contact /privacy /terms \
+                      /admin/login /robots.txt /sitemap.xml /api/health; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3000$path")
+            printf '%-14s %s\n' "$path" "$code"
+            [ "$code" = "200" ] || fail=1
+          done
+          if [ "$fail" = "1" ]; then docker logs app 2>&1 | tail -60; exit 1; fi
+
+      # Served from the image, not a CDN. One photo in each format the site
+      # asks for, plus a clip and the logo, so a missing variant fails here and
+      # not in a visitor's browser.
+      - name: Media is served from the image
+        run: |
+          fail=0
+          for path in /media/campaigns/watch-party-contest.jpg \
+                      /media/campaigns/watch-party-contest.avif \
+                      /media/campaigns/watch-party-contest.webp \
+                      /media/texture/bass.webm /media/brand/logo.png; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3000$path")
+            printf '%-46s %s\n' "$path" "$code"
+            [ "$code" = "200" ] || fail=1
+          done
+          exit $fail
+
+      # Dashboard uploads: sharp must load inside the image (it is a native
+      # module, and the standalone trace is what decides whether it ships), the
+      # non-root user must be able to write the uploads directory, and the app
+      # must serve what lands there. Caddy serves it in production; this is the
+      # app's own route, which sends the same headers.
+      - name: Uploads are written and served
+        run: |
+          docker exec app node -e "
+            const fs = require('fs');
+            fs.mkdirSync('/app/uploads/images', { recursive: true });
+            require('sharp')({ create: { width: 8, height: 8, channels: 3, background: '#c00' } })
+              .webp().toFile('/app/uploads/images/0123456789abcdef01234567.webp')
+              .then(() => console.log('sharp ok, written as', require('os').userInfo().username))
+              .catch((e) => { console.error(e); process.exit(1); });
+          "
+          curl -fsS -D - -o /dev/null http://127.0.0.1:3000/uploads/images/0123456789abcdef01234567.webp \
+            | tee /tmp/h | grep -qi '^content-type: image/webp' || { cat /tmp/h; exit 1; }
+          grep -qi '^x-content-type-options: nosniff' /tmp/h
+          for p in '/uploads/images/..%2f..%2fpackage.json' '/uploads/..%2fserver.js'; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3000$p")
+            echo "$p $code"; [ "$code" = "404" ] || exit 1
+          done
+          # The upload endpoint itself refuses anyone without a session.
+          code=$(curl -s -o /dev/null -w '%{http_code}' -F file=@/dev/null http://127.0.0.1:3000/api/admin/uploads)
+          echo "anonymous upload $code"; [ "$code" = "401" ]
+
+      # The two files Docker never parses until the server does. A typo in
+      # either would otherwise surface on the VPS, mid-deploy.
+      - name: Caddyfile and compose file are valid
+        run: |
+          docker run --rm -e SITE_ADDRESS=:80 -e ACME_EMAIL=ci@example.com \
+            -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2-alpine \
+            caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+          cp .env.docker.example .env
+          sed -i 's/^POSTGRES_PASSWORD=$/POSTGRES_PASSWORD=ci/' .env
+          docker compose config --quiet && echo "compose ok"
+          rm .env
+
+      - name: Container health reported by Docker
+        run: |
+          for i in $(seq 1 40); do
+            s=$(docker inspect -f '{{.State.Health.Status}}' app)
+            echo "health: $s"
+            [ "$s" = "healthy" ] && exit 0
+            sleep 3
+          done
+          exit 1
+
+      # --------------------------------------------------------- publish
+      - name: Log in to GHCR
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-,format=short
+
+      # Rebuilds from the cache the first build just filled, so this takes
+      # seconds and produces the same layers that were tested above.
+      - name: Push
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ env.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_MEDIA_IMAGE_BASE=${{ env.NEXT_PUBLIC_MEDIA_IMAGE_BASE }}
+            NEXT_PUBLIC_MEDIA_VIDEO_BASE=${{ env.NEXT_PUBLIC_MEDIA_VIDEO_BASE }}
+
+      - name: Logs on failure
+        if: failure()
+        run: |
+          docker logs app 2>&1 | tail -80 || true
+          docker logs db 2>&1 | tail -20 || true
