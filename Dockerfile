@@ -2,17 +2,18 @@
 #
 # The Dean's List site, as one image.
 #
-# Three stages, and the reason for each:
+# Four stages, and the reason for each:
 #
-#   deps     node_modules, with the Prisma client generated for THIS Linux.
-#            Kept separate so a code change does not reinstall every package.
-#   builder  `next build`, producing the standalone server.
-#   runner   what actually ships: the standalone output, static assets, the
-#            migrations and the Prisma CLI to apply them. No compiler, no
-#            devDependencies, no source.
+#   deps        node_modules, with the Prisma client generated for THIS Linux.
+#               Kept separate so a code change does not reinstall every package.
+#   prisma-cli  the Prisma CLI and everything it requires, installed on its own.
+#   builder     `next build`, producing the standalone server.
+#   runner      what actually ships: the standalone output, static assets, the
+#               migrations and the Prisma CLI to apply them. No compiler, no
+#               devDependencies, no source.
 #
 # The same image runs the app (`node server.js`) and the one-shot migration
-# (`node node_modules/prisma/build/index.js migrate deploy`). One image means
+# (`node prisma-cli/node_modules/prisma/build/index.js migrate deploy`). One image means
 # one thing to build, push, pull and roll back, and the migrations can never be
 # a different version from the code that expects them.
 #
@@ -40,6 +41,25 @@ COPY package.json package-lock.json ./
 # postinstall runs `prisma generate`, which needs the schema.
 COPY prisma ./prisma
 RUN npm ci --no-audit --no-fund
+
+# ------------------------------------------------------------ prisma-cli
+# The Prisma CLI, with its whole dependency tree, for the migrate service.
+#
+# Copying node_modules/prisma out of `deps` is not enough. The CLI requires
+# packages of its own (effect, c12 and more) that npm hoists to the top of the
+# tree beside everything else, and the first CI run of this image failed on
+# exactly that: "Cannot find module 'effect'". A clean install into a directory
+# of its own brings the CLI and what it needs, and nothing of the app's.
+#
+# Pinned to the version in package-lock.json, so migrations run with the same
+# Prisma that generated the client.
+FROM base AS prisma-cli
+WORKDIR /prisma-cli
+COPY package-lock.json /tmp/package-lock.json
+RUN version=$(node -p "require('/tmp/package-lock.json').packages['node_modules/prisma'].version") \
+ && echo '{"private":true}' > package.json \
+ && npm install --no-audit --no-fund "prisma@${version}" \
+ && rm /tmp/package-lock.json
 
 # --------------------------------------------------------------- builder
 FROM deps AS builder
@@ -80,12 +100,17 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# For the migrate service. The standalone trace includes the Prisma CLIENT the
-# server imports, but not the CLI or the schema engine, which nothing imports.
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
+# The generated Prisma client and its query engine for this Linux, copied in
+# full rather than trusting the standalone trace to have picked up the native
+# engine file: a missing engine fails at the first query, not at boot.
 COPY --from=deps --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=deps --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+
+# For the migrate service: the schema and migrations, and the CLI from its own
+# stage. Kept out of node_modules so it cannot shadow or be shadowed by the
+# packages the server resolves.
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=prisma-cli --chown=nextjs:nodejs /prisma-cli/node_modules ./prisma-cli/node_modules
 
 USER nextjs
 EXPOSE 3000

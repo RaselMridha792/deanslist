@@ -94,7 +94,7 @@ jobs:
           docker run --rm --network ci \
             -e DATABASE_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public \
             -e DIRECT_URL=postgresql://deanslist:ci@db:5432/deanslist?schema=public \
-            deanslist:ci node node_modules/prisma/build/index.js migrate deploy
+            deanslist:ci node prisma-cli/node_modules/prisma/build/index.js migrate deploy
 
       # The property that matters most about the image: a container missing its
       # session secret must refuse to start, not start and fail on a visitor.

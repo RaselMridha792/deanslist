@@ -58,7 +58,7 @@ services:
 
   migrate:
     <<: *app
-    command: ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
+    command: ["node", "prisma-cli/node_modules/prisma/build/index.js", "migrate", "deploy"]
     restart: "no"
     depends_on:
       db:
