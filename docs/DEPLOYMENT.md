@@ -215,17 +215,15 @@ making the repository private leaves the package exactly as it was. Pick one:
   `read:packages`:
   `echo "$TOKEN" | docker login ghcr.io -u RaselMridha792 --password-stdin`
 
-**Currently: the repository is private (2026-09-12) and the package is
-public**, and the server pulls anonymously. Worth knowing what that does and
-does not hide. It hides the git history, the issues and the TypeScript source.
-It does not hide the application itself: a published image carries the compiled
-server bundle and everything under `/public`, and anyone who knows the package
-name can pull it without an account. No credential is exposed either way — the
-image is built without secrets and reads them from the environment at run time.
+**Currently: the repository and the package are both public**, and the
+server pulls anonymously. (The repository was private for a day on 2026-09-12;
+the package did not follow it either way, because it is a separate setting.)
+No credential is in either: the image is built without secrets and reads them
+from the environment at run time.
 
-To close that too, make the package private in the same screen and log the
-server in with a `read:packages` token as above. Do it in that order: a server
-that cannot authenticate to a private package cannot deploy.
+To make the package private, log the server in with a `read:packages` token as
+above first, then change the visibility. The other order leaves a server that
+cannot authenticate to the package it deploys from.
 
 ### 3.5 The files on the server
 
