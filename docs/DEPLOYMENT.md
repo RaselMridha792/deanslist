@@ -360,7 +360,23 @@ are safe to overlap, or it can be disabled once the VPS is live.
 ### 3.11 Backups, with a restore that has been run
 
 The `backup` container writes `backups/deanslist-<date>.dump` and
-`backups/uploads-<date>.tar.gz` once a day and keeps 14 days of each. A backup
+`backups/uploads-<date>.tar.gz` once a day and keeps 14 days of each.
+
+Two details are deliberate. A dump that fails is retried five times a minute
+apart, because the usual reason it fails is that the database is restarting
+after a deploy, and without the retry that costs a whole day's backup. And the
+14-day rotation never deletes the newest file of either kind, however old it
+is: the question a backup answers is "is there still a copy", not "is this
+recent", and a directory emptied on schedule answers it the wrong way.
+
+Check that it is still running, and that the newest dump is a real one:
+
+```bash
+docker compose logs --tail 20 backup
+ls -lh backups/
+```
+
+`BACKUP FAILED` in that log means the day has no database dump. A backup
 on the same disk as the database only protects against mistakes, not against
 losing the disk, so copy the backups off the server, from another machine:
 

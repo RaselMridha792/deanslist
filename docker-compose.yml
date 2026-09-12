@@ -151,24 +151,53 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
+        log() { echo "$$(date -u +%FT%TZ) $$*"; }
+
+        # Delete what is older than 14 days, except the newest file of its kind.
+        # Age is not the question a backup asks; "is there still a copy" is. A
+        # deploy, a restart or a bad fortnight must never end with an empty
+        # directory because everything in it aged out on schedule.
+        prune() {
+          newest=$$(ls -1t /backups/$$1 2>/dev/null | head -1)
+          [ -n "$$newest" ] || return 0
+          # -name, not -samefile: find here is BusyBox, which has no -samefile.
+          find /backups -name "$$1" -mtime +14 ! -name "$$(basename "$$newest")" -delete
+        }
+
         while true; do
           f=/backups/deanslist-$$(date -u +%F-%H%M).dump
-          if pg_dump --format=custom --no-owner -f "$$f"; then
-            echo "$$(date -u +%FT%TZ) backup written $$f"
-          else
-            echo "$$(date -u +%FT%TZ) BACKUP FAILED"
+          n=0
+          while true; do
+            if pg_dump --format=custom --no-owner -f "$$f"; then
+              log "backup written $$f"
+              break
+            fi
             rm -f "$$f"
-          fi
+            n=$$((n+1))
+            # The database is the one thing here that cannot be rebuilt from
+            # the repository, and the usual reason a dump fails is that the
+            # server is restarting after a deploy. Five minutes of patience
+            # buys back a day's backup.
+            if [ "$$n" -ge 5 ]; then
+              log "BACKUP FAILED after $$n attempts"
+              break
+            fi
+            log "backup attempt $$n failed, retrying in 60s"
+            sleep 60
+          done
+
           # The uploads are the other thing that cannot be rebuilt: a
           # contestant's photo exists nowhere else once it is here.
           u=/backups/uploads-$$(date -u +%F-%H%M).tar.gz
           if tar -czf "$$u" -C /uploads .; then
-            echo "$$(date -u +%FT%TZ) uploads archived $$u"
+            log "uploads archived $$u"
           else
-            echo "$$(date -u +%FT%TZ) UPLOADS ARCHIVE FAILED"
+            log "UPLOADS ARCHIVE FAILED"
             rm -f "$$u"
           fi
-          find /backups \( -name 'deanslist-*.dump' -o -name 'uploads-*.tar.gz' \) -mtime +14 -delete
+
+          prune 'deanslist-*.dump'
+          prune 'uploads-*.tar.gz'
           sleep 86400
         done
     depends_on:
