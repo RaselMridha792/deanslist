@@ -57,12 +57,25 @@ disabled in the dashboard rather than silently broken.
 |---|---|---|
 | YouTube, Facebook, Instagram links | Footer, contact page, chat panel, `sameAs` in the Organization markup | The built-in links in `src/content/site.ts`; no Instagram button at all |
 | Meta Pixel ID | The public pages, behind the consent banner | No pixel, no banner, no request to Facebook |
+| Google Analytics Measurement ID | The HTML of every public page, in Consent Mode: no cookies until a visitor chooses Allow | No Google tag on the site |
 | Resend API key | Every email the site sends | `RESEND_API_KEY` from `.env`, or no sending |
 
 The Resend key is encrypted with a key derived from `AUTH_SECRET`, so a copied
 database or a stolen backup does not carry the mail account with it. **Changing
 `AUTH_SECRET` makes the saved key unreadable**; it has to be entered again on
 that screen. Nothing else in `Setting` is secret.
+
+**Settings reach every public page because the public layout renders per
+request** (`dynamic = "force-dynamic"` in `src/app/(site)/layout.tsx`). A page
+pre-rendered during the Docker build has no database to read, so it would carry
+no settings at all, and would lose them again on every deploy. That is how
+`/join` and `/privacy` first went live without the Google tag. Keep the layout
+dynamic, and check `x-nextjs-cache` is absent on a new public page.
+
+A setting written straight into the database, rather than saved on the screen,
+skips the cache refresh the Save button performs. With the layout dynamic that
+no longer matters for the public pages; the in-app settings cache still holds a
+value for up to 15 seconds.
 
 **A note on `CRON_SECRET`.** It fails closed on purpose. An unconfigured
 scheduler that returned 200 would look healthy while sending nothing, and an

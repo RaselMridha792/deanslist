@@ -70,7 +70,7 @@ not a gap.
 
 ## 2. The client enters these without us
 
-New since the last version of this page. These three used to require a
+New since the last version of this page. These used to require a
 developer, a code change and a deploy. They are now fields on
 **Dashboard → Settings**, which only the owner account can open. Type a value,
 press Save, and the public site changes. Leave a field empty and the site falls
@@ -102,6 +102,23 @@ accept the consent banner, which is what the privacy page promises. Decline, and
 nothing is requested from Facebook at all. The privacy page rewrites its own
 Cookies section as soon as an ID exists, so it always describes what the site is
 actually doing.
+
+### 2.4 Google Analytics
+
+Live since 2026-09-13 with the client's property, `G-7NBGLE6F21`, saved on the
+same screen, where it can be changed or removed. Pasting the whole Google tag
+snippet works: the ID is taken out of it.
+
+The tag is in the HTML of every public page, which is what Google's
+installation check looks for. It starts with analytics cookies denied, so
+Google receives an anonymous page view from everyone but sets cookies only for
+visitors who choose Allow on the banner. Checked on the live site: no `_ga`
+cookie before a choice, `_ga` and `_ga_7NBGLE6F21` after Allow, and every hit
+addressed to this property. Dashboard pages are not tagged.
+
+The reports are in Google Analytics itself, at analytics.google.com. Expect
+their visitor numbers to run below the real total, because visitors who never
+answer the banner are estimated by Google rather than counted.
 
 > The YouTube and Facebook links are on the same screen, so the client can
 > change those without us as well.
