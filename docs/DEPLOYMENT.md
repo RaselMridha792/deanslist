@@ -204,7 +204,8 @@ docker version && docker compose version
 
 ### 3.4 Pulling the image
 
-GHCR packages start private even when the repository is public. Pick one:
+A package's visibility is its own setting, separate from the repository's:
+making the repository private leaves the package exactly as it was. Pick one:
 
 - **Make the package public.** GitHub → the repository → Packages →
   `deanslist` → Package settings → Change visibility → Public. The image holds
@@ -213,6 +214,18 @@ GHCR packages start private even when the repository is public. Pick one:
 - **Keep it private** and log the server in once, with a token that has only
   `read:packages`:
   `echo "$TOKEN" | docker login ghcr.io -u RaselMridha792 --password-stdin`
+
+**Currently: the repository is private (2026-09-12) and the package is
+public**, and the server pulls anonymously. Worth knowing what that does and
+does not hide. It hides the git history, the issues and the TypeScript source.
+It does not hide the application itself: a published image carries the compiled
+server bundle and everything under `/public`, and anyone who knows the package
+name can pull it without an account. No credential is exposed either way — the
+image is built without secrets and reads them from the environment at run time.
+
+To close that too, make the package private in the same screen and log the
+server in with a `read:packages` token as above. Do it in that order: a server
+that cannot authenticate to a private package cannot deploy.
 
 ### 3.5 The files on the server
 
