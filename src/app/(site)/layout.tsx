@@ -25,7 +25,17 @@ import { getGoogleAnalyticsId, getMetaPixelId, getSiteLinks } from "@/lib/settin
  * here, once per render, and handed down. All are set in the dashboard
  * (/admin/settings), so the client can change a link or turn measurement on
  * without a deploy.
+ *
+ * Rendered on every request, which is what makes that true. Reading the
+ * database does not by itself stop Next.js from pre-rendering a page at build
+ * time, and a page pre-rendered inside the Docker build has no database and so
+ * no settings: /join and /privacy shipped without the Google tag, and would
+ * have lost an Instagram link or a pixel the same way on every deploy until
+ * someone happened to press Save. Every other public page already rendered per
+ * request, so this costs nothing that was being saved.
  */
+export const dynamic = "force-dynamic";
+
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [links, pixelId, gaId] = await Promise.all([
     getSiteLinks(),
