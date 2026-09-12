@@ -37,14 +37,29 @@ async function prisma() {
   return new PrismaClient();
 }
 
+/**
+ * Start each test from no settings at all.
+ *
+ * Retried once because the developer database is serverless and suspends when
+ * idle: the first query of a run can arrive while it is still waking and come
+ * back as a connection error. That failure is the database's schedule, not the
+ * code under test, and a red run blamed on it costs more to read than the one
+ * extra attempt costs to make. A second failure is reported as it happened.
+ */
 async function clearSettings() {
-  const db = await prisma();
-  try {
-    await db.setting.deleteMany({
-      where: { key: { in: ["social.instagram", "meta.pixelId", "mail.resendApiKey"] } },
-    });
-  } finally {
-    await db.$disconnect();
+  for (let attempt = 1; ; attempt++) {
+    const db = await prisma();
+    try {
+      await db.setting.deleteMany({
+        where: { key: { in: ["social.instagram", "meta.pixelId", "mail.resendApiKey"] } },
+      });
+      return;
+    } catch (error) {
+      if (attempt === 2) throw error;
+      await new Promise((r) => setTimeout(r, 3000));
+    } finally {
+      await db.$disconnect();
+    }
   }
 }
 
