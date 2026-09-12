@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/site/PageHero";
 import { SITE } from "@/content/site";
-import { getMetaPixelId } from "@/lib/settings";
+import { getGoogleAnalyticsId, getMetaPixelId } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -69,34 +69,54 @@ const SECTIONS = [
   },
   {
     heading: "Cookies",
-    body: [
-      "This site sets one cookie, and only for signed-in administrators: a session cookie that keeps them logged in to the dashboard.",
-      "The public site sets no advertising or analytics cookies. If analytics is added later, it will be behind a consent banner and this page will be updated first.",
-    ],
+    // Replaced on every render by cookieParagraphs(), which reads what is
+    // switched on in the dashboard. Kept here so the heading stays in order.
+    body: [],
   },
 ];
 
 /**
- * What the Cookies section says once ad measurement is switched on in the
- * dashboard. The promise in the paragraph above is kept literally: the pixel
- * loads on consent and not before, so this page describes what is actually
- * happening rather than what might.
+ * The Cookies section, written for the site as it is configured right now.
+ *
+ * Google Analytics and the Meta Pixel are each switched on by an id in the
+ * dashboard, so what this section has to say changes without a deploy. It is
+ * assembled from what is actually on, which keeps it true in every combination
+ * rather than true for the combination someone remembered to update.
  */
-const COOKIES_WITH_PIXEL = [
-  "This site sets one cookie, and only for signed-in administrators: a session cookie that keeps them logged in to the dashboard.",
-  "For advertising we use the Meta Pixel, which tells us which ads bring performers here. It loads only if you choose Allow on the banner. Choose No thanks and nothing is loaded: no pixel, no request to Facebook, no advertising cookie.",
-  "Your choice is remembered in your own browser. Clearing your browsing data asks you again.",
-  "The pixel reports page views. It is never given your name, email or anything you type into a form, and we do not sell or share your details with advertisers.",
-];
+function cookieParagraphs(gaOn: boolean, pixelOn: boolean): string[] {
+  const paragraphs = [
+    "This site sets one cookie of its own, and only for signed-in administrators: a session cookie that keeps them logged in to the dashboard.",
+  ];
+
+  if (!gaOn && !pixelOn) {
+    paragraphs.push(
+      "The public site sets no advertising or analytics cookies. If either is switched on, its cookies will wait for your consent and this page will say so.",
+    );
+    return paragraphs;
+  }
+
+  if (gaOn) {
+    paragraphs.push(
+      "We use Google Analytics to see which pages people read and how they find the site. Its code is on every page, but until you choose Allow on the banner it runs in a restricted mode: it sets no cookies, cannot recognise you from one visit to the next, and sends Google only an anonymous record of the page viewed and basic details of your browser and device.",
+      "If you choose Allow, Google Analytics may set cookies that let it recognise a returning visitor. It is not connected to any advertising, and it is never given your name, email or anything you type into a form.",
+    );
+  }
+
+  if (pixelOn) {
+    paragraphs.push(
+      "For advertising we use the Meta Pixel, which tells us which ads bring performers here. It loads only if you choose Allow on the banner. Choose No thanks and nothing is loaded: no pixel, no request to Facebook, no advertising cookie.",
+      "The pixel reports page views. It is never given your name, email or anything you type into a form, and we do not sell or share your details with advertisers.",
+    );
+  }
+
+  paragraphs.push("Your choice is remembered in your own browser. Clearing your browsing data asks you again.");
+  return paragraphs;
+}
 
 export default async function PrivacyPage() {
-  // The Cookies section describes the site as it is configured right now: with
-  // a Meta Pixel id saved in the dashboard, it says so; without one, it says
-  // there is no advertising cookie, which is then true.
-  const pixelOn = Boolean(await getMetaPixelId());
-  const sections = SECTIONS.map((s) =>
-    s.heading === "Cookies" && pixelOn ? { ...s, body: COOKIES_WITH_PIXEL } : s,
-  );
+  const [gaId, pixelId] = await Promise.all([getGoogleAnalyticsId(), getMetaPixelId()]);
+  const cookies = cookieParagraphs(Boolean(gaId), Boolean(pixelId));
+  const sections = SECTIONS.map((s) => (s.heading === "Cookies" ? { ...s, body: cookies } : s));
 
   return (
     <>

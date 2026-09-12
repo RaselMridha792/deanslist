@@ -4,8 +4,9 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Launcher } from "@/components/site/Launcher";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { GoogleTag } from "@/components/site/GoogleTag";
 import { TrackingConsent } from "@/components/site/TrackingConsent";
-import { getMetaPixelId, getSiteLinks } from "@/lib/settings";
+import { getGoogleAnalyticsId, getMetaPixelId, getSiteLinks } from "@/lib/settings";
 
 /**
  * The public site's shell.
@@ -13,20 +14,28 @@ import { getMetaPixelId, getSiteLinks } from "@/lib/settings";
  * Everything a visitor sees lives in this route group; /admin and /api sit
  * outside it and get none of this chrome. The engagement centre mounts here
  * rather than in the root layout for the same reason — a floating "enter the
- * contest" widget over the leads dashboard would be absurd.
+ * contest" widget over the leads dashboard would be absurd. The Google tag is
+ * here and not in the root layout for that reason too: dashboard pages, with
+ * lead ids in their addresses, are not reported to Google.
  *
  * Launcher owns where and when the widget appears: hidden on /enter and
  * /thank-you, and on the homepage only after the hero has scrolled past.
  *
- * The channel links and the Meta Pixel id are read here, once per render, and
- * handed down. Both are set in the dashboard (/admin/settings), so the client
- * can change a link or turn ad measurement on without a deploy.
+ * The channel links, the Meta Pixel id and the Google Analytics id are read
+ * here, once per render, and handed down. All are set in the dashboard
+ * (/admin/settings), so the client can change a link or turn measurement on
+ * without a deploy.
  */
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const [links, pixelId] = await Promise.all([getSiteLinks(), getMetaPixelId()]);
+  const [links, pixelId, gaId] = await Promise.all([
+    getSiteLinks(),
+    getMetaPixelId(),
+    getGoogleAnalyticsId(),
+  ]);
 
   return (
     <>
+      {gaId && <GoogleTag id={gaId} />}
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:border-2 focus:border-brand focus:bg-brand focus:px-5 focus:py-2 focus:text-btn focus:font-extrabold focus:uppercase focus:text-white"
@@ -46,12 +55,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <ChatWidget links={links} />
       </Launcher>
 
-      {/* No pixel id, no banner and no tracking code at all. MetaPixel reads
-          the search params to count client-side navigations, so it needs a
-          Suspense boundary of its own. */}
-      {pixelId && (
+      {/* No ids, no banner. MetaPixel reads the search params to count
+          client-side navigations, so it needs a Suspense boundary of its own. */}
+      {(pixelId || gaId) && (
         <Suspense fallback={null}>
-          <TrackingConsent pixelId={pixelId} />
+          <TrackingConsent pixelId={pixelId} gaId={gaId} />
         </Suspense>
       )}
     </>

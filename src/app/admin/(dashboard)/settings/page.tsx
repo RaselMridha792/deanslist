@@ -33,7 +33,7 @@ export default async function SiteSettingsPage() {
     <>
       <AdminPageHeader
         title="Site settings"
-        description="Links, the ad pixel and the email key. Changes are live as soon as they save — no developer, no deploy."
+        description="Links, measurement and the email key. Changes are live as soon as they save — no developer, no deploy."
       />
 
       <div className="card mt-8 max-w-3xl p-7">
@@ -97,6 +97,30 @@ export default async function SiteSettingsPage() {
               values["meta.pixelId"]
                 ? "Set here. The pixel is live on the public pages."
                 : "Not set, so no pixel is loaded."
+            }
+          />
+
+          <div className="sm:col-span-2 border-t-2 border-admin-line pt-6">
+            <p className="eyebrow">Google Analytics</p>
+            <p className="mt-2 max-w-[70ch] text-sm text-admin-muted">
+              The Measurement ID from Google Analytics, under Admin, Data streams. It starts
+              with G-. Pasting the whole Google tag snippet works too: the ID is taken out of
+              it. With it set, the Google tag is on every public page and sets cookies only
+              for visitors who choose Allow. The reports themselves are at
+              analytics.google.com.
+            </p>
+          </div>
+
+          <Field
+            label="Google Analytics Measurement ID"
+            name="gaId"
+            span
+            defaultValue={values["google.analyticsId"] ?? ""}
+            placeholder="G-XXXXXXXXXX"
+            help={
+              values["google.analyticsId"]
+                ? "Set here. The Google tag is on the public pages."
+                : "Not set, so the Google tag is not on the site."
             }
           />
 

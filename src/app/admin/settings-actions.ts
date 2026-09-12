@@ -46,6 +46,15 @@ const schema = z.object({
     .string()
     .trim()
     .refine((v) => v === "" || /^[0-9]{10,20}$/.test(v), "The Meta Pixel ID is a number, 10 to 20 digits. Copy it from Events Manager."),
+  // A Measurement ID is G- and then letters and digits. People copy the whole
+  // Google tag snippet from the setup screen rather than the ID inside it, so
+  // the ID is taken out of whatever was pasted. A UA- id is the old Universal
+  // Analytics, which Google switched off in 2024, and is refused.
+  gaId: z
+    .string()
+    .trim()
+    .transform((v) => (v.match(/G-[A-Z0-9]{4,20}/)?.[0] ?? v).toUpperCase())
+    .refine((v) => v === "" || /^G-[A-Z0-9]{4,20}$/.test(v), "The Google Analytics ID looks like G-XXXXXXXXXX. Copy the Measurement ID from Admin > Data streams in Google Analytics."),
   // Resend keys look like re_xxxxxxxx. Checking the shape catches a pasted
   // webhook secret or a truncated copy before the first send fails.
   resendApiKey: z
@@ -63,6 +72,7 @@ export async function saveSiteSettings(formData: FormData): Promise<ActionResult
     facebook: String(formData.get("facebook") ?? ""),
     instagram: String(formData.get("instagram") ?? ""),
     pixelId: String(formData.get("pixelId") ?? ""),
+    gaId: String(formData.get("gaId") ?? ""),
     resendApiKey: String(formData.get("resendApiKey") ?? ""),
     clearResendApiKey: formData.get("clearResendApiKey") === "on",
   });
@@ -84,6 +94,7 @@ export async function saveSiteSettings(formData: FormData): Promise<ActionResult
     "social.facebook": d.facebook === "" ? null : d.facebook,
     "social.instagram": d.instagram === "" ? null : d.instagram,
     "meta.pixelId": d.pixelId === "" ? null : d.pixelId,
+    "google.analyticsId": d.gaId === "" ? null : d.gaId,
   };
 
   if (d.clearResendApiKey) changes["mail.resendApiKey"] = null;
@@ -96,7 +107,7 @@ export async function saveSiteSettings(formData: FormData): Promise<ActionResult
     return { ok: false, error: "Could not save. Try again, and tell the developer if it keeps failing." };
   }
 
-  // The links and the pixel are in the layout, so every page carries them.
+  // The links, the pixel and the Google tag are in the layout, so every page carries them.
   revalidatePath("/", "layout");
   revalidatePath("/admin/settings");
   return { ok: true };

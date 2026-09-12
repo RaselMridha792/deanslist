@@ -6,9 +6,9 @@ import { SITE } from "@/content/site";
 /**
  * Configuration the client owns.
  *
- * Social links, the Meta Pixel id and the Resend key used to live in the code
- * and in .env, so changing one meant a developer, a commit and a deploy. They
- * are rows now, edited on /admin/settings.
+ * Social links, the Meta Pixel id, the Google Analytics id and the Resend key
+ * used to live in the code and in .env, so changing one meant a developer, a
+ * commit and a deploy. They are rows now, edited on /admin/settings.
  *
  * Two rules hold the whole thing together:
  *
@@ -31,6 +31,7 @@ export type SettingKey =
   | "social.facebook"
   | "social.instagram"
   | "meta.pixelId"
+  | "google.analyticsId"
   | "mail.resendApiKey";
 
 export const SETTING_KEYS: readonly SettingKey[] = [
@@ -38,6 +39,7 @@ export const SETTING_KEYS: readonly SettingKey[] = [
   "social.facebook",
   "social.instagram",
   "meta.pixelId",
+  "google.analyticsId",
   "mail.resendApiKey",
 ] as const;
 
@@ -219,6 +221,18 @@ export async function getSiteLinks(): Promise<SiteLinks> {
 /** The Meta Pixel id, or null. Null means no tracking code is rendered at all. */
 export async function getMetaPixelId(): Promise<string | null> {
   return (await getSettings())["meta.pixelId"] ?? null;
+}
+
+/**
+ * The Google Analytics measurement id (G-XXXXXXXXXX), or null. Null means the
+ * Google tag is not on the page at all.
+ */
+export async function getGoogleAnalyticsId(): Promise<string | null> {
+  const id = (await getSettings())["google.analyticsId"];
+  // Checked again on the way out, not only when saved: the id is written into
+  // an inline script, and a row edited straight in the database must not be
+  // able to put anything else there.
+  return id && /^G-[A-Z0-9]{4,20}$/.test(id) ? id : null;
 }
 
 /** The mail key: the dashboard's if there is one, otherwise .env. */

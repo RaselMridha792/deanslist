@@ -21,6 +21,9 @@ const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? "ChangeMe123!";
 const INSTAGRAM = "https://www.instagram.com/deanslistllc";
 const PIXEL_ID = "1234567890123456";
 const RESEND_KEY = "re_test_only_0123456789";
+const GA_ID = "G-TEST123456";
+/** What people actually paste: the snippet from Google's setup screen, not the id. */
+const GA_SNIPPET = `<script async src="https://www.googletagmanager.com/gtag/js?id=${GA_ID}"></script>`;
 
 test.skip(!IS_LOCAL, "writes settings rows; local server only");
 
@@ -51,7 +54,7 @@ async function clearSettings() {
     const db = await prisma();
     try {
       await db.setting.deleteMany({
-        where: { key: { in: ["social.instagram", "meta.pixelId", "mail.resendApiKey"] } },
+        where: { key: { in: ["social.instagram", "meta.pixelId", "google.analyticsId", "mail.resendApiKey"] } },
       });
       return;
     } catch (error) {
@@ -213,4 +216,81 @@ test("the mail key is stored encrypted and never shown again", async ({ page }) 
   const html = await page.content();
   expect(html).not.toContain(RESEND_KEY);
   await expect(page.getByText(/Saved \(re_/)).toBeVisible();
+});
+
+test("the Google tag is in the page, with cookies denied until someone allows them", async ({ page }) => {
+  // The tag's own script is Google's; what is under test is what this site
+  // tells it. Blocking the download leaves the commands queued in dataLayer,
+  // where they can be read.
+  await page.route("**://www.googletagmanager.com/**", (route) => route.abort());
+
+  await signIn(page);
+  expect(
+    await save(page, async (p) => {
+      await p.locator("#f-gaId").fill(GA_SNIPPET);
+    }),
+  ).toBe("saved");
+
+  const db = await prisma();
+  try {
+    const row = await db.setting.findUnique({ where: { key: "google.analyticsId" } });
+    expect(row?.value, "the id is taken out of the pasted snippet").toBe(GA_ID);
+  } finally {
+    await db.$disconnect();
+  }
+
+  // In the HTML itself, because that is where Google's setup check looks.
+  const html = await (await page.request.get("/")).text();
+  expect(html).toContain(`googletagmanager.com/gtag/js?id=${GA_ID}`);
+
+  type Command = [string, string, Record<string, string>?];
+  const consent = (kind: "default" | "update") =>
+    page.evaluate((k) => {
+      const layer = (window as unknown as { dataLayer?: Command[] }).dataLayer ?? [];
+      const hit = [...layer].reverse().find((c) => c[0] === "consent" && c[1] === k);
+      return hit?.[2]?.analytics_storage ?? null;
+    }, kind);
+
+  // No answer yet: denied, and the banner asks about analytics.
+  await page.goto("/");
+  expect(await consent("default")).toBe("denied");
+  const banner = page.getByRole("region", { name: /analytics cookies/i });
+  await expect(banner).toBeVisible();
+
+  // Allow updates the tag at once, without a reload.
+  await banner.getByRole("button", { name: "Allow", exact: true }).click();
+  await expect(banner).toBeHidden();
+  expect(await consent("update")).toBe("granted");
+
+  // And a returning visitor starts granted, from the first hit.
+  await page.reload();
+  expect(await consent("default")).toBe("granted");
+
+  await page.goto("/privacy");
+  await expect(page.getByText(/Google Analytics/).first()).toBeVisible();
+});
+
+test("an earlier yes to the pixel does not cover Google Analytics", async ({ page }) => {
+  await page.route("**://www.googletagmanager.com/**", (route) => route.abort());
+  await signIn(page);
+  expect(
+    await save(page, async (p) => {
+      await p.locator("#f-gaId").fill(GA_ID);
+    }),
+  ).toBe("saved");
+
+  // The value stored before tools were recorded: a bare yes, given to the pixel.
+  await page.goto("/");
+  await page.evaluate(() => window.localStorage.setItem("dl_ads_consent", "granted"));
+  await page.reload();
+
+  await expect(page.getByRole("region", { name: /analytics cookies/i })).toBeVisible();
+  const storage = await page.evaluate(() => {
+    const layer = (window as unknown as { dataLayer?: unknown[][] }).dataLayer ?? [];
+    const hit = layer.find((c) => c[0] === "consent" && c[1] === "default") as
+      | [string, string, Record<string, string>]
+      | undefined;
+    return hit?.[2]?.analytics_storage;
+  });
+  expect(storage).toBe("denied");
 });
