@@ -17,6 +17,7 @@ const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
     title: null,
     items: [
       { href: "/admin", label: "Overview", minRole: "REVIEWER" },
+      { href: "/admin/analytics", label: "Analytics", minRole: "EDITOR" },
       { href: "/admin/leads", label: "Leads & Entries", minRole: "REVIEWER" },
     ],
   },

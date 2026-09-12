@@ -36,6 +36,11 @@ coverage
 # live in a Docker volume, never in the repository.
 /uploads
 
+# Country lookup database for the visitor statistics, downloaded by
+# scripts/fetch-geo.mjs (npm run geo:fetch). About 8 MB, refreshed monthly,
+# and fetched into the image at build time, so never committed.
+/geo
+
 # misc
 *.log
 npm-debug.log*

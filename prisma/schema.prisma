@@ -94,7 +94,6 @@ model Episode {
   @@index([showId])
 }
 
-
 /// A campaign with a public page: a contest, a call for entries, a promotion
 /// that runs alongside a show. The client runs several at once and changes them
 /// week to week, so they are rows rather than pages in the codebase.
@@ -111,7 +110,7 @@ model Promotion {
   title String
 
   /// Small label above the title. "Dean's List presents", "Running now".
-  kicker String?
+  kicker  String?
   /// The line the poster ends on. "Host it. Snap it. Post it."
   tagline String?
   /// One or two sentences. This is what the index card shows, so it is required
@@ -119,7 +118,7 @@ model Promotion {
   /// card, and a blank card is worse than no card.
   summary String
   /// The full description. Blank lines separate paragraphs.
-  body String?
+  body    String?
 
   /// How it works, as numbered steps.
   ///
@@ -148,10 +147,10 @@ model Promotion {
   showId String?
   show   Show?   @relation(fields: [showId], references: [id], onDelete: SetNull)
 
-  startsAt DateTime?
-  endsAt   DateTime?
+  startsAt  DateTime?
+  endsAt    DateTime?
   /// Lower sorts first. Ties break on createdAt, newest first.
-  sortOrder Int @default(0)
+  sortOrder Int       @default(0)
 
   /// ------------------------------------------------------------- entries
   ///
@@ -280,12 +279,12 @@ model Lead {
   /// form requires both, so without somewhere to store them the site was
   /// collecting a legal permission and discarding it — leaving nothing to point
   /// at if an entrant later says they never agreed.
-  rulesAcceptedAt     DateTime?
-  broadcastConsentAt  DateTime?
+  rulesAcceptedAt    DateTime?
+  broadcastConsentAt DateTime?
 
-  ipAddress   String?
-  userAgent   String?
-  referrer    String?
+  ipAddress String?
+  userAgent String?
+  referrer  String?
 
   /// Where the entry came from.
   ///
@@ -311,7 +310,7 @@ model Lead {
   /// Kept because a server-side conversion event needs it to match a lead back
   /// to the click that produced it, which is what recovers the conversions an
   /// ad blocker or iOS eats before the browser pixel can fire.
-  clickId     String?
+  clickId String?
 
   internalNotes String?
 
@@ -716,6 +715,66 @@ model Setting {
   /// Who last changed it, for the audit trail the dashboard shows.
   updatedBy String?
   updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------- analytics
+
+/// One page view on the public site, as the analytics screen counts it.
+///
+/// Built to answer "how many people, from where, reading what" without holding
+/// anything that identifies a person. There is no IP address, no cookie id and
+/// no user agent string here. See src/lib/analytics/collect.ts for how each
+/// column is derived and docs/DEPLOYMENT.md for what the privacy page promises.
+model PageView {
+  /// An integer rather than a cuid: this is the table that grows, and nothing
+  /// ever looks a row up by id.
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  /// The pathname only. The query string is never stored (it can carry an
+  /// email address or a token), and token-bearing paths are collapsed to
+  /// their route, so /unsubscribe/abc123 is stored as /unsubscribe/[token].
+  path String
+
+  /// sha256 of a daily random salt, the address and the browser string. It
+  /// counts one visitor once per day. The salt is deleted when the day ends,
+  /// after which no one, including us, can connect a hash to an address or
+  /// yesterday's hash to today's.
+  visitorHash String
+
+  /// The first page of a visit: where someone arrived. Sources and campaigns
+  /// are counted on these rows only, so a visitor who reads five pages is one
+  /// arrival from Facebook, not five.
+  isEntry Boolean @default(false)
+
+  /// "Google", "Facebook", "Direct", or a hostname. Entry rows only.
+  source       String?
+  referrerHost String?
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+
+  /// ISO 3166-1 alpha-2, looked up on this server. Null when unknown.
+  country String?
+  /// mobile | tablet | desktop
+  device  String
+  browser String?
+  os      String?
+
+  @@index([createdAt])
+  @@index([isEntry, createdAt])
+}
+
+/// Today's salt for PageView.visitorHash, and never more than today's.
+///
+/// A row per day, created on the first visit of the day in New York time and
+/// deleted when the next day's row is made. Keeping yesterday's salt would let
+/// anyone holding the database test a guessed address against yesterday's
+/// visits; without it the hashes are just numbers.
+model AnalyticsSalt {
+  day       String   @id // YYYY-MM-DD, America/New_York
+  salt      String
+  createdAt DateTime @default(now())
 }
 
 // ---------------------------------------------------------------- audit

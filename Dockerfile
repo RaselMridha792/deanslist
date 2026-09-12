@@ -2,11 +2,12 @@
 #
 # The Dean's List site, as one image.
 #
-# Four stages, and the reason for each:
+# Five stages, and the reason for each:
 #
 #   deps        node_modules, with the Prisma client generated for THIS Linux.
 #               Kept separate so a code change does not reinstall every package.
 #   prisma-cli  the Prisma CLI and everything it requires, installed on its own.
+#   geo         the country database behind the visitor statistics.
 #   builder     `next build`, producing the standalone server.
 #   runner      what actually ships: the standalone output, static assets, the
 #               migrations and the Prisma CLI to apply them. No compiler, no
@@ -61,6 +62,23 @@ RUN version=$(node -p "require('/tmp/package-lock.json').packages['node_modules/
  && npm install --no-audit --no-fund "prisma@${version}" \
  && rm /tmp/package-lock.json
 
+# ------------------------------------------------------------------- geo
+# DB-IP's free country database, for the analytics screen's Countries table.
+# See scripts/fetch-geo.mjs for why it is a file here and not an API call.
+#
+# GEO_MONTH is passed by the workflow and changes once a month. That is what
+# refreshes the file: builds are cached, and without an argument that changes,
+# this layer would keep the first month's database indefinitely.
+#
+# A failed download does not fail the build. The site then records visits with
+# no country, and the analytics screen says the lookup is missing. An outage at
+# DB-IP should never be the thing that stops a deploy.
+FROM base AS geo
+ARG GEO_MONTH=
+WORKDIR /geo
+COPY scripts/fetch-geo.mjs ./
+RUN mkdir -p out && (GEO_MONTH="$GEO_MONTH" node fetch-geo.mjs out/dbip-country-lite.mmdb || echo "geo: building without a country database")
+
 # --------------------------------------------------------------- builder
 FROM deps AS builder
 COPY . .
@@ -111,6 +129,10 @@ COPY --from=deps --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/
 # packages the server resolves.
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=prisma-cli --chown=nextjs:nodejs /prisma-cli/node_modules ./prisma-cli/node_modules
+
+# The country database, or an empty folder if it could not be fetched.
+# src/lib/analytics/geo.ts reads it from ./geo.
+COPY --from=geo --chown=nextjs:nodejs /geo/out ./geo
 
 USER nextjs
 EXPOSE 3000

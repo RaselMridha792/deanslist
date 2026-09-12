@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { Launcher } from "@/components/site/Launcher";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { GoogleTag } from "@/components/site/GoogleTag";
+import { PageViewBeacon } from "@/components/site/PageViewBeacon";
 import { TrackingConsent } from "@/components/site/TrackingConsent";
 import { getGoogleAnalyticsId, getMetaPixelId, getSiteLinks } from "@/lib/settings";
 
@@ -57,6 +58,10 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Suspense fallback={null}>
         <CaptureAttribution />
       </Suspense>
+
+      {/* Counts the page for the dashboard's analytics. No cookie and nothing
+          stored on the device, so it runs for everyone without the banner. */}
+      <PageViewBeacon />
 
       <SiteHeader />
       <main id="main">{children}</main>

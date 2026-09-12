@@ -68,6 +68,15 @@ const SECTIONS = [
     ],
   },
   {
+    heading: "Visitor statistics",
+    body: [
+      "We count visits to this site ourselves, to see which pages people read and how they find us. This uses no cookies and stores nothing on your device, so it runs for everyone without asking.",
+      "For each page viewed we keep: the page address, never including anything after a question mark; the website that sent you, if there was one; any campaign tags in the link you followed; your country; whether you used a phone, tablet or computer; and the name of your browser and operating system, without version numbers.",
+      "We do not keep your IP address. It is used for a moment to look up your country, in a database held on our own server, and together with your browser details and a random value that changes every day, to make a code that lets us count one visitor once per day. The random value is deleted when the day ends, after which that code cannot be connected to you or to your other visits, even by us.",
+      "Visits by automated software, and by our team while signed in to the dashboard, are not counted. These statistics are seen only by the Dean's List team, are kept for two years, and are never shared or sold.",
+    ],
+  },
+  {
     heading: "Cookies",
     // Replaced on every render by cookieParagraphs(), which reads what is
     // switched on in the dashboard. Kept here so the heading stays in order.

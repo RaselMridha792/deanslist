@@ -35,3 +35,6 @@ session.md
 # it anyway, and could carry a developer's test images into production.
 backups
 uploads
+
+# A local copy of the country database. The image fetches its own.
+geo

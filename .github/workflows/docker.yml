@@ -60,6 +60,12 @@ jobs:
 
       - uses: docker/setup-buildx-action@v4
 
+      # The country database is downloaded inside the build, and the build is
+      # cached. Passing the month changes that one layer's cache key once a
+      # month, so the file stays current without rebuilding anything else.
+      - name: Country data month
+        run: echo "GEO_MONTH=$(date -u +%Y-%m)" >> "$GITHUB_ENV"
+
       - name: Build
         uses: docker/build-push-action@v7
         with:
@@ -72,6 +78,7 @@ jobs:
             NEXT_PUBLIC_SITE_URL=${{ env.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_MEDIA_IMAGE_BASE=${{ env.NEXT_PUBLIC_MEDIA_IMAGE_BASE }}
             NEXT_PUBLIC_MEDIA_VIDEO_BASE=${{ env.NEXT_PUBLIC_MEDIA_VIDEO_BASE }}
+            GEO_MONTH=${{ env.GEO_MONTH }}
 
       - name: Image size
         run: docker image ls deanslist:ci --format '{{.Repository}}:{{.Tag}}  {{.Size}}'
@@ -194,6 +201,34 @@ jobs:
 
       # The two files Docker never parses until the server does. A typo in
       # either would otherwise surface on the VPS, mid-deploy.
+      # A page view posted the way the site's beacon posts one is stored: the
+      # query string gone, the source named, the country looked up from the
+      # image's own database. And a crawler's is not stored at all.
+      - name: Page views are recorded, crawlers are not
+        run: |
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+          BOT='Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:3000/api/collect -H 'content-type: text/plain' -H 'sec-fetch-site: same-origin' -H 'x-forwarded-for: 8.8.8.8' -H "user-agent: $UA" --data '{"p":"/about?email=someone@example.com","e":true,"r":"https://www.google.com/","t":false}')
+          echo "collect answered $code"
+          [ "$code" = "204" ] || exit 1
+          row=""
+          for i in $(seq 1 10); do
+            row=$(docker exec db psql -U deanslist -d deanslist -tA -F '|' -c 'SELECT path, source, coalesce(country, $$-$$) FROM "PageView" LIMIT 1')
+            [ -n "$row" ] && break
+            sleep 1
+          done
+          echo "stored: $row"
+          case "$row" in
+            "/about|Google|US") echo "recorded, with its country" ;;
+            "/about|Google|-") echo "::warning::This image has no country database; visitors will show no country" ;;
+            *) echo "unexpected row"; exit 1 ;;
+          esac
+          curl -s -o /dev/null -X POST http://127.0.0.1:3000/api/collect -H 'sec-fetch-site: same-origin' -H "user-agent: $BOT" --data '{"p":"/crawler-check","e":true}'
+          sleep 2
+          n=$(docker exec db psql -U deanslist -d deanslist -tAc 'SELECT count(*) FROM "PageView" WHERE path = $$/crawler-check$$')
+          echo "crawler page views stored: $n"
+          [ "$n" = "0" ] || exit 1
+
       - name: Caddyfile and compose file are valid
         run: |
           docker run --rm -e SITE_ADDRESS=:80 -e ACME_EMAIL=ci@example.com \
@@ -247,6 +282,7 @@ jobs:
             NEXT_PUBLIC_SITE_URL=${{ env.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_MEDIA_IMAGE_BASE=${{ env.NEXT_PUBLIC_MEDIA_IMAGE_BASE }}
             NEXT_PUBLIC_MEDIA_VIDEO_BASE=${{ env.NEXT_PUBLIC_MEDIA_VIDEO_BASE }}
+            GEO_MONTH=${{ env.GEO_MONTH }}
 
       - name: Logs on failure
         if: failure()

@@ -359,6 +359,27 @@ curl -fsS https://deanslist.live/api/health    # {"ok":true,"db":"up"}
 Watch the disk: `df -h /` and `docker system df`. After updates,
 `docker image prune -f` clears the old images.
 
+#### Visitor statistics
+
+The public pages post a page view to `/api/collect`, and **Dashboard →
+Analytics** reads them. What is stored, and what deliberately is not, is set
+out in `prisma/schema.prisma` (`PageView`) and `src/lib/analytics/collect.ts`;
+the privacy page says the same in plain words.
+
+- **Country lookups** use DB-IP's free country database, downloaded into the
+  image during the build by `scripts/fetch-geo.mjs`. The workflow passes the
+  month as a build argument, so the first build of each month fetches the new
+  file. If DB-IP is unreachable, the image ships without it, the screen says
+  the lookup is missing, and the CI smoke test warns instead of failing.
+  Locally, `npm run geo:fetch`.
+- **Nothing to schedule.** The first visit of each New York day creates that
+  day's salt, deletes the previous day's, and deletes page views older than two
+  years.
+- **Size.** Rows are small: at 1,000 page views a day, the two years kept come
+  to roughly 200 MB.
+- **CI** posts a person's page view and a crawler's, and requires exactly the
+  first to be stored, without its query string and with its country.
+
 ### 3.9 Updating
 
 Push to `main`. When the `docker` workflow is green:
@@ -393,6 +414,24 @@ docker compose up -d --force-recreate <service>           # only what changed
 Name the service. A bare `up -d` after a compose edit restarts more than the
 edit touched, and a site that is down is a high price for a change to a
 sidecar.
+
+**The Caddyfile is the exception: copy over it, never `mv` onto it.** Compose
+mounts it as a single file, and a single-file mount stays attached to the file
+the container started with. A new file renamed into its place is a different
+file, so the running Caddy goes on reading the old one and reports nothing.
+Overwrite the contents instead, then reload, which keeps connections open:
+
+```bash
+scp -i ~/.ssh/deanslist_vps Caddyfile root@SERVER_IP:~/deanslist/Caddyfile.new
+ssh -i ~/.ssh/deanslist_vps root@SERVER_IP
+cd ~/deanslist
+docker run --rm -e SITE_ADDRESS=:80 -e ACME_EMAIL=ci@example.com \
+  -v "$PWD/Caddyfile.new:/etc/caddy/Caddyfile:ro" caddy:2-alpine \
+  caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+diff Caddyfile Caddyfile.new
+cp Caddyfile Caddyfile.bak && cp Caddyfile.new Caddyfile
+docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+```
 
 ### 3.10 The scheduler
 

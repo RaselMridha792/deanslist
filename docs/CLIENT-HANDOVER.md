@@ -117,8 +117,34 @@ cookie before a choice, `_ga` and `_ga_7NBGLE6F21` after Allow, and every hit
 addressed to this property. Dashboard pages are not tagged.
 
 The reports are in Google Analytics itself, at analytics.google.com. Expect
-their visitor numbers to run below the real total, because visitors who never
-answer the banner are estimated by Google rather than counted.
+their visitor numbers to run well below the real total: a visitor who never
+answers the banner does not appear in its reports at all. Google fills that
+gap with estimates only on much busier sites, of more than a thousand such
+visits a day. For the full count, use the dashboard's own Analytics screen
+below. Data appears in the Realtime report within a minute of a visitor
+choosing Allow; the Home screen's "No data received" notice can take a day or
+two to clear on a new property.
+
+### 2.5 Visitor statistics, in the dashboard
+
+**Dashboard → Analytics** shows how many people visit, where they came from
+and what they read, with nothing to set up. The site counts it itself: no
+cookies, no stored IP addresses, and so no banner needed. It therefore counts
+every visitor, including the ones Google Analytics never sees, and the two
+will not agree. This one is the fuller count.
+
+For today, 7, 30 or 90 days, or 12 months, it shows visitors and page views
+with the change on the period before; a chart by hour, day or month; the most
+read pages; where visitors came from (Facebook, YouTube, Instagram, Google,
+direct); countries; tagged campaigns; and phones against computers.
+
+A visitor is one person on one day, because nothing is kept that could
+recognise them the next day. Bots and signed-in staff are not counted. Country
+data is IP Geolocation by DB-IP, credited on the screen as its free licence
+requires.
+
+To see an ad or an email in the Campaigns table, tag its link, for example
+`https://deanslist.live/enter?utm_source=facebook&utm_campaign=watch-party`.
 
 > The YouTube and Facebook links are on the same screen, so the client can
 > change those without us as well.
