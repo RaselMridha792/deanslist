@@ -56,6 +56,15 @@
 	# value would let one bot give itself a fresh bucket per request.
 	handle {
 		reverse_proxy app:3000 {
+			# Set here, never taken from the client. The cron route reads X-Real-IP
+			# and the chat routes read X-Vercel-Forwarded-For (from the Vercel days)
+			# ahead of X-Forwarded-For, and Caddy forwards both from the client
+			# untouched unless told otherwise. Anyone could then name their own
+			# address, and a rate limit keyed on it would give them a fresh bucket
+			# on every request.
+			header_up X-Real-IP {remote_host}
+			header_up -X-Vercel-Forwarded-For
+
 			# A scheduler tick holds the connection while a campaign sends.
 			transport http {
 				read_timeout 300s
