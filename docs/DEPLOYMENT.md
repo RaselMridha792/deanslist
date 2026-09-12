@@ -349,6 +349,27 @@ docker image prune -f
 it before the new app starts. Take a dump before any release that migrates
 (section 3.11); migrations do not roll back.
 
+**`pull` fetches the image, not the repository.** The server is not a git
+checkout: `docker-compose.yml`, the `Caddyfile` and `.env` were copied here by
+hand, so a commit that changes one of them changes nothing on the server until
+it is copied too. Copy it beside the live file first, check it there, and only
+then put it in place:
+
+```bash
+scp -i ~/.ssh/deanslist_vps docker-compose.yml root@SERVER_IP:~/deanslist/docker-compose.yml.new
+ssh -i ~/.ssh/deanslist_vps root@SERVER_IP
+cd ~/deanslist
+docker compose -f docker-compose.yml.new config --quiet   # refuses a broken file
+diff docker-compose.yml docker-compose.yml.new            # read what changes
+cp -a docker-compose.yml docker-compose.yml.bak
+mv docker-compose.yml.new docker-compose.yml
+docker compose up -d --force-recreate <service>           # only what changed
+```
+
+Name the service. A bare `up -d` after a compose edit restarts more than the
+edit touched, and a site that is down is a high price for a change to a
+sidecar.
+
 ### 3.10 The scheduler
 
 The `scheduler` container calls the app every five minutes over the internal
